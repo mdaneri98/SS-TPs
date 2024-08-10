@@ -1,6 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 class Particle {
 
@@ -64,7 +65,7 @@ class CIMImpl {
 
     @SuppressWarnings("unchecked")
     public CIMImpl(int m, int n, int l, double radius, double particlesRadius, List<Particle> particleList) throws Exception {
-        if ((float)(l / m) > radius) {
+        if ((float)(l / m) <= radius) {
             throw new Exception("L/M debe ser mayor al radio de interacción.");
         }
 
@@ -122,7 +123,7 @@ class CIMImpl {
             int calculatedCellX = cellX + movePos[0];
             int calculatedCellY = cellY + movePos[1];
 
-            if ((!continious) && (calculatedCellX < 0 || calculatedCellX > M - 1) && (calculatedCellY < 0 || calculatedCellY > M - 1) ) {
+            if ((!continious) && (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) ) {
                 continue;
             }
 
@@ -133,7 +134,9 @@ class CIMImpl {
         return neighborsParticles;
     }
 
-    public void findInteractions() {
+    public Map<Integer, List<Particle>> findInteractions() {
+        Map<Integer, List<Particle>> interactions = new HashMap<>();
+
         for (int i = 0; i < grid.length; i++) {
             int cellX = i / M;
             int cellY = i % this.M;
@@ -147,11 +150,54 @@ class CIMImpl {
                         double centerDistance = Math.sqrt(dx * dy + dy * dy);
 
                         if (0 >= centerDistance - p1.getRadius() - p2.getRadius()) {
-                            System.out.println("Interaction found between particles at " + p1 + "and" + p2);
+                            interactions.putIfAbsent(p1.getId(), new ArrayList<>());
+                            interactions.get(p1.getId()).add(p2);
+
+                            // Se puede optimizar si no volvemos a recorrer las particulas que ya agregamos de p2.
+                            //interactions.putIfAbsent(p2.getId(), new ArrayList<>());
+                            //interactions.get(p2.getId()).add(p1);
                         }
                     }
                 }
             }
+        }
+
+        return interactions;
+    }
+
+    public void run(String filename) {
+        // Obtener las interacciones
+        Map<Integer, List<Particle>> interactions = findInteractions();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename + "_positions"))) {
+            for (Particle particle : this.particlesList) {
+                writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY());
+                writer.newLine();
+            }
+            System.out.println("Posiciones guardadas en el archivo: " + filename + "_positions");
+        } catch (IOException e) {
+            System.err.println("Error al guardar las posiciones en el archivo: " + e.getMessage());
+        }
+
+        // Guardar en el archivo
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename + "_interactions"))) {
+            for (Map.Entry<Integer, List<Particle>> entry : interactions.entrySet()) {
+                Integer particleId = entry.getKey();
+                List<Particle> neighbors = entry.getValue();
+
+                // Escribir el id de la partícula
+                writer.write(particleId.toString());
+
+                // Escribir los ids de las partículas vecinas
+                for (Particle neighbor : neighbors) {
+                    writer.write("\t" + neighbor.getId());
+                }
+
+                writer.newLine();
+            }
+            System.out.println("Interacciones guardadas en el archivo: " + filename + "_interactions");
+        } catch (IOException e) {
+            System.err.println("Error al guardar las interacciones en el archivo: " + e.getMessage());
         }
     }
 
