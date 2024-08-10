@@ -4,14 +4,25 @@ import java.util.Random;
 
 class Particle {
 
+    private int id;
     private double posX;
     private double posY;
     private double radius;
 
-    public Particle(double posX, double posY, double radius) {
+    public Particle(int id, double posX, double posY, double radius) {
+        this.id = id;
         this.posX = posX;
         this.posY = posY;
         this.radius = radius;
+    }
+
+    @Override
+    public String toString() {
+        return "Particle(x: %f, y: %f, r: %f)".formatted(posX, posY, radius);
+    }
+
+    public int getId() {
+        return id;
     }
 
     public double getPosX() {
@@ -81,7 +92,7 @@ class CIMImpl {
             // Posición x aleatoria dentro del área L x L
             double x = random.nextDouble() * L;
             double y = random.nextDouble() * L;
-            this.particlesList.add(new Particle(x, y, particleRadius));
+            this.particlesList.add(new Particle(i, x, y, particleRadius));
         }
     }
 
@@ -94,19 +105,24 @@ class CIMImpl {
         }
     }
 
-    private List<Particle> getNeighboringParticles(int cellX, int cellY) {
+    private List<Particle> getNeighboringParticles(int cellX, int cellY, boolean continious) {
         List<Particle> neighborsParticles = new ArrayList<>();
 
-        int[][] moveCoordinates = {
+        /*  Matriz completa, innecesaria.
                 {-1, -1}, {-1, 0}, {-1, 1},
-                { 0, -1}, { 0, 0}, { 1, 1},
+                { 0, -1}, { 0, 0}, { 0, 1},
                 { 1, -1}, { 1, 0}, { 1, 1},
+         */
+        int[][] moveCoordinates = {
+                { 1, 0}, { 1, 1},
+                { 0, 0}, { 0, 1},
+                         {-1, 1},
             };
         for (int[] movePos : moveCoordinates) {
             int calculatedCellX = cellX + movePos[0];
             int calculatedCellY = cellY + movePos[1];
 
-            if ((calculatedCellX < 0 || calculatedCellX > M - 1) && (calculatedCellY < 0 || calculatedCellY > M - 1) ) {
+            if ((!continious) && (calculatedCellX < 0 || calculatedCellX > M - 1) && (calculatedCellY < 0 || calculatedCellY > M - 1) ) {
                 continue;
             }
 
@@ -119,17 +135,20 @@ class CIMImpl {
 
     public void findInteractions() {
         for (int i = 0; i < grid.length; i++) {
-            //TODO: Iterar sobre cada celda.
-            List<Particle> neighbors = getNeighboringParticles(, cellY);
+            int cellX = i / M;
+            int cellY = i % this.M;
+            List<Particle> neighbors = getNeighboringParticles(cellX, cellY, false);
 
-            for (Particle p2 : neighbors) {
-                if (p1 != p2) {
-                    double dx = p1.x - p2.x;
-                    double dy = p1.y - p2.y;
-                    double distance = Math.sqrt(dx * dy + dy * dy);
+            for (Particle p1 : this.grid[i]) {
+                for (Particle p2 : neighbors) {
+                    if (p1 != p2) {
+                        double dx = p1.getPosX() - p2.getPosX();
+                        double dy = p1.getPosY() - p2.getPosY();
+                        double centerDistance = Math.sqrt(dx * dy + dy * dy);
 
-                    if (distance < rc + p1.radius + p2.radius) {
-                        System.out.println("Interaction found between particles at (" + p1.x + ", " + p1.y + ") and (" + p2.x + ", " + p2.y + ")");
+                        if (0 >= centerDistance - p1.getRadius() - p2.getRadius()) {
+                            System.out.println("Interaction found between particles at " + p1 + "and" + p2);
+                        }
                     }
                 }
             }
