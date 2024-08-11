@@ -17,6 +17,14 @@ class Particle {
         this.radius = radius;
     }
 
+    public boolean isInside(Particle other) {
+        // Calcular la distancia entre los centros de las partículas
+        double distance = Math.sqrt(Math.pow(other.posX - this.posX, 2) + Math.pow(other.posY - this.posY, 2));
+
+        // Verificar si la partícula actual está completamente dentro de la otra
+        return distance + this.radius <= other.radius;
+    }
+
     @Override
     public String toString() {
         return "Particle(x: %f, y: %f, r: %f)".formatted(posX, posY, radius);
@@ -58,13 +66,14 @@ class CIMImpl {
     private int N; //Cantidad de particulas
     private int L; //Longitud de la matriz
     private double rc;   //Radio sobre cual dos
+    private double particleRadius;   //Radio de las particulas
     private double cellSize;
 
     private List<Particle> particlesList;
-    private List<Particle>[] grid;
+    private List<Particle>[][] grid;
 
     @SuppressWarnings("unchecked")
-    public CIMImpl(int m, int n, int l, double radius, double particlesRadius, List<Particle> particleList) throws Exception {
+    public CIMImpl(int m, int n, int l, double radius, double particlesRadius, List<Particle> particles) throws Exception {
         if ((float)(l / m) <= radius) {
             throw new Exception("L/M debe ser mayor al radio de interacción.");
         }
@@ -73,26 +82,33 @@ class CIMImpl {
         N = n;
         L = l;
         rc = radius;
+        particleRadius = particlesRadius;
         cellSize = (double) L / M;
 
-        this.particlesList = new ArrayList<>();
-        this.grid = new ArrayList[M * M];
+        this.grid = new ArrayList[M][M];
 
-        for (int i = 0; i < M * M; i++) {
-            grid[i] = new ArrayList<>();
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
+                grid[i][j] = new ArrayList<>();
+            }
         }
 
-        this.generateRandomParticles(this.N, particlesRadius);
+        if (particles == null) {
+            this.particlesList = new ArrayList<>();
+            this.generateRandomParticles();
+        } else {
+            this.particlesList = particles;
+        }
         this.assignParticlesToCells();
     }
 
-    private void generateRandomParticles(int N, double particleRadius) {
+    private void generateRandomParticles() {
         Random random = new Random();
 
         for (int i = 0; i < N; i++) {
             // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * L;
-            double y = random.nextDouble() * L;
+            double x = random.nextDouble() * (L - particleRadius);
+            double y = random.nextDouble() * (L - particleRadius);
             this.particlesList.add(new Particle(i, x, y, particleRadius));
         }
     }
@@ -101,8 +117,7 @@ class CIMImpl {
         for (Particle p : particlesList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            int cellIndex = cellY * M + cellX;
-            grid[cellIndex].add(p);
+            grid[cellY][cellX].add(p);
         }
     }
 
@@ -123,13 +138,25 @@ class CIMImpl {
             int calculatedCellX = cellX + movePos[0];
             int calculatedCellY = cellY + movePos[1];
 
-            if ((!continious) && (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) ) {
+            if (continious) {
+                if (calculatedCellX < 0) {
+                    calculatedCellX = M - 1;
+                }
+                if (calculatedCellY < 0) {
+                    calculatedCellY = M - 1;
+                }
+                if (calculatedCellX > M - 1) {
+                    calculatedCellX = 0;
+                }
+                if (calculatedCellY > M - 1) {
+                    calculatedCellY = 0;
+                }
+            } else if (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) {
+                //!continous && ...
                 continue;
             }
 
-            for (Particle particle : grid[M * calculatedCellY + calculatedCellX]) {
-                neighborsParticles.add(particle);
-            }
+            neighborsParticles.addAll(grid[calculatedCellY][calculatedCellX]);
         }
         return neighborsParticles;
     }
@@ -137,37 +164,26 @@ class CIMImpl {
     public Map<Integer, List<Particle>> findInteractions() {
         Map<Integer, List<Particle>> interactions = new HashMap<>();
 
-        for (int i = 0; i < grid.length; i++) {
-            int cellX = i / M;
-            int cellY = i % this.M;
-            List<Particle> neighbors = getNeighboringParticles(cellX, cellY, false);
+        for (int cellY = 0; cellY < M; cellY++) {
+            for (int cellX = 0; cellX < M; cellX++) {
+                List<Particle> neighbors = getNeighboringParticles(cellX, cellY, false);
 
-            for (Particle p1 : this.grid[i]) {
-                for (Particle p2 : neighbors) {
-                    if (p1 != p2) {
-                        double dx = p1.getPosX() - p2.getPosX();
-                        double dy = p1.getPosY() - p2.getPosY();
-                        double centerDistance = Math.sqrt(dx * dx + dy * dy);
+                for (Particle p1 : this.grid[cellY][cellX]){
+                    for (Particle p2 : neighbors) {
+                        if (p1 != p2) {
+                            double dx = p1.getPosX() - p2.getPosX();
+                            double dy = p1.getPosY() - p2.getPosY();
+                            double centerDistance = Math.sqrt(dx * dx + dy * dy);
 
-                        // Imprimir posiciones y radios de las partículas
-                        System.out.println("Comparando partículas: ");
-                        System.out.println("Partícula 1 ID: " + p1.getId() + " -> posX1: " + p1.getPosX() + ", posY1: " + p1.getPosY() + ", radio: " + p1.getRadius());
-                        System.out.println("Partícula 2 ID: " + p2.getId() + " -> posX2: " + p2.getPosX() + ", posY2: " + p2.getPosY() + ", radio: " + p2.getRadius());
+                            // Si el borde está dentro de rc => Verdadero.
+                            if (centerDistance - p1.getRadius() - p2.getRadius() <= this.rc) {
+                                interactions.putIfAbsent(p1.getId(), new ArrayList<>());
+                                interactions.get(p1.getId()).add(p2);
 
-                        // Imprimir la distancia entre partículas y el resultado de la condición
-                        double distanceThreshold = this.rc + p1.getRadius() + p2.getRadius();
-                        System.out.println("Distancia entre centros: " + centerDistance);
-                        System.out.println("Umbral de distancia (rc + radios): " + distanceThreshold);
-                        System.out.println("Resultado de la comparación (centerDistance - radios <= rc): " + (centerDistance - p1.getRadius() - p2.getRadius() <= this.rc));
-
-                        // Si el borde está dentro de rc => Verdadero.
-                        if (centerDistance + p1.getRadius() + p2.getRadius() <= this.rc) {
-                            interactions.putIfAbsent(p1.getId(), new ArrayList<>());
-                            interactions.get(p1.getId()).add(p2);
-
-                            // Se puede optimizar si no volvemos a recorrer las particulas que ya agregamos de p2.
-                            //interactions.putIfAbsent(p2.getId(), new ArrayList<>());
-                            //interactions.get(p2.getId()).add(p1);
+                                // Se puede optimizar si no volvemos a recorrer las particulas que ya agregamos de p2.
+                                //interactions.putIfAbsent(p2.getId(), new ArrayList<>());
+                                //interactions.get(p2.getId()).add(p1);
+                            }
                         }
                     }
                 }

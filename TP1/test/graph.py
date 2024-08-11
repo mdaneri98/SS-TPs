@@ -40,8 +40,8 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, pr, M
 
     # Draw grid
     for i in range(M + 1):
-        ax.axhline(i * L / M, color='gray', linewidth=0.5)
-        ax.axvline(i * L / M, color='gray', linewidth=0.5)
+        ax.axhline(i * (L / M), color='gray', linewidth=0.5)
+        ax.axvline(i * (L / M), color='gray', linewidth=0.5)
 
     # Plot particles as dots
     for (pid, px, py) in particle_data:
@@ -55,6 +55,7 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, pr, M
         else:
             circle = plt.Circle((px, py), pr, color='gray', fill=True)
         ax.add_patch(circle)
+        ax.text(px, py, str(pid), color='black', ha='center', va='center', fontsize=4)
 
     # Customize the plot
     plt.xlim(0, L)
@@ -73,7 +74,12 @@ particle_data = read_particle_data('test_positions')
 interactions = read_interactions('test_interactions')
 
 # ID de la partícula objetivo
-target_id = 4
+L = 10
+M = 5
+N = 20
+ir = 1.5
+pr = 0.5
+target_id = 5
 
 # Llamar a la función para graficar
-plot_particle_interactions(particle_data, interactions, target_id, ir=0.8, pr=0.5, M=10, L=5)
+plot_particle_interactions(particle_data, interactions, target_id, ir=ir, pr=pr, M=M, L=L)
