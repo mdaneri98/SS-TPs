@@ -86,10 +86,11 @@ class CIMImpl {
         this.maxR = maxR;
         cellSize = (double) L / M;
 
-        this.grid = new ArrayList[M][M];
+        /* Grilla real desde 1 a M */
+        this.grid = new ArrayList[M+2][M+2];
 
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < M; j++) {
+        for (int i = 0; i < M + 2; i++) {
+            for (int j = 0; j < M + 2; j++) {
                 grid[i][j] = new ArrayList<>();
             }
         }
@@ -116,6 +117,14 @@ class CIMImpl {
 
     private void assignParticlesToCells() {
         for (Particle p : particlesList) {
+            int cellX = (int) (p.getPosX() / cellSize);
+            int cellY = (int) (p.getPosY() / cellSize);
+            grid[cellY][cellX].add(p);
+        }
+    }
+
+    private void assignVirtualParticlesToCells() {
+        for (Particle p : virtualList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
             grid[cellY][cellX].add(p);
@@ -200,12 +209,13 @@ class CIMImpl {
 
         if (continious) {
             this.generateVirtualParticles();
+            this.assignVirtualParticlesToCells();
         }
 
         Map<Integer, List<Particle>> interactions = new HashMap<>();
 
-        for (int cellY = 0; cellY < M; cellY++) {
-            for (int cellX = 0; cellX < M; cellX++) {
+        for (int cellY = 1; cellY < M + 1; cellY++) {
+            for (int cellX = 1; cellX < M + 1; cellX++) {
                 List<Particle> neighbors = getNeighboringParticles(cellX, cellY, continious);
 
                 for (Particle p1 : this.grid[cellY][cellX]){
