@@ -4,17 +4,34 @@ import matplotlib.patches as patches
 import numpy as np
 
 
-def read_particle_data(filename):
+def read_particles_data(static_filename, dynamic_filename):
+    static_data = []
     particle_data = []
-    with open(filename, 'r') as file:
+
+    # Datos estáticos
+    with open(static_filename, 'r') as file:
+        N = int(file.readline())
+        L = int(file.readline())
+        idx = 0
+        for line in file:
+            parts = line.split()
+            radius = float(parts[0])
+            color = float(parts[1])
+            static_data.append((id, radius, color))
+            idx += 1
+
+    # Datos dinámicos.
+    with open(dynamic_filename, 'r') as file:
+        file.readline()
         for line in file:
             parts = line.split()
             if len(parts) == 3:
-                id = int(parts[0])
+                idx = int(parts[0])
                 x = float(parts[1])
                 y = float(parts[2])
-                particle_data.append((id, x, y))
-    return particle_data
+                particle_data.append((idx, x, y, static_data[idx][1], static_data[idx][2]))
+
+    return {'N': N, 'L': L, 'particle_data': particle_data}
 
 
 def read_interactions(filename):
@@ -34,7 +51,7 @@ def belongsTo(interactions, targetID, currentID):
     particles = interactions[targetID]
     return currentID in particles
 
-def plot_particle_interactions(particle_data, interactions, target_id, ir, pr, M, L):
+def plot_particle_interactions(particle_data, interactions, target_id, ir, M, L):
     # Create a figure and axis
     fig, ax = plt.subplots()
 
@@ -44,7 +61,7 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, pr, M
         ax.axvline(i * (L / M), color='gray', linewidth=0.5)
 
     # Plot particles as dots
-    for (pid, px, py) in particle_data:
+    for (pid, px, py, pr, color) in particle_data:
         if target_id == pid:
             circle = plt.Circle((px, py), pr, color='black', fill=True)
 
@@ -69,17 +86,15 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, pr, M
     plt.show()
 
 
-# Leer datos desde archivos
-particle_data = read_particle_data('test_positions')
+# Leer datos desde archivos -> {'N', 'L', 'particle_data'=(id, x, y, radio, color)}
+data = read_particles_data('test_static', 'test_dynamic')
+
 interactions = read_interactions('test_interactions')
 
 # ID de la partícula objetivo
-L = 10
+ir = 12
 M = 5
-N = 20
-ir = 1.5
-pr = 0.5
-target_id = 16
+target_id = 81
 
 # Llamar a la función para graficar
-plot_particle_interactions(particle_data, interactions, target_id, ir=ir, pr=pr, M=M, L=L)
+plot_particle_interactions(data['particle_data'], interactions, target_id, ir=ir, M=M, L=data['L'])
