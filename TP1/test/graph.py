@@ -79,7 +79,7 @@ M = 5
 N = 20
 ir = 1.5
 pr = 0.5
-target_id = 5
+target_id = 16
 
 # Llamar a la función para graficar
 plot_particle_interactions(particle_data, interactions, target_id, ir=ir, pr=pr, M=M, L=L)

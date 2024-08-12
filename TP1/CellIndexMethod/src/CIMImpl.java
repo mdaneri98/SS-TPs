@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 class Particle {
@@ -176,7 +177,8 @@ class CIMImpl {
                             double centerDistance = Math.sqrt(dx * dx + dy * dy);
 
                             // Si el borde está dentro de rc => Verdadero.
-                            if (centerDistance - p1.getRadius() - p2.getRadius() <= this.rc) {
+                            double distance = centerDistance - p1.getRadius() - p2.getRadius();
+                            if ( distance <= 0 || distance <= (rc - p1.getRadius()) ) {
                                 interactions.putIfAbsent(p1.getId(), new ArrayList<>());
                                 interactions.get(p1.getId()).add(p2);
 
@@ -197,35 +199,41 @@ class CIMImpl {
         // Obtener las interacciones
         Map<Integer, List<Particle>> interactions = findInteractions();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename + "_positions"))) {
-            for (Particle particle : this.particlesList) {
-                writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY());
-                writer.newLine();
-            }
-            System.out.println("Posiciones guardadas en el archivo: " + filename + "_positions");
-        } catch (IOException e) {
-            System.err.println("Error al guardar las posiciones en el archivo: " + e.getMessage());
-        }
+        try {
+            // Obtener la ruta relativa al directorio del proyecto
+            String projectPath = Paths.get("").toAbsolutePath().toString();
 
-        // Guardar en el archivo
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename + "_interactions"))) {
-            for (Map.Entry<Integer, List<Particle>> entry : interactions.entrySet()) {
-                Integer particleId = entry.getKey();
-                List<Particle> neighbors = entry.getValue();
-
-                // Escribir el id de la partícula
-                writer.write(particleId.toString());
-
-                // Escribir los ids de las partículas vecinas
-                for (Particle neighbor : neighbors) {
-                    writer.write("\t" + neighbor.getId());
+            // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
+            String positionsPath = Paths.get(projectPath, "test", filename + "_positions").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(positionsPath))) {
+                for (Particle particle : this.particlesList) {
+                    writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY());
+                    writer.newLine();
                 }
-
-                writer.newLine();
+                System.out.println("Posiciones guardadas en el archivo: " + positionsPath);
             }
-            System.out.println("Interacciones guardadas en el archivo: " + filename + "_interactions");
+
+            // Crear la ruta para el archivo de interacciones dentro de la carpeta "test"
+            String interactionsPath = Paths.get(projectPath, "test", filename + "_interactions").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(interactionsPath))) {
+                for (Map.Entry<Integer, List<Particle>> entry : interactions.entrySet()) {
+                    Integer particleId = entry.getKey();
+                    List<Particle> neighbors = entry.getValue();
+
+                    // Escribir el id de la partícula
+                    writer.write(particleId.toString());
+
+                    // Escribir los ids de las partículas vecinas
+                    for (Particle neighbor : neighbors) {
+                        writer.write("\t" + neighbor.getId());
+                    }
+
+                    writer.newLine();
+                }
+                System.out.println("Interacciones guardadas en el archivo: " + interactionsPath);
+            }
         } catch (IOException e) {
-            System.err.println("Error al guardar las interacciones en el archivo: " + e.getMessage());
+            System.err.println("Error al guardar los archivos: " + e.getMessage());
         }
     }
 
