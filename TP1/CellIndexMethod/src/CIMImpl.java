@@ -75,6 +75,7 @@ class CIMImpl {
     private double cellSize;
 
     private List<Particle> particlesList;
+    private List<Particle> virtualList;
     private List<Particle>[][] grid;
 
     @SuppressWarnings("unchecked")
@@ -121,6 +122,48 @@ class CIMImpl {
         }
     }
 
+    private void generateVirtualParticles() {
+        this.virtualList = new ArrayList<>();
+
+        // Recorremos las columnas, y calculamos para fila 0 y M-1.
+        for (int column = 0; column < M; column++) {
+            for (Particle p : grid[0][column]) {
+                double distanceY = p.getPosY() - 0;
+                double virtualY = L + distanceY;
+
+                Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
+                virtualList.add(newVirtual);
+            }
+
+            for (Particle p : grid[M-1][column]) {
+                double distanceY = L - p.getPosY();
+                double virtualY =  - distanceY;
+
+                Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
+                virtualList.add(newVirtual);
+            }
+        }
+
+        // Recorremos las filas, y calculamos para columna 0 y M-1.
+        for (int row = 0; row < M; row++) {
+            for (Particle p : grid[row][0]) {
+                double distanceX = p.getPosX() - 0;
+                double virtualX = L + distanceX;
+
+                Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
+                virtualList.add(newVirtual);
+            }
+
+            for (Particle p : grid[row][M-1]) {
+                double distanceX = L - p.getPosX();
+                double virtualX =  - distanceX;
+
+                Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
+                virtualList.add(newVirtual);
+            }
+        }
+    }
+
     private List<Particle> getNeighboringParticles(int cellX, int cellY, boolean continious) {
         List<Particle> neighborsParticles = new ArrayList<>();
 
@@ -139,18 +182,7 @@ class CIMImpl {
             int calculatedCellY = cellY + movePos[1];
 
             if (continious) {
-                if (calculatedCellX < 0) {
-                    calculatedCellX = M - 1;
-                }
-                if (calculatedCellY < 0) {
-                    calculatedCellY = M - 1;
-                }
-                if (calculatedCellX > M - 1) {
-                    calculatedCellX = 0;
-                }
-                if (calculatedCellY > M - 1) {
-                    calculatedCellY = 0;
-                }
+                //Lista de virtuales
             } else if (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) {
                 //!continous && ...
                 continue;
@@ -164,6 +196,10 @@ class CIMImpl {
     public Map<Integer, List<Particle>> findInteractions(double rc, boolean continious) throws Exception {
         if ((double)(this.L / this.M) <= rc - 2*maxR) {
             throw new Exception("L/M debe ser mayor al (rc - 2*maxR).");
+        }
+
+        if (continious) {
+            this.generateVirtualParticles();
         }
 
         Map<Integer, List<Particle>> interactions = new HashMap<>();
