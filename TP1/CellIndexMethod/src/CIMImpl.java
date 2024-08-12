@@ -26,6 +26,11 @@ class Particle {
         return distance + this.radius <= other.radius;
     }
 
+    public void setXY(double x, double y) {
+        this.setPosX(x);
+        this.setPosY(y);
+    }
+
     @Override
     public String toString() {
         return "Particle(x: %f, y: %f, r: %f)".formatted(posX, posY, radius);
@@ -39,7 +44,7 @@ class Particle {
         return posX;
     }
 
-    public void setPosX(float posX) {
+    public void setPosX(double posX) {
         this.posX = posX;
     }
 
@@ -47,7 +52,7 @@ class Particle {
         return posY;
     }
 
-    public void setPosY(float posY) {
+    public void setPosY(double posY) {
         this.posY = posY;
     }
 
@@ -55,7 +60,7 @@ class Particle {
         return radius;
     }
 
-    public void setRadius(float radius) {
+    public void setRadius(double radius) {
         this.radius = radius;
     }
 
@@ -66,24 +71,18 @@ class CIMImpl {
 
     private int N; //Cantidad de particulas
     private int L; //Longitud de la matriz
-    private double rc;   //Radio sobre cual dos
-    private double particleRadius;   //Radio de las particulas
+    private double maxR;   //Radio de las particulas
     private double cellSize;
 
     private List<Particle> particlesList;
     private List<Particle>[][] grid;
 
     @SuppressWarnings("unchecked")
-    public CIMImpl(int m, int n, int l, double radius, double particlesRadius, List<Particle> particles) throws Exception {
-        if ((float)(l / m) <= radius) {
-            throw new Exception("L/M debe ser mayor al radio de interacción.");
-        }
-
-        M = m;
-        N = n;
-        L = l;
-        rc = radius;
-        particleRadius = particlesRadius;
+    public CIMImpl(int M, int N, int L, double maxR, List<Particle> particles) {
+        this.M = M;
+        this.N = N;
+        this.L = L;
+        this.maxR = maxR;
         cellSize = (double) L / M;
 
         this.grid = new ArrayList[M][M];
@@ -108,9 +107,9 @@ class CIMImpl {
 
         for (int i = 0; i < N; i++) {
             // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * (L - particleRadius);
-            double y = random.nextDouble() * (L - particleRadius);
-            this.particlesList.add(new Particle(i, x, y, particleRadius));
+            double x = random.nextDouble() * (L - maxR);
+            double y = random.nextDouble() * (L - maxR);
+            this.particlesList.add(new Particle(i, x, y, 1));
         }
     }
 
@@ -162,7 +161,11 @@ class CIMImpl {
         return neighborsParticles;
     }
 
-    public Map<Integer, List<Particle>> findInteractions() {
+    public Map<Integer, List<Particle>> findInteractions(double rc) throws Exception {
+        if ((double)(this.L / this.M) <= rc - 2*maxR) {
+            throw new Exception("L/M debe ser mayor al (rc - 2*maxR).");
+        }
+
         Map<Integer, List<Particle>> interactions = new HashMap<>();
 
         for (int cellY = 0; cellY < M; cellY++) {
@@ -195,17 +198,21 @@ class CIMImpl {
         return interactions;
     }
 
-    public void run(String filename) {
+    public void save(String filename, double rc) throws Exception {
         // Obtener las interacciones
-        Map<Integer, List<Particle>> interactions = findInteractions();
+        Map<Integer, List<Particle>> interactions = findInteractions(rc);
 
         try {
             // Obtener la ruta relativa al directorio del proyecto
             String projectPath = Paths.get("").toAbsolutePath().toString();
 
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
-            String positionsPath = Paths.get(projectPath, "test", filename + "_positions").toString();
+            String positionsPath = Paths.get(projectPath, "test", filename + "_dynamic").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(positionsPath))) {
+                // Imprimimos el único t = 0.
+                writer.write("" + 0);
+                writer.newLine();
+
                 for (Particle particle : this.particlesList) {
                     writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY());
                     writer.newLine();
@@ -232,9 +239,25 @@ class CIMImpl {
                 }
                 System.out.println("Interacciones guardadas en el archivo: " + interactionsPath);
             }
+
+            String staticPath = Paths.get(projectPath, "test", filename + "_static").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
+                writer.write("" + particlesList.size());
+                writer.newLine();
+                writer.write("" + this.L);
+                writer.newLine();
+
+                for (Particle p : particlesList) {
+                    // Escribir el radio de la partícula, y color negro.
+                    writer.write(p.getRadius() + "\t" + 1);
+                    writer.newLine();
+                }
+                System.out.println("Datos estáticos guardados en el archivo: " + staticPath);
+            }
         } catch (IOException e) {
             System.err.println("Error al guardar los archivos: " + e.getMessage());
         }
+
     }
 
 

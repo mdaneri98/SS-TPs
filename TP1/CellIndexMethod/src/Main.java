@@ -1,64 +1,126 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+class Configuration {
+    private int L;
+    private int N;
 
+    private double maxParticleRadius;
+    private List<Particle> particleList;
+
+    public Configuration(int l, int n, double maxParticleRadius, List<Particle> particleList) {
+        L = l;
+        N = n;
+        this.particleList = particleList;
+        this.maxParticleRadius = maxParticleRadius;
+    }
+
+    public int getL() {
+        return L;
+    }
+
+    public int getN() {
+        return N;
+    }
+
+    public double getMaxParticleRadius() {
+        return maxParticleRadius;
+    }
+
+    public List<Particle> getParticleList() {
+        return particleList;
+    }
+
+    @Override
+    public String toString() {
+        return "Configuration{" +
+                "L=" + L +
+                ", N=" + N +
+                ", maxParticleRadius=" + maxParticleRadius +
+                '}';
+    }
+
+}
 
 class ParticleLoader {
 
-    public static List<Particle> loadParticlesFromFile(String filename, double radius) {
+    public static Configuration loadParticlesFromFile(String filePathStatic, String fileDynamicPath) {
         List<Particle> particlesList = new ArrayList<>();
+        int L = 0;
+        int N = 0;
+        double maxParticleRadius = 0;
+
         try {
-            // Obtener la ruta relativa al directorio del proyecto
-            String projectPath = Paths.get("").toAbsolutePath().toString();
+            BufferedReader br = new BufferedReader(new FileReader(filePathStatic));
+            String linea;
 
-            // Crear la ruta para el archivo relativo a la raíz del proyecto
-            String filePath = Paths.get(projectPath, filename).toString();
+            // Leer las primeras 3 líneas y guardarlas en variables especiales
+            N = Integer.parseInt(br.readLine().trim());
+            L = Integer.parseInt(br.readLine().trim());
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split("\t");
-                    if (parts.length == 3) {
-                        int id = Integer.parseInt(parts[0]);
-                        double posX = Double.parseDouble(parts[1]);
-                        double posY = Double.parseDouble(parts[2]);
+            // Leer y retornar solo el primer valor de cada par de valores
+            int i = 0;
+            while ((linea = br.readLine()) != null) {
+                String[] valores = linea.trim().split(" ");
+                double r = Double.parseDouble(valores[0]);
 
-                        Particle particle = new Particle(id, posX, posY, radius);
-                        particlesList.add(particle);
-                    }
+                if (r > maxParticleRadius){
+                    maxParticleRadius = r;
                 }
+
+                Particle particle = new Particle(i, 0 , 0 , r);
+                particlesList.add(particle);
+                i++;
+            }
+
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileDynamicPath))) {
+            //Salteamos la primer linea.
+            reader.readLine();
+
+            String line;
+            int id = 0;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.trim().replace("   ", " ").split(" ");
+                double posX = Double.parseDouble(parts[0]);
+                double posY = Double.parseDouble(parts[1]);
+
+                Particle p = particlesList.get(id);
+                p.setXY(posX, posY);
+                id++;
             }
         } catch (IOException e) {
             System.err.println("Error leyendo el archivo: " + e.getMessage());
         }
-        return particlesList;
+
+        return new Configuration(L, N, maxParticleRadius, particlesList);
     }
+}
 
-    public class Main {
-        public static void main(String[] args) {
-            try {
-                // Parámetros de ejemplo
-                int L = 10; //   L: Longitud del lado de la grilla
-                int M = 5; //       M: Número de celdas en una dimensión
-                int N = 20; //      N: Número de partículas
-                double interactionRadius = 1.5; // Radio de interacción entre partículas
-                double particleRadius = 0.5; // Radio de las partículas
+public class Main {
+    public static void main(String[] args) {
+        try {
+            int M = 5;
 
-                List<Particle> particleList = ParticleLoader.loadParticlesFromFile("test/test_positions", particleRadius);
+            Configuration config = ParticleLoader.loadParticlesFromFile("/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/CellIndexMethod/src/Static100.txt", "/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/CellIndexMethod/src/Dynamic100.txt");
 
-                // Crear una instancia de CIMImpl
-                CIMImpl cim = new CIMImpl(M, N, L, interactionRadius, particleRadius, null);
+            // Crear una instancia de CIMImpl
+            CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
 
-                cim.run("./test");
+            cim.save("./test", 6);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            System.out.println("Configuración utilizada: " + config);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
