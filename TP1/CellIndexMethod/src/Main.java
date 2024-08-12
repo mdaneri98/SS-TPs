@@ -115,7 +115,7 @@ public class Main {
             // Crear una instancia de CIMImpl
             CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
 
-            cim.save("./test", 6);
+            cim.save("./test", 12, true);
 
             System.out.println("Configuración utilizada: " + config);
 

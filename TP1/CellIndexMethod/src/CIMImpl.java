@@ -161,7 +161,7 @@ class CIMImpl {
         return neighborsParticles;
     }
 
-    public Map<Integer, List<Particle>> findInteractions(double rc) throws Exception {
+    public Map<Integer, List<Particle>> findInteractions(double rc, boolean continious) throws Exception {
         if ((double)(this.L / this.M) <= rc - 2*maxR) {
             throw new Exception("L/M debe ser mayor al (rc - 2*maxR).");
         }
@@ -170,7 +170,7 @@ class CIMImpl {
 
         for (int cellY = 0; cellY < M; cellY++) {
             for (int cellX = 0; cellX < M; cellX++) {
-                List<Particle> neighbors = getNeighboringParticles(cellX, cellY, false);
+                List<Particle> neighbors = getNeighboringParticles(cellX, cellY, continious);
 
                 for (Particle p1 : this.grid[cellY][cellX]){
                     for (Particle p2 : neighbors) {
@@ -198,9 +198,9 @@ class CIMImpl {
         return interactions;
     }
 
-    public void save(String filename, double rc) throws Exception {
+    public void save(String filename, double rc, boolean continious) throws Exception {
         // Obtener las interacciones
-        Map<Integer, List<Particle>> interactions = findInteractions(rc);
+        Map<Integer, List<Particle>> interactions = findInteractions(rc, continious);
 
         try {
             // Obtener la ruta relativa al directorio del proyecto
