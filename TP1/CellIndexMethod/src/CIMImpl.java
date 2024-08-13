@@ -182,9 +182,9 @@ class CIMImpl {
                          {-1, 1},
          */
         int[][] moveCoordinates = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                { 0, -1}, { 0, 0}, { 0, 1},
-                { 1, -1}, { 1, 0}, { 1, 1},
+                { 1, 0}, { 1, 1},
+                { 0, 0}, { 0, 1},
+                {-1, 1},
             };
         for (int[] movePos : moveCoordinates) {
             int calculatedCellX = cellX + movePos[0];
@@ -232,8 +232,8 @@ class CIMImpl {
                                 interactions.get(p1.getId()).add(p2);
 
                                 // Se puede optimizar si no volvemos a recorrer las particulas que ya agregamos de p2.
-                                //interactions.putIfAbsent(p2.getId(), new ArrayList<>());
-                                //interactions.get(p2.getId()).add(p1);
+                                interactions.putIfAbsent(p2.getId(), new ArrayList<>());
+                                interactions.get(p2.getId()).add(p1);
                             }
                         }
                     }

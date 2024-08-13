@@ -108,16 +108,23 @@ class ParticleLoader {
 public class Main {
     public static void main(String[] args) {
         try {
+
+            long start = System.currentTimeMillis();
             int M = 5;
 
-            Configuration config = ParticleLoader.loadParticlesFromFile("/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/CellIndexMethod/src/Static100.txt", "/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/CellIndexMethod/src/Dynamic100.txt");
+            Configuration config = ParticleLoader.loadParticlesFromFile("/home/thomas/Escritorio/SS/SS-TPs/TP1/CellIndexMethod/src/Static100.txt", "/home/thomas/Escritorio/SS/SS-TPs/TP1/CellIndexMethod/src/Dynamic100.txt");
 
             // Crear una instancia de CIMImpl
             CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
 
+            long finish = System.currentTimeMillis();
+
             cim.save("./test", 12, true);
 
             System.out.println("Configuración utilizada: " + config);
+
+            System.out.println("Tiempo de ejecucion:" + (finish-start));
+
 
         } catch (Exception e) {
             e.printStackTrace();

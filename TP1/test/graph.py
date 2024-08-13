@@ -1,7 +1,4 @@
 import matplotlib.pyplot as plt
-import networkx as nx
-import matplotlib.patches as patches
-import numpy as np
 
 
 def read_particles_data(static_filename, dynamic_filename):
