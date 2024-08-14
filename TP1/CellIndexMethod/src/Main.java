@@ -44,22 +44,28 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-
+            double rc = 1;
+            int L = 20;
+            double pr = 0.5;
             int M = 5;
 
             CIMConfig config = CIMConfig.loadFromFile("C:\\Users\\mdane\\Documents\\SS-TPs\\TP1\\CellIndexMethod\\src\\Static100.txt", "C:\\Users\\mdane\\Documents\\SS-TPs\\TP1\\CellIndexMethod\\src\\Dynamic100.txt");
             System.out.println("Configuración utilizada: " + config);
 
             // Crear una instancia de CIMImpl
-            CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
+            //CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
+
+            // Ej2.
+            CIMImpl cim = new CIMImpl(M, 100000, L, pr, null);
+            config.setParticleList(cim.getParticlesList());
 
             long start = System.currentTimeMillis();
-            Main.findInteractionsBruteForce(12, config.getParticleList());
+            Main.findInteractionsBruteForce(rc, config.getParticleList());
             long finish = System.currentTimeMillis();
             System.out.println("Tiempo de ejecucion por fuerza bruta:" + (finish-start) + " milisegundos");
 
             start = System.currentTimeMillis();
-            Map<Integer, List<Particle>> interactions = cim.findInteractions(12, true);
+            Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
             finish = System.currentTimeMillis();
             cim.save("./test", interactions);
 

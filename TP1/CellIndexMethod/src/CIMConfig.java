@@ -90,6 +90,10 @@ public class CIMConfig {
         return particleList;
     }
 
+    public void setParticleList(List<Particle> p) {
+        this.particleList = p;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" +

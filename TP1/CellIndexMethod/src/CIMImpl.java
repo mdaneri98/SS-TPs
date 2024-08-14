@@ -50,7 +50,7 @@ class CIMImpl {
             // Posición x aleatoria dentro del área L x L
             double x = random.nextDouble() * (L - maxR);
             double y = random.nextDouble() * (L - maxR);
-            double radius = random.nextDouble();
+            double radius = this.maxR;
             this.particlesList.add(new Particle(i, x, y, radius));
         }
     }
@@ -243,5 +243,8 @@ class CIMImpl {
 
     }
 
+    public List<Particle> getParticlesList() {
+        return this.particlesList;
+    }
 
 }
