@@ -4,67 +4,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
-class Particle {
-
-    private int id;
-    private double posX;
-    private double posY;
-    private double radius;
-
-    public Particle(int id, double posX, double posY, double radius) {
-        this.id = id;
-        this.posX = posX;
-        this.posY = posY;
-        this.radius = radius;
-    }
-
-    public boolean isInside(Particle other) {
-        // Calcular la distancia entre los centros de las partículas
-        double distance = Math.sqrt(Math.pow(other.posX - this.posX, 2) + Math.pow(other.posY - this.posY, 2));
-
-        // Verificar si la partícula actual está completamente dentro de la otra
-        return distance + this.radius <= other.radius;
-    }
-
-    public void setXY(double x, double y) {
-        this.setPosX(x);
-        this.setPosY(y);
-    }
-
-    @Override
-    public String toString() {
-        return "Particle(x: %f, y: %f, r: %f)".formatted(posX, posY, radius);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public double getPosX() {
-        return posX;
-    }
-
-    public void setPosX(double posX) {
-        this.posX = posX;
-    }
-
-    public double getPosY() {
-        return posY;
-    }
-
-    public void setPosY(double posY) {
-        this.posY = posY;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
-
-}
 
 class CIMImpl {
     private int M; //Dimension de la matriz
@@ -111,7 +50,8 @@ class CIMImpl {
             // Posición x aleatoria dentro del área L x L
             double x = random.nextDouble() * (L - maxR);
             double y = random.nextDouble() * (L - maxR);
-            this.particlesList.add(new Particle(i, x, y, 1));
+            double radius = random.nextDouble();
+            this.particlesList.add(new Particle(i, x, y, radius));
         }
     }
 
@@ -244,10 +184,7 @@ class CIMImpl {
         return interactions;
     }
 
-    public void save(String filename, double rc, boolean continious) throws Exception {
-        // Obtener las interacciones
-        Map<Integer, List<Particle>> interactions = findInteractions(rc, continious);
-
+    public void save(String filename, Map<Integer, List<Particle>> interactions) {
         try {
             // Obtener la ruta relativa al directorio del proyecto
             String projectPath = Paths.get("").toAbsolutePath().toString();
