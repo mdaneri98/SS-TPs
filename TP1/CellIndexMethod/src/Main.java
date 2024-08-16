@@ -1,6 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,36 +41,63 @@ public class Main {
         return interactions;
     }
 
+    private static List<Long> iterate_over_m(int N, int L, double pRadius, double rc) throws Exception {
+        List<Long> times = new ArrayList<>();
+
+        for (int M = 1; (double)(L/M) > rc - 2*pRadius; M++) {
+            CIMImpl cim = new CIMImpl(M, N, L, pRadius, null);
+
+            long start = System.currentTimeMillis();
+            Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
+            long finish = System.currentTimeMillis();
+
+            // Obtener la ruta relativa al directorio del proyecto
+            String projectPath = Paths.get("").toAbsolutePath().toString();
+            Path directoryPath = Paths.get(projectPath, "test", "M" + M);
+            Files.createDirectories(directoryPath);
+
+            cim.save(directoryPath.toString(), interactions);
+
+            times.add(finish-start);
+        }
+        return times;
+    }
+
+    private static void save_times(String directoryPath, List<Long> times) {
+        // Crear la ruta para el archivo de tiempos dentro de la carpeta directoryPath.
+        String timesPath = Paths.get(directoryPath, "times").toString();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(timesPath))) {
+            // M    time
+            int m = 1;
+            for (Long time : times) {
+                writer.write(m + "\t" + time);
+                writer.newLine();
+                m++;
+            }
+            System.out.println("Tiempos guardados en el archivo: " + timesPath);
+        } catch (Exception e) {
+            System.out.println("Error escribiendo los tiempos. \n" + e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
         try {
 
-            double rc = 1;
-            int L = 20;
-            double pr = 0.5;
-            int M = 5;
+            double rc = 36;
+            int L = 1000;
+            int N = 800;
+            double pRadius = 1;
 
-            CIMConfig config = CIMConfig.loadFromFile("C:\\Users\\mdane\\Documents\\SS-TPs\\TP1\\CellIndexMethod\\src\\Static100.txt", "C:\\Users\\mdane\\Documents\\SS-TPs\\TP1\\CellIndexMethod\\src\\Dynamic100.txt");
+            CIMConfig config = CIMConfig.loadFromFile("./CellIndexMethod/src/Static100.txt", "./CellIndexMethod/src/Dynamic100.txt");
             System.out.println("Configuración utilizada: " + config);
 
-            // Crear una instancia de CIMImpl
-            //CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
+            List<Long> times = Main.iterate_over_m(N, L, pRadius, rc);
 
-            // Ej2.
-            CIMImpl cim = new CIMImpl(M, 100000, L, pr, null);
-            config.setParticleList(cim.getParticlesList());
+            // Obtener la ruta relativa al directorio del proyecto
+            String projectPath = Paths.get("").toAbsolutePath().toString();
+            Path directoryPath = Paths.get(projectPath, "test");
+            save_times(directoryPath.toString(), times);
 
-            long start = System.currentTimeMillis();
-            Main.findInteractionsBruteForce(rc, config.getParticleList());
-            long finish = System.currentTimeMillis();
-            System.out.println("Tiempo de ejecucion por fuerza bruta:" + (finish-start) + " milisegundos");
-
-            start = System.currentTimeMillis();
-            Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
-            finish = System.currentTimeMillis();
-            cim.save("./test", interactions);
-
-            System.out.println("Tiempo de ejecucion por CIM:" + (finish-start) + " milisegundos");
 
 
         } catch (Exception e) {

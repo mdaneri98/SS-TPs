@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -184,14 +185,12 @@ class CIMImpl {
         return interactions;
     }
 
-    public void save(String filename, Map<Integer, List<Particle>> interactions) {
+    public void save(String directoryPath, Map<Integer, List<Particle>> interactions) {
         try {
-            // Obtener la ruta relativa al directorio del proyecto
-            String projectPath = Paths.get("").toAbsolutePath().toString();
 
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
-            String positionsPath = Paths.get(projectPath, "test", filename + "_dynamic").toString();
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(positionsPath))) {
+            String dynamicPath = Paths.get(directoryPath, "dynamic").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(dynamicPath))) {
                 // Imprimimos el único t = 0.
                 writer.write("" + 0);
                 writer.newLine();
@@ -200,11 +199,11 @@ class CIMImpl {
                     writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY());
                     writer.newLine();
                 }
-                System.out.println("Posiciones guardadas en el archivo: " + positionsPath);
+                System.out.println("Posiciones guardadas en el archivo: " + dynamicPath);
             }
 
             // Crear la ruta para el archivo de interacciones dentro de la carpeta "test"
-            String interactionsPath = Paths.get(projectPath, "test", filename + "_interactions").toString();
+            String interactionsPath = Paths.get(directoryPath, "interactions").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(interactionsPath))) {
                 for (Map.Entry<Integer, List<Particle>> entry : interactions.entrySet()) {
                     Integer particleId = entry.getKey();
@@ -223,7 +222,7 @@ class CIMImpl {
                 System.out.println("Interacciones guardadas en el archivo: " + interactionsPath);
             }
 
-            String staticPath = Paths.get(projectPath, "test", filename + "_static").toString();
+            String staticPath = Paths.get(directoryPath, "static").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
                 writer.write("" + particlesList.size());
                 writer.newLine();
