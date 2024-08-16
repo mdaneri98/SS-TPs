@@ -64,12 +64,17 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, M, L)
 
             interaction_circle = plt.Circle((px, py), ir, color='blue', alpha=0.5, fill=True)
             ax.add_patch(interaction_circle)
+
+
         elif belongsTo(interactions, target_id, pid):
             circle = plt.Circle((px, py), pr, color='green', fill=True)
         else:
             circle = plt.Circle((px, py), pr, color='gray', fill=True)
         ax.add_patch(circle)
         ax.text(px, py, str(pid), color='black', ha='center', va='center', fontsize=4)
+
+
+
 
     # Customize the plot
     plt.xlim(0, L)
@@ -83,15 +88,19 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, M, L)
     plt.show()
 
 
-# Leer datos desde archivos -> {'N', 'L', 'particle_data'=(id, x, y, radio, color)}
-data = read_particles_data('test_static', 'test_dynamic')
-
-interactions = read_interactions('test_interactions')
-
 # ID de la partícula objetivo
-ir = 12
-M = 5
-target_id = 81
+print("Introducir(IR) el area de interacción a utilizar: ")
+ir = int(input())
+print("Introducir(M) la cantidad de visiones que tendrá la grilla: ")
+M = int(input())
+print("Introducir(target) el id de la particula target: ")
+target_id = int(input())
+
+
+# Leer datos desde archivos -> {'N', 'L', 'particle_data'=(id, x, y, radio, color)}
+data = read_particles_data("M{}/static".format(M), "M{}/dynamic".format(M))
+
+interactions = read_interactions("M{}/interactions".format(M))
 
 # Llamar a la función para graficar
 plot_particle_interactions(data['particle_data'], interactions, target_id, ir=ir, M=M, L=data['L'])
