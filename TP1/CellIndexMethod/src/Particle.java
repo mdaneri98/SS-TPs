@@ -27,6 +27,15 @@ public class Particle {
         this.setPosY(y);
     }
 
+    public boolean isPartiallyInside(Particle p2) {
+        // Calcula la distancia entre los centros de las circunferencias
+        double distance = Math.sqrt(Math.pow(p2.getPosX() - this.getPosX(), 2) + Math.pow(p2.getPosY() - this.getPosY(), 2));
+
+        // Verifica si la circunferencia 2 está parcialmente dentro de la circunferencia 1
+        return distance - this.getRadius() - p2.getRadius() <= 0;
+    }
+
+
     @Override
     public String toString() {
         return "Particle(x: %f, y: %f, r: %f)".formatted(posX, posY, radius);

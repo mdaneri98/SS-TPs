@@ -63,6 +63,8 @@ class CIMImpl {
         for (Particle p : particlesList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
+            System.out.printf("Id: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
+            System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
             grid[cellY][cellX].add(p);
         }
     }
@@ -165,12 +167,14 @@ class CIMImpl {
 
                 for (Particle p1 : this.grid[cellY][cellX]){
                     for (Particle p2 : neighbors) {
-                        if (p1 != p2) {
-                            double dx = p1.getPosX() - p2.getPosX();
-                            double dy = p1.getPosY() - p2.getPosY();
-                            double centerDistance = Math.sqrt(dx * dx + dy * dy);
+                        if (p1.getId() == 81 && p2.getId() == 781) {
+                            System.out.println("");
+                        }
 
-                            if (centerDistance <= rc + p1.getRadius() + p2.getRadius()) {
+                        if (p1 != p2) {
+                            Particle interactionParticle = new Particle(-1, p1.getPosX(), p1.getPosY(), rc);
+
+                            if (p2.isPartiallyInside(interactionParticle)) {
                                 interactions.putIfAbsent(p1.getId(), new ArrayList<>());
                                 interactions.get(p1.getId()).add(p2);
 

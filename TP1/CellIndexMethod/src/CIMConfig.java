@@ -60,8 +60,8 @@ public class CIMConfig {
             int id = 0;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.trim().split("\t");
-                double posX = Double.parseDouble(parts[0]);
-                double posY = Double.parseDouble(parts[1]);
+                double posX = Double.parseDouble(parts[1]);
+                double posY = Double.parseDouble(parts[2]);
 
                 Particle p = particlesList.get(id);
                 p.setXY(posX, posY);
