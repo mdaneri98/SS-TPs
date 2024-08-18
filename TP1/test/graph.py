@@ -14,7 +14,7 @@ def read_particles_data(static_filename, dynamic_filename):
             parts = line.split()
             radius = float(parts[0])
             color = float(parts[1])
-            static_data.append((id, radius, color))
+            static_data.append((idx, radius, color))
             idx += 1
 
     # Datos dinámicos.

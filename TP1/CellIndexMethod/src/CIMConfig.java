@@ -35,7 +35,7 @@ public class CIMConfig {
             // Leer y retornar solo el primer valor de cada par de valores
             int i = 0;
             while ((linea = br.readLine()) != null) {
-                String[] valores = linea.trim().split(" ");
+                String[] valores = linea.trim().split("\t");
                 double r = Double.parseDouble(valores[0]);
 
                 if (r > maxParticleRadius){
@@ -59,7 +59,7 @@ public class CIMConfig {
             String line;
             int id = 0;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.trim().replace("   ", " ").split(" ");
+                String[] parts = line.trim().split("\t");
                 double posX = Double.parseDouble(parts[0]);
                 double posY = Double.parseDouble(parts[1]);
 

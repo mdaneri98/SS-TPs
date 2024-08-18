@@ -17,6 +17,7 @@ class CIMImpl {
     private List<Particle> particlesList;
     private List<Particle> virtualList;
     private List<Particle>[][] grid;
+    private List<Particle>[][] virtualGrid;
 
     @SuppressWarnings("unchecked")
     public CIMImpl(int M, int N, int L, double maxR, List<Particle> particles) {
@@ -27,11 +28,13 @@ class CIMImpl {
         cellSize = (double) L / M;
 
         /* Grilla real desde 1 a M */
-        this.grid = new ArrayList[M+2][M+2];
+        this.grid = new ArrayList[M][M];
+        this.virtualGrid = new ArrayList[M][M];
 
-        for (int i = 0; i < M + 2; i++) {
-            for (int j = 0; j < M + 2; j++) {
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < M; j++) {
                 grid[i][j] = new ArrayList<>();
+                virtualGrid[i][j] = new ArrayList<>();
             }
         }
 
@@ -68,7 +71,9 @@ class CIMImpl {
         for (Particle p : virtualList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            grid[cellY][cellX].add(p);
+            System.out.printf("PosX: %f, PosY: %f%n", p.getPosX(), p.getPosY());
+            System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
+            virtualGrid[cellY][cellX].add(p);
         }
     }
 
@@ -79,15 +84,14 @@ class CIMImpl {
         for (int column = 0; column < M; column++) {
             for (Particle p : grid[0][column]) {
                 double distanceY = p.getPosY() - 0;
-                double virtualY = L + distanceY;
+                double virtualY = L - distanceY;
 
                 Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
                 virtualList.add(newVirtual);
             }
 
             for (Particle p : grid[M-1][column]) {
-                double distanceY = L - p.getPosY();
-                double virtualY =  - distanceY;
+                double virtualY = L - p.getPosY();
 
                 Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
                 virtualList.add(newVirtual);
@@ -98,15 +102,14 @@ class CIMImpl {
         for (int row = 0; row < M; row++) {
             for (Particle p : grid[row][0]) {
                 double distanceX = p.getPosX() - 0;
-                double virtualX = L + distanceX;
+                double virtualX = L - distanceX;
 
                 Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
                 virtualList.add(newVirtual);
             }
 
             for (Particle p : grid[row][M-1]) {
-                double distanceX = L - p.getPosX();
-                double virtualX =  - distanceX;
+                double virtualX = L - p.getPosX();
 
                 Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
                 virtualList.add(newVirtual);
@@ -131,21 +134,22 @@ class CIMImpl {
             int calculatedCellX = cellX + movePos[0];
             int calculatedCellY = cellY + movePos[1];
 
-            if (continious) {
-                //Lista de virtuales
-            } else if (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) {
+            if (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) {
                 //!continous && ...
                 continue;
             }
 
             neighborsParticles.addAll(grid[calculatedCellY][calculatedCellX]);
+            if (continious) {
+                neighborsParticles.addAll(virtualGrid[calculatedCellY][calculatedCellX]);
+            }
         }
         return neighborsParticles;
     }
 
     public Map<Integer, List<Particle>> findInteractions(double rc, boolean continious) throws Exception {
-        if ((double)(this.L / this.M) <= rc - 2*maxR) {
-            throw new Exception("L/M debe ser mayor al (rc - 2*maxR).");
+        if ((double)(this.L / this.M) <= rc + 2 * maxR) {
+            throw new Exception("L/M debe ser mayor o igual a (rc + 2 * maxR).");
         }
 
         if (continious) {
@@ -155,8 +159,8 @@ class CIMImpl {
 
         Map<Integer, List<Particle>> interactions = new HashMap<>();
 
-        for (int cellY = 1; cellY < M + 1; cellY++) {
-            for (int cellX = 1; cellX < M + 1; cellX++) {
+        for (int cellY = 0; cellY < M; cellY++) {
+            for (int cellX = 0; cellX < M; cellX++) {
                 List<Particle> neighbors = getNeighboringParticles(cellX, cellY, continious);
 
                 for (Particle p1 : this.grid[cellY][cellX]){
@@ -166,9 +170,7 @@ class CIMImpl {
                             double dy = p1.getPosY() - p2.getPosY();
                             double centerDistance = Math.sqrt(dx * dx + dy * dy);
 
-                            // Si el borde está dentro de rc => Verdadero.
-                            double distance = centerDistance - p1.getRadius() - p2.getRadius();
-                            if ( distance <= 0 || distance <= (rc - p1.getRadius()) ) {
+                            if (centerDistance <= rc + p1.getRadius() + p2.getRadius()) {
                                 interactions.putIfAbsent(p1.getId(), new ArrayList<>());
                                 interactions.get(p1.getId()).add(p2);
 

@@ -44,7 +44,7 @@ public class Main {
     private static List<Long> iterate_over_m(int N, int L, double pRadius, double rc) throws Exception {
         List<Long> times = new ArrayList<>();
 
-        for (int M = 1; (double)(L/M) > rc - 2*pRadius; M++) {
+        for (int M = 1; (double)(L/M) > rc + 2*pRadius; M++) {
             CIMImpl cim = new CIMImpl(M, N, L, pRadius, null);
 
             long start = System.currentTimeMillis();
@@ -83,13 +83,19 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            double rc = 36;
+            double rc = 20;
             int L = 1000;
-            int N = 800;
-            double pRadius = 1;
+            int N = 1000;
+            double pRadius = 2;
 
-            CIMConfig config = CIMConfig.loadFromFile("./CellIndexMethod/src/Static100.txt", "./CellIndexMethod/src/Dynamic100.txt");
+/*
+            CIMConfig config = CIMConfig.loadFromFile("/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M35/static", "/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M35/dynamic");
             System.out.println("Configuración utilizada: " + config);
+
+            CIMImpl cim = new CIMImpl(2, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
+            Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
+*/
+
 
             List<Long> times = Main.iterate_over_m(N, L, pRadius, rc);
 
@@ -97,7 +103,6 @@ public class Main {
             String projectPath = Paths.get("").toAbsolutePath().toString();
             Path directoryPath = Paths.get(projectPath, "test");
             save_times(directoryPath.toString(), times);
-
 
 
         } catch (Exception e) {
