@@ -57,15 +57,15 @@ public class CIMConfig {
             reader.readLine();
 
             String line;
-            int id = 0;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.trim().split("\t");
+
+                int idx = Integer.parseInt(parts[0]);
                 double posX = Double.parseDouble(parts[1]);
                 double posY = Double.parseDouble(parts[2]);
 
-                Particle p = particlesList.get(id);
+                Particle p = particlesList.get(idx);
                 p.setXY(posX, posY);
-                id++;
             }
         } catch (IOException e) {
             System.err.println("Error leyendo el archivo: " + e.getMessage());

@@ -74,8 +74,6 @@ def plot_particle_interactions(particle_data, interactions, target_id, ir, M, L)
         ax.text(px, py, str(pid), color='black', ha='center', va='center', fontsize=4)
 
 
-
-
     # Customize the plot
     plt.xlim(0, L)
     plt.ylim(0, L)
