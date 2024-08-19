@@ -29,11 +29,16 @@ class CIMImpl {
 
         /* Grilla real desde 1 a M */
         this.grid = new ArrayList[M][M];
-        this.virtualGrid = new ArrayList[M][M];
+        this.virtualGrid = new ArrayList[M+2][M+2];
 
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < M; j++) {
                 grid[i][j] = new ArrayList<>();
+            }
+        }
+
+        for (int i = 0; i < M + 2; i++) {
+            for (int j = 0; j < M + 2; j++) {
                 virtualGrid[i][j] = new ArrayList<>();
             }
         }
@@ -63,17 +68,20 @@ class CIMImpl {
         for (Particle p : particlesList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            System.out.printf("Id: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
-            System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
+            //System.out.printf("Id: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
+            //System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
             grid[cellY][cellX].add(p);
         }
     }
 
     private void assignVirtualParticlesToCells() {
         for (Particle p : virtualList) {
+            if (p.getId() == 468) {
+                System.out.println("Stop");
+            }
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            System.out.printf("PosX: %f, PosY: %f%n", p.getPosX(), p.getPosY());
+            System.out.printf("ID: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
             System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
             virtualGrid[cellY][cellX].add(p);
         }
@@ -82,11 +90,11 @@ class CIMImpl {
     private void generateVirtualParticles() {
         this.virtualList = new ArrayList<>();
 
-        // Recorremos las columnas, y calculamos para fila 0 y M-1.
-        for (int column = 0; column < M; column++) {
+        // Recorremos las columnas intermedias, y calculamos para fila 0 y M-1.
+        for (int column = 1; column < M-1; column++) {
             for (Particle p : grid[0][column]) {
                 double distanceY = p.getPosY() - 0;
-                double virtualY = L - distanceY;
+                double virtualY = L + distanceY;
 
                 Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
                 virtualList.add(newVirtual);
@@ -95,16 +103,16 @@ class CIMImpl {
             for (Particle p : grid[M-1][column]) {
                 double virtualY = L - p.getPosY();
 
-                Particle newVirtual = new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius());
+                Particle newVirtual = new Particle(p.getId(), p.getPosX(), - virtualY, p.getRadius());
                 virtualList.add(newVirtual);
             }
         }
 
-        // Recorremos las filas, y calculamos para columna 0 y M-1.
-        for (int row = 0; row < M; row++) {
+        // Recorremos las filas intermedias, y calculamos para columna 0 y M-1.
+        for (int row = 1; row < M-1; row++) {
             for (Particle p : grid[row][0]) {
                 double distanceX = p.getPosX() - 0;
-                double virtualX = L - distanceX;
+                double virtualX = L + distanceX;
 
                 Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
                 virtualList.add(newVirtual);
@@ -113,10 +121,59 @@ class CIMImpl {
             for (Particle p : grid[row][M-1]) {
                 double virtualX = L - p.getPosX();
 
-                Particle newVirtual = new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius());
+                Particle newVirtual = new Particle(p.getId(), - virtualX, p.getPosY(), p.getRadius());
                 virtualList.add(newVirtual);
             }
         }
+
+        // Analizamos las esquinas individualmente.
+        // chequeadisimo. OK. :)
+        for (Particle p : grid[0][0]) {
+            double distanceY = p.getPosY() - 0;
+            double virtualY = L + distanceY;
+            double distanceX = p.getPosX() - 0;
+            double virtualX = L + distanceX;
+
+            virtualList.add(new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius()));
+            virtualList.add(new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius()));
+            virtualList.add(new Particle(p.getId(), virtualX, virtualY, p.getRadius()));
+        }
+
+        for (Particle p : grid[0][M-1]) {
+            double distanceY = p.getPosY() - 0;
+            double virtualY = L + distanceY;
+            double distanceX = L - p.getPosX();
+            double virtualX = - distanceX;
+
+            // Tener en cuenta las tres esquinas.
+            virtualList.add(new Particle(p.getId(), p.getPosX(), virtualY, p.getRadius()));
+            virtualList.add(new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius()));
+            virtualList.add(new Particle(p.getId(), virtualX, virtualY, p.getRadius()));
+        }
+
+        for (Particle p : grid[M-1][0]) {
+            double distanceY = L - p.getPosY();
+            double virtualY = distanceY;
+            double distanceX = p.getPosX() - 0;
+            double virtualX = L + distanceX;
+
+            virtualList.add(new Particle(p.getId(), virtualX, p.getPosY(), p.getRadius())); // Esquina derecha.
+            virtualList.add(new Particle(p.getId(), p.getPosX(), - virtualY, p.getRadius()));
+            virtualList.add(new Particle(p.getId(), virtualX, - virtualY, p.getRadius())); // Borde inferior derecho
+        }
+
+        // chequeadisimo. OK. :)
+        for (Particle p : grid[M-1][M-1]) {
+            double distanceY = L - p.getPosY() - 0;
+            double virtualY = distanceY;
+            double distanceX = L - p.getPosX();
+            double virtualX = distanceX;
+
+            virtualList.add(new Particle(p.getId(), p.getPosX(), - virtualY, p.getRadius()));
+            virtualList.add(new Particle(p.getId(), - virtualY, p.getPosY(), p.getRadius()));
+            virtualList.add(new Particle(p.getId(), - virtualX, - virtualY, p.getRadius()));
+        }
+
     }
 
     private List<Particle> getNeighboringParticles(int cellX, int cellY, boolean continious) {
@@ -128,22 +185,20 @@ class CIMImpl {
                          {-1, 1},
          */
         int[][] moveCoordinates = {
-                { 1, 0}, { 1, 1},
-                { 0, 0}, { 0, 1},
-                {-1, 1},
+                { 0, 1}, { 1, 1},
+                { 0, 0}, { 1, 0},
+                {1, -1}
             };
         for (int[] movePos : moveCoordinates) {
             int calculatedCellX = cellX + movePos[0];
             int calculatedCellY = cellY + movePos[1];
 
-            if (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1) {
-                //!continous && ...
-                continue;
+            if (calculatedCellX >= 0 && calculatedCellX <= M - 1 && calculatedCellY >= 0 && calculatedCellY <= M - 1) {
+                neighborsParticles.addAll(grid[calculatedCellY][calculatedCellX]);
             }
 
-            neighborsParticles.addAll(grid[calculatedCellY][calculatedCellX]);
-            if (continious) {
-                neighborsParticles.addAll(virtualGrid[calculatedCellY][calculatedCellX]);
+            if (continious && (calculatedCellX < 0 || calculatedCellX > M - 1 || calculatedCellY < 0 || calculatedCellY > M - 1)) {
+                neighborsParticles.addAll(virtualGrid[(calculatedCellY + (M+2)) % (M+2)][(calculatedCellX + (M+2)) % (M+2)]);
             }
         }
         return neighborsParticles;
@@ -167,10 +222,6 @@ class CIMImpl {
 
                 for (Particle p1 : this.grid[cellY][cellX]){
                     for (Particle p2 : neighbors) {
-                        if (p1.getId() == 81 && p2.getId() == 781) {
-                            System.out.println("");
-                        }
-
                         if (p1 != p2) {
                             Particle interactionParticle = new Particle(-1, p1.getPosX(), p1.getPosY(), rc);
 

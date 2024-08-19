@@ -83,29 +83,30 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            double rc = 20;
-            int L = 100;
+            double rc = 4;
+            int L = 20;
             int N = 1000;
-            double pRadius = 2;
+            double pRadius = 0.25;
 
             // target =  81  => 781 verde pero debería ser gris
 
-            /*
-            int M = 3;
-            CIMConfig config = CIMConfig.loadFromFile("/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M%d/static".formatted(M), "/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M%d/dynamic".formatted(M));
-            System.out.println("Configuración utilizada: " + config);
+            boolean read_only = false;
+            if (read_only) {
+                int M = 3;
+                CIMConfig config = CIMConfig.loadFromFile("/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M%d/static".formatted(M), "/Users/matiasdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TP1/test/M%d/dynamic".formatted(M));
+                System.out.println("Configuración utilizada: " + config);
 
-            CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
-            Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
-*/
-            
-            List<Long> times = Main.iterate_over_m(N, L, pRadius, rc);
+                CIMImpl cim = new CIMImpl(M, config.getN(), config.getL(), config.getMaxParticleRadius(), config.getParticleList());
+                Map<Integer, List<Particle>> interactions = cim.findInteractions(rc, true);
+            } else {
 
-            // Obtener la ruta relativa al directorio del proyecto
-            String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, "test");
-            save_times(directoryPath.toString(), times);
+                List<Long> times = Main.iterate_over_m(N, L, pRadius, rc);
 
+                // Obtener la ruta relativa al directorio del proyecto
+                String projectPath = Paths.get("").toAbsolutePath().toString();
+                Path directoryPath = Paths.get(projectPath, "test");
+                save_times(directoryPath.toString(), times);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
