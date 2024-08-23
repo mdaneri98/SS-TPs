@@ -13,7 +13,6 @@ class CIMImpl {
     private double maxR;   //Radio de las particulas
     private double cellSize;
 
-    private static double VELOCITY = 0.03;
 
     private List<Particle> particlesList;
     private List<Particle> virtualList;
@@ -44,27 +43,10 @@ class CIMImpl {
             }
         }
 
-        if (particles == null) {
-            this.particlesList = new ArrayList<>();
-            this.generateRandomParticles();
-        } else {
-            this.particlesList = particles;
-        }
+        this.particlesList = particles;
         this.assignParticlesToCells();
     }
 
-    private void generateRandomParticles() {
-        Random random = new Random();
-
-        for (int i = 0; i < N; i++) {
-            // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * (L - maxR);
-            double y = random.nextDouble() * (L - maxR);
-            double radius = this.maxR;
-            double angle = random.nextDouble(361);
-            this.particlesList.add(new Particle(i, x, y, radius,VELOCITY,angle));
-        }
-    }
 
     private void assignParticlesToCells() {
         for (Particle p : particlesList) {
