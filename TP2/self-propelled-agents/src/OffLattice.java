@@ -4,7 +4,7 @@ public class OffLattice {
 
     private Map<Integer, List<Particle>> particlesPerTime = new HashMap<>();
 
-    private static double VELOCITY = 0.03;
+    private static double VELOCITY = 10;
 
     private int M; //Dimension de la matriz
 
