@@ -4,7 +4,7 @@ public class OffLattice {
 
     private Map<Integer, List<Particle>> particlesPerTime = new HashMap<>();
 
-    private static double VELOCITY = 10;
+    private static double VELOCITY = 1;
 
     private int M; //Dimension de la matriz
 
@@ -33,7 +33,7 @@ public class OffLattice {
         particlesPerTime.putIfAbsent(0,particlesList);
     }
 
-    public double calculateAngle(Particle p,List<Particle> neighbours){
+    public double calculateAngle(List<Particle> neighbours){
 
         double sinSum = 0;
         double cosSum = 0;
@@ -58,13 +58,13 @@ public class OffLattice {
             CIMImpl cim = new CIMImpl(M,N,L,0,particlesList);
             Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(1,false);
             List<Particle> newParticles = new ArrayList<>();
-            for (Particle p : this.particlesList){
-                List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(),new ArrayList<>());
+            for (Particle p : this.particlesPerTime.get(time-1)){
+                List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());
                 neighbours.add(p);
-               double newAngle = calculateAngle(p,neighbours);
+                double newAngle = calculateAngle(neighbours);
+                Pair<Double,Double> position = calculatePosition(p,newAngle);
 
-              Pair<Double,Double> position = calculatePosition(p,newAngle);
-              newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
+                newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
             }
             particlesPerTime.putIfAbsent(time,newParticles);
         }

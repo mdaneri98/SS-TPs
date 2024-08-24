@@ -19,10 +19,10 @@ def read_static_file(filename):
         L = float(file.readline().strip())
         N = int(file.readline().strip())
         particles_info = []
-        for _ in range(N):
+        for idx in range(N):
             radius, color = file.readline().strip().split()
             radius = float(radius)
-            particles_info.append((radius, color))
+            particles_info.append((idx, radius, color))
     return (N, L, particles_info)
 
 
@@ -71,12 +71,14 @@ def animate_particles(static_file, dynamic_file):
     N, L, particles_info = read_static_file(static_file)
     timesteps = read_dynamic_file(dynamic_file, N)
 
+    # --- Printear el desarollo de la particula 0
     particle0_moves = []
     for t, particles_state in timesteps:
         for (idx, x, y, v, theta) in particles_state:
             if idx == 0:
                 particle0_moves.append((idx, x, y, v, theta))
                 print((idx, x, y, v, theta))
+    # --- End.
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
@@ -84,14 +86,18 @@ def animate_particles(static_file, dynamic_file):
 
     scatters = []
     quivers = []
-    for radius, _ in particles_info:
+    for idx, radius, _ in particles_info:
         scatter = patches.Circle((0, 0), max(radius, min_radius), fc=default_color)  # Radio mínimo de 0.5
         ax.add_patch(scatter)
         scatters.append(scatter)
 
         # Añadimos la flecha de velocidad
-        quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
-        quivers.append(quiver)
+        if idx == 1:
+            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='blue')
+            quivers.append(quiver)
+        else:
+            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
+            quivers.append(quiver)
 
     ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(scatters, quivers, timesteps), repeat=False,
                         blit=False)
@@ -109,14 +115,18 @@ def show_specific_frame(static_file, dynamic_file, frame_number):
 
     scatters = []
     quivers = []
-    for radius, _ in particles_info:
+    for idx, radius, _ in particles_info:
         scatter = patches.Circle((0, 0), max(radius, min_radius), fc=default_color)  # Radio mínimo de 0.5
         ax.add_patch(scatter)
         scatters.append(scatter)
 
         # Añadimos la flecha de velocidad
-        quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
-        quivers.append(quiver)
+        if idx == 10:
+            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='blue')
+            quivers.append(quiver)
+        else:
+            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
+            quivers.append(quiver)
 
     # Actualizar el frame específico
     update(frame_number, scatters, quivers, timesteps)

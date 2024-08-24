@@ -10,7 +10,7 @@ import java.util.Map;
 public class Main {
 
 
-    public static void save(int M, int N, int L, String directoryPath, Map<Integer, List<Particle>> particlesPerTime) {
+    public static void save(int N, int L, String directoryPath, Map<Integer, List<Particle>> particlesPerTime) {
         try {
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
             String staticPath = Paths.get(directoryPath, "static").toString();
@@ -56,7 +56,7 @@ public class Main {
         String projectPath = Paths.get("").toAbsolutePath().toString();
         Path directoryPath = Paths.get(projectPath, "test");
 
-        Main.save(M, N, L, directoryPath.toString(), particlesPerTime);
+        Main.save(N, L, directoryPath.toString(), particlesPerTime);
 
     }
 }
