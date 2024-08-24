@@ -46,7 +46,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         int M = 300;
-        int N = 300;
+        int N = 600;
         int L = 600;
         Map<Integer, List<Particle>> particlesPerTime;
         OffLattice offLattice = new OffLattice(M,N,L);

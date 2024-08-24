@@ -49,6 +49,21 @@ public class OffLattice {
         return Math.atan2(avgSin,avgCos);
     }
 
+    private Pair<Double,Double> calculatePosition(Particle p , double newAngle){
+        double dt = 1;
+        double vx = VELOCITY * Math.cos(newAngle);
+        double vy = VELOCITY * Math.sin(newAngle);
+
+        double newX = p.getPosX() + vx * dt;
+        double newY = p.getPosY() + vy * dt;
+
+        return new Pair<>(newX,newY);
+    }
+
+    private boolean isOutside(Particle p) {
+        return p.getPosX() < 0 || p.getPosX() > L || p.getPosY() < 0 || p.getPosY() > L;
+    }
+
     public Map<Integer,List<Particle>> run(int maxTime) throws Exception {
         int time = 0;
 
@@ -59,27 +74,20 @@ public class OffLattice {
             Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(1,false);
             List<Particle> newParticles = new ArrayList<>();
             for (Particle p : this.particlesPerTime.get(time-1)){
-                List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());
-                neighbours.add(p);
-                double newAngle = calculateAngle(neighbours);
-                Pair<Double,Double> position = calculatePosition(p,newAngle);
-
-                newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
+                if (!isOutside(p)) {
+                    List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());
+                    neighbours.add(p);
+                    double newAngle = calculateAngle(neighbours);
+                    Pair<Double,Double> position = calculatePosition(p,newAngle);
+                    newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
+                } else {
+                    // Particula congelada.
+                    newParticles.add(p);
+                }
             }
             particlesPerTime.putIfAbsent(time,newParticles);
         }
         return particlesPerTime;
-    }
-
-    private Pair<Double,Double> calculatePosition(Particle p , double newAngle){
-        double dt = 1;
-        double vx = VELOCITY * Math.cos(newAngle);
-        double vy = VELOCITY * Math.sin(newAngle);
-
-        double newX = p.getPosX() + vx * dt;
-        double newY = p.getPosY() + vy * dt;
-
-        return new Pair<>(newX,newY);
     }
 
     class Pair<U,T> {
