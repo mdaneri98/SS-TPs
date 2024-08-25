@@ -49,21 +49,19 @@ def read_dynamic_file(filename, N):
 
 
 # Función para actualizar la animación
-def update(frame, scatters, quivers, timesteps):
+def update(frame, arrows, timesteps):
     _, particle_states = timesteps[frame]
-    for i, (scatter, quiver) in enumerate(zip(scatters, quivers)):
+    for i, arrow in enumerate(arrows):
         idx, x, y, v, theta = particle_states[i]
-        scatter.center = (x, y)
 
         # Calculamos las componentes x e y de la velocidad
         u = v * np.cos(theta)
         w = v * np.sin(theta)
 
-        # Actualizamos la posición y dirección de la flecha
-        quiver.set_offsets((x, y))
-        quiver.set_UVC(u, w)
+        # Actualizamos la posición y dirección de la flecha con cola
+        arrow.set_positions((x - u, y - w), (x + u, y + w))
 
-    return scatters + quivers
+    return arrows
 
 
 # Función principal para generar la animación
@@ -71,36 +69,18 @@ def animate_particles(static_file, dynamic_file):
     N, L, particles_info = read_static_file(static_file)
     timesteps = read_dynamic_file(dynamic_file, N)
 
-    # --- Printear el desarollo de la particula 0
-    particle0_moves = []
-    for t, particles_state in timesteps:
-        for (idx, x, y, v, theta) in particles_state:
-            if idx == 0:
-                particle0_moves.append((idx, x, y, v, theta))
-                print((idx, x, y, v, theta))
-    # --- End.
-
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
-    scatters = []
-    quivers = []
+    arrows = []
     for idx, radius, _ in particles_info:
-        scatter = patches.Circle((0, 0), max(radius, min_radius), fc=default_color)  # Radio mínimo de 0.5
-        ax.add_patch(scatter)
-        scatters.append(scatter)
+        # Añadimos la flecha de velocidad con cola
+        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=10)
+        ax.add_patch(arrow)
+        arrows.append(arrow)
 
-        # Añadimos la flecha de velocidad
-        if idx == 1:
-            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='blue')
-            quivers.append(quiver)
-        else:
-            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
-            quivers.append(quiver)
-
-    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(scatters, quivers, timesteps), repeat=False,
-                        blit=False)
+    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(arrows, timesteps), repeat=False, blit=False)
     plt.show()
 
 
