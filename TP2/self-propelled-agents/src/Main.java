@@ -3,7 +3,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,16 +44,19 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        int M = 300;
-        int N = 600;
-        int L = 600;
+
+        int M = 20;
+        int N = 100;
+        int L = 50;
+        double noiseAmplitude = 0.1;
+
         Map<Integer, List<Particle>> particlesPerTime;
-        OffLattice offLattice = new OffLattice(M,N,L);
-        particlesPerTime = offLattice.run(10000);
+        OffLattice offLattice = new OffLattice(M,N,L,noiseAmplitude);
+        particlesPerTime = offLattice.run(1000);
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
-        Path directoryPath = Paths.get(projectPath, "test");
+        Path directoryPath = Paths.get(projectPath, "/self-propelled-agents/test");
 
         Main.save(N, L, directoryPath.toString(), particlesPerTime);
 

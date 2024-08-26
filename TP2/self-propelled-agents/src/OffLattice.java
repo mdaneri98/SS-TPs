@@ -10,12 +10,15 @@ public class OffLattice {
 
     private int N; //Cantidad de particulas
     private int L; //Longitud de la matriz
+
+    private double noiseAmplitude;
     private List<Particle> particlesList;
 
-    public OffLattice(int m, int n, int l) {
+    public OffLattice(int m, int n, int l, double noiseAmplitude) {
         M = m;
         N = n;
         L = l;
+        this.noiseAmplitude = noiseAmplitude;
         this.particlesList = new ArrayList<>();
     }
 
@@ -46,22 +49,9 @@ public class OffLattice {
         double avgSin = sinSum/neighbours.size();
         double avgCos = cosSum/neighbours.size();
 
-        return Math.atan2(avgSin,avgCos);
-    }
+        double noise = Math.random() * 0.1 - (noiseAmplitude/2);
 
-    private Pair<Double,Double> calculatePosition(Particle p , double newAngle){
-        double dt = 1;
-        double vx = VELOCITY * Math.cos(newAngle);
-        double vy = VELOCITY * Math.sin(newAngle);
-
-        double newX = p.getPosX() + vx * dt;
-        double newY = p.getPosY() + vy * dt;
-
-        return new Pair<>(newX,newY);
-    }
-
-    private boolean isOutside(Particle p) {
-        return p.getPosX() < 0 || p.getPosX() > L || p.getPosY() < 0 || p.getPosY() > L;
+        return Math.atan2(avgSin,avgCos) + noise;
     }
 
     public Map<Integer,List<Particle>> run(int maxTime) throws Exception {
@@ -71,23 +61,69 @@ public class OffLattice {
         time++;
         for (; time < maxTime ; time++) {
             CIMImpl cim = new CIMImpl(M,N,L,0,particlesList);
-            Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(1,false);
+            Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(1,true);
             List<Particle> newParticles = new ArrayList<>();
             for (Particle p : this.particlesPerTime.get(time-1)){
-                if (!isOutside(p)) {
-                    List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());
-                    neighbours.add(p);
-                    double newAngle = calculateAngle(neighbours);
-                    Pair<Double,Double> position = calculatePosition(p,newAngle);
-                    newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
-                } else {
-                    // Particula congelada.
-                    newParticles.add(p);
-                }
+                List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());
+                neighbours.add(p);
+                double newAngle = calculateAngle(neighbours);
+                Pair<Double,Double> position = calculatePosition(p,newAngle,time);
+
+                newParticles.add(new Particle(p.getId(), position.first, position.second, 0,VELOCITY,newAngle));
             }
             particlesPerTime.putIfAbsent(time,newParticles);
         }
+
+        for (int i = 0; i < maxTime; i++) {
+            double orderParameter = calculateOrderParameter(particlesPerTime.get(i));
+            System.out.println("Time: " + i + " Order Parameter: " + orderParameter);
+            System.out.println();
+        }
         return particlesPerTime;
+    }
+
+    public double calculateOrderParameter(List<Particle> particles){
+        double sinSum = 0;
+        double cosSum = 0;
+
+        for (Particle p : particles){
+            sinSum += Math.sin(p.getAngle());
+            cosSum += Math.cos(p.getAngle());
+        }
+
+        double avgSin = sinSum / particles.size();
+        double avgCos = cosSum / particles.size();
+
+        return Math.sqrt(Math.pow(avgSin,2) + Math.pow(avgCos,2));
+    }
+    private Pair<Double,Double> calculatePosition(Particle p , double newAngle, int time){
+        double dt = 1;
+        double vx = VELOCITY * Math.cos(newAngle);
+        double vy = VELOCITY * Math.sin(newAngle);
+
+        double newX = p.getPosX();
+        double newY;
+
+        if (p.getPosX() > L ){
+            newX = 0;
+        }
+        else if (p.getPosX() < 0){
+            newX = L;
+        }
+
+        if (p.getPosY() > L ){
+            newY = 0;
+        }
+        else if (p.getPosY() < 0){
+            newY = L;
+        }
+
+        else {
+            newX += vx * dt;
+            newY = p.getPosY() + vy * dt;
+        }
+
+        return new Pair<>(newX,newY);
     }
 
     class Pair<U,T> {
