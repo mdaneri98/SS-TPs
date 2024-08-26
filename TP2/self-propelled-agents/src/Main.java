@@ -42,7 +42,6 @@ public class Main {
     }
 
 
-
     public static void main(String[] args) throws Exception {
 
         int M = 20;
@@ -56,7 +55,7 @@ public class Main {
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
-        Path directoryPath = Paths.get(projectPath, "/self-propelled-agents/test");
+        Path directoryPath = Paths.get(projectPath, "/test");
 
         Main.save(N, L, directoryPath.toString(), particlesPerTime);
 

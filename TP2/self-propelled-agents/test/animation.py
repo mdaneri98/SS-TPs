@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from matplotlib import cm
 
 # Definimos las variables N, L y M a nivel del script
 N = 0  # Número de partículas (será leído del archivo static.txt)
@@ -48,6 +49,22 @@ def read_dynamic_file(filename, N):
     return timesteps
 
 
+# Función para convertir ángulo en color usando colormap 'hsv'
+def angle_to_color(theta):
+    # Normaliza el ángulo theta al rango [0, 1]
+    normalized_value = (theta % (2 * np.pi)) / (2 * np.pi)
+    # Convierte el valor normalizado a un color usando la colormap hsv
+    color = cm.hsv(normalized_value)
+    return color
+
+def angle_to_gray(theta):
+    # Normaliza el ángulo theta al rango [0, 1]
+    normalized_value = (theta % (2 * np.pi)) / (2 * np.pi)
+    # Mapea el valor normalizado a una escala de grises
+    gray_value = str(normalized_value)  # Matplotlib acepta cadenas para colores de grises, e.g., '0.5'
+    return gray_value
+
+
 # Función para actualizar la animación
 def update(frame, arrows, timesteps):
     _, particle_states = timesteps[frame]
@@ -63,6 +80,10 @@ def update(frame, arrows, timesteps):
         start_y = y - w * 0.05 * L
         end_x = x + u * 0.05 * L
         end_y = y + w * 0.05 * L
+
+        # Asigna el color en escala de grises según el ángulo
+        gray_color = angle_to_color(theta)
+        arrow.set_color(gray_color)
 
         # Actualizamos la posición y dirección de la flecha con cola
         arrow.set_positions((start_x, start_y), (end_x, end_y))

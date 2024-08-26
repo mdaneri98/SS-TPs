@@ -106,19 +106,15 @@ public class OffLattice {
 
         if (p.getPosX() > L ){
             newX = 0;
-        }
-        else if (p.getPosX() < 0){
+        } else if (p.getPosX() < 0){
             newX = L;
         }
 
         if (p.getPosY() > L ){
             newY = 0;
-        }
-        else if (p.getPosY() < 0){
+        } else if (p.getPosY() < 0){
             newY = L;
-        }
-
-        else {
+        } else {
             newX += vx * dt;
             newY = p.getPosY() + vy * dt;
         }
