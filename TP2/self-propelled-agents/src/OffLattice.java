@@ -4,7 +4,7 @@ public class OffLattice {
 
     private Map<Integer, List<Particle>> particlesPerTime = new HashMap<>();
 
-    private static double VELOCITY = 1;
+    private static double VELOCITY = 0.03;
 
     private int M; //Dimension de la matriz
 
@@ -49,19 +49,21 @@ public class OffLattice {
         double avgSin = sinSum/neighbours.size();
         double avgCos = cosSum/neighbours.size();
 
-        double noise = Math.random() * 0.1 - (noiseAmplitude/2);
+        double minValue = -noiseAmplitude/2;
+        double maxValue = noiseAmplitude/2;
+        double noise = minValue + (maxValue - minValue) * Math.random();
 
-        return Math.atan2(avgSin,avgCos) + noise;
+        return ((Math.atan2(avgSin,avgCos) + noise) + (2 * Math.PI)) % (2 * Math.PI);
     }
 
-    public Map<Integer,List<Particle>> run(int maxTime) throws Exception {
+    public Map<Integer,List<Particle>> run(int rc, int maxTime) throws Exception {
         int time = 0;
 
         generateRandomParticles();
         time++;
         for (; time < maxTime ; time++) {
             CIMImpl cim = new CIMImpl(M,N,L,0,particlesList);
-            Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(1,true);
+            Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(rc,true);
             List<Particle> newParticles = new ArrayList<>();
             for (Particle p : this.particlesPerTime.get(time-1)){
                 List<Particle> neighbours = neighboursByParticle.getOrDefault(p.getId(), new ArrayList<>());

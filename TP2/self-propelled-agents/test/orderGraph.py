@@ -1,31 +1,39 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def read_static_file(filename):
+def read_orders_file(filename):
     with open(filename, 'r') as file:
         lines = file.readlines()
         orders_info = []
         for line in lines:
-            time = int(line[0])
-            order = float(line[1])
-            orders_info.append((time, order))
+            data = line.strip().split('\t')
+            noise = float(data[0])
+            order = float(data[1])
+            orders_info.append((noise, order))
     return orders_info
 
 
-# Leer el archivo con columnas separadas por tabuladores
-df = pd.read_csv('C:\Users\Admin\Desktop\SS-TPs\TP2\self-propelled-agents\test\orders', sep='\t')
+def plot_orders(orders_info):
+    # Desempaquetar los datos
+    times, orders = zip(*orders_info)
 
-# Asumiendo que la primera columna es el tiempo y la segunda es el parámetro de orden
-tiempo = df.iloc[:, 0]
-parametro_orden = df.iloc[:, 1]
+    # Crear la gráfica
+    plt.figure(figsize=(10, 6))
+    plt.plot(times, orders, marker='o', linestyle='-', color='b', label='Order')
 
-# Crear el gráfico
-plt.figure(figsize=(10, 6))
-plt.plot(parametro_orden, tiempo, marker='o', linestyle='-')
-plt.xlabel('Parámetro de Orden (Eje X)')
-plt.ylabel('Tiempo (Eje Y)')
-plt.title('Gráfico de Tiempo vs Parámetro de Orden')
-plt.grid(True)
+    # Ajustar la escala del eje Y entre 0 y 1
+    plt.ylim(0, 1)
 
-# Mostrar el gráfico
-plt.show()
+    # Etiquetas y título
+    plt.xlabel('Time')
+    plt.ylabel('Order')
+    plt.title('Order vs Time')
+    plt.legend()
+
+    # Mostrar la gráfica
+    plt.grid(True)
+    plt.show()
+
+
+orders_info = read_orders_file('orders_per_noise')
+plot_orders(orders_info)

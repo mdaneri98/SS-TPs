@@ -52,28 +52,20 @@ class CIMImpl {
         for (Particle p : particlesList) {
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            //System.out.printf("Id: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
-            //System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
             grid[cellY][cellX].add(p);
         }
     }
 
     private void assignVirtualParticlesToCells() {
         for (Particle p : virtualList) {
-            if (p.getId() == 468) {
-                System.out.println("Stop");
-            }
             int cellX = (int) (p.getPosX() / cellSize);
             int cellY = (int) (p.getPosY() / cellSize);
-            System.out.printf("ID: %d, PosX: %f, PosY: %f%n", p.getId(), p.getPosX(), p.getPosY());
-            System.out.printf("CellX: %d, CellY: %d%n", cellX, cellY);
             virtualGrid[cellY][cellX].add(p);
         }
     }
 
     private void generateVirtualParticles() {
         this.virtualList = new ArrayList<>();
-
 
         // Recorremos las columnas intermedias, y calculamos para fila 0 y M-1.
         for (int column = 1; column < M-1; column++) {
