@@ -73,28 +73,32 @@ public class OffLattice {
             }
             particlesPerTime.putIfAbsent(time,newParticles);
         }
-
-        for (int i = 0; i < maxTime; i++) {
-            double orderParameter = calculateOrderParameter(particlesPerTime.get(i));
-            System.out.println("Time: " + i + " Order Parameter: " + orderParameter);
-            System.out.println();
-        }
         return particlesPerTime;
     }
 
-    public double calculateOrderParameter(List<Particle> particles){
-        double sinSum = 0;
-        double cosSum = 0;
+    public Map<Integer, Double> orderPerTime(Map<Integer, List<Particle>> particlesPerTime) {
+        Map<Integer, Double> map = new HashMap<>();
+        for (int i = 0; i < particlesPerTime.keySet().size(); i++) {
+            map.put(i, calculateOrderParameter(particlesPerTime.get(i)));
+        }
+        return map;
+    }
 
-        for (Particle p : particles){
-            sinSum += Math.sin(p.getAngle());
-            cosSum += Math.cos(p.getAngle());
+    public double calculateOrderParameter(List<Particle> particles){
+        double vxSum = 0;
+        double vySum = 0;
+
+        // Sumar las componentes x e y de todas las velocidades
+        for (Particle p : particles) {
+            vxSum += p.getVel() * Math.cos(p.getAngle());
+            vySum += p.getVel() * Math.sin(p.getAngle());
         }
 
-        double avgSin = sinSum / particles.size();
-        double avgCos = cosSum / particles.size();
+        double avgVx = vxSum / particles.size();
+        double avgVy = vySum / particles.size();
+        double va = Math.sqrt(Math.pow(avgVx, 2) + Math.pow(avgVy, 2));
 
-        return Math.sqrt(Math.pow(avgSin,2) + Math.pow(avgCos,2));
+        return va / VELOCITY;
     }
     private Pair<Double,Double> calculatePosition(Particle p , double newAngle, int time){
         double dt = 1;

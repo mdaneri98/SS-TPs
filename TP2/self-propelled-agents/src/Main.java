@@ -41,23 +41,39 @@ public class Main {
         }
     }
 
+    public static void save(String directoryPath, Map<Integer, Double> orderPerTime) {
+        try {
+            // Crear la ruta para el archivo de orders dentro de la carpeta "test"
+            String staticPath = Paths.get(directoryPath, "orders").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
+                for (Integer time : orderPerTime.keySet()) {
+                    writer.write(time + "\t" + orderPerTime.get(time) + "\n");
+                }
+                System.out.println("Orders según t guardados en el archivo: " + staticPath);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al guardar el archivo orders: " + e.getMessage());
+        }
+    }
 
     public static void main(String[] args) throws Exception {
 
         int M = 20;
-        int N = 100;
+        int N = 1000;
         int L = 50;
         double noiseAmplitude = 0.1;
 
-        Map<Integer, List<Particle>> particlesPerTime;
         OffLattice offLattice = new OffLattice(M,N,L,noiseAmplitude);
-        particlesPerTime = offLattice.run(1000);
+        Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1000);
+        Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
+
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
         Path directoryPath = Paths.get(projectPath, "/test");
 
         Main.save(N, L, directoryPath.toString(), particlesPerTime);
+        Main.save(directoryPath.toString(), orderPerTime);
 
     }
 }
