@@ -58,8 +58,14 @@ def update(frame, arrows, timesteps):
         u = v * np.cos(theta)
         w = v * np.sin(theta)
 
+        # Escalar las posiciones para hacer la flecha visible
+        start_x = x - u * 0.05 * L  # Ajusta el factor de escala 0.1 según sea necesario
+        start_y = y - w * 0.05 * L
+        end_x = x + u * 0.05 * L
+        end_y = y + w * 0.05 * L
+
         # Actualizamos la posición y dirección de la flecha con cola
-        arrow.set_positions((x - u, y - w), (x + u, y + w))
+        arrow.set_positions((start_x, start_y), (end_x, end_y))
 
     return arrows
 
@@ -75,8 +81,8 @@ def animate_particles(static_file, dynamic_file):
 
     arrows = []
     for idx, radius, _ in particles_info:
-        # Añadimos la flecha de velocidad con cola
-        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=10)
+        # Escalar la flecha según L
+        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=0.25 * L)
         ax.add_patch(arrow)
         arrows.append(arrow)
 

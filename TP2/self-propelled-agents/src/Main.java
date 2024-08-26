@@ -44,12 +44,13 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        int M = 25;
-        int N = 50;
+        int M = 20;
+        int N = 100;
         int L = 50;
+        double noiseAmplitude = 0.1;
         Map<Integer, List<Particle>> particlesPerTime;
-        OffLattice offLattice = new OffLattice(M,N,L);
-        particlesPerTime = offLattice.run(100);
+        OffLattice offLattice = new OffLattice(M,N,L,noiseAmplitude);
+        particlesPerTime = offLattice.run(1000);
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
