@@ -73,9 +73,30 @@ public class OffLattice {
             }
             particlesPerTime.putIfAbsent(time,newParticles);
         }
+
+        for (int i = 0; i < maxTime; i++) {
+            double orderParameter = calculateOrderParameter(particlesPerTime.get(i));
+            System.out.println("Time: " + i + " Order Parameter: " + orderParameter);
+            System.out.println();
+        }
         return particlesPerTime;
     }
 
+
+    public double calculateOrderParameter(List<Particle> particles){
+        double sinSum = 0;
+        double cosSum = 0;
+
+        for (Particle p : particles){
+            sinSum += Math.sin(p.getAngle());
+            cosSum += Math.cos(p.getAngle());
+        }
+
+        double avgSin = sinSum / particles.size();
+        double avgCos = cosSum / particles.size();
+
+        return Math.sqrt(Math.pow(avgSin,2) + Math.pow(avgCos,2));
+    }
     private Pair<Double,Double> calculatePosition(Particle p , double newAngle, int time){
         double dt = 1;
         double vx = VELOCITY * Math.cos(newAngle);
