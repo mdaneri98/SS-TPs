@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -100,31 +101,38 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        int M = 1;
-        int N = 200;
-        int L = 10;
+        int M = 2;
+        int N = 40;
+        int L = 7;
         int maxTime = 400;
 
         List<Double> noises = new ArrayList<>();
-        for (double i = 0; i <= 5; i += 0.25) {
+        for (double i = 0; i <= 5; i += 0.05) {
             noises.add(i);
         }
 
-        OffLattice offLattice = new OffLattice(M,N,L,noises.getFirst());
-        //OffLattice offLattice = new OffLattice(M,L,noises.getFirst(), Main.getParticles1(L));
-        Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
+        int[] ms = new int[] { 1, 1, 4, 15, 25 };
+        int[] ns = new int[] { 40, 100, 400, 4000, 10000 };
+        int[] ls = new int[] { 3, 5, 10, 32, 50 };
 
-        //Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
-        //Map<Double, Double> ordersPerNoise = Main.getOrdersPerNoise(M, N, L, maxTime, noises);
+        for (int i = 0; i < ms.length; i++) {
+            OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.getFirst());
+            Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
+
+            Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
+            Map<Double, Double> ordersPerNoise = Main.getOrdersPerNoise(M, N, L, maxTime, noises);
+
+            // --- Save ---
+            String projectPath = Paths.get("").toAbsolutePath().toString();
+            Path directoryPath = Paths.get(projectPath, String.format("/test/N%dL%d", ns[i], ls[i]));
+
+            // Crea los directorios si no existen
+            Files.createDirectories(directoryPath);
 
 
-        // --- Save ---
-        String projectPath = Paths.get("").toAbsolutePath().toString();
-        Path directoryPath = Paths.get(projectPath, "/test");
-
-        Main.save(offLattice.getN(), L, directoryPath.toString(), particlesPerTime);
-        //Main.save(directoryPath.toString(), orderPerTime);
-        //Main.saveOrdersPerNoise(directoryPath.toString(), ordersPerNoise);
-
+            Main.save(offLattice.getN(), L, directoryPath.toString(), particlesPerTime);
+            Main.save(directoryPath.toString(), orderPerTime);
+            Main.saveOrdersPerNoise(directoryPath.toString(), ordersPerNoise);
+        }
     }
 }
