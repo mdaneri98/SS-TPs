@@ -43,10 +43,10 @@ class CIMImpl {
             }
         }
 
+        this.virtualList = new ArrayList<>();
         this.particlesList = particles;
         this.assignParticlesToCells();
     }
-
 
     private void assignParticlesToCells() {
         for (Particle p : particlesList) {
@@ -65,7 +65,9 @@ class CIMImpl {
     }
 
     private void generateVirtualParticles() {
-        this.virtualList = new ArrayList<>();
+        if (this.M < 2) {
+            return;
+        }
 
         // Recorremos las columnas intermedias, y calculamos para fila 0 y M-1.
         for (int column = 1; column < M-1; column++) {

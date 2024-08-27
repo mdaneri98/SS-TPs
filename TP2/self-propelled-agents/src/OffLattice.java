@@ -19,11 +19,22 @@ public class OffLattice {
         N = n;
         L = l;
         this.noiseAmplitude = noiseAmplitude;
-        this.particlesList = new ArrayList<>();
+        this.particlesList = generateRandomParticles();
+        this.particlesPerTime.put(0, particlesList);
     }
 
-    private void generateRandomParticles() {
+    public OffLattice(int m, int l, double noiseAmplitude, List<Particle> initialParticles) {
+        M = m;
+        N = initialParticles.size();
+        L = l;
+        this.noiseAmplitude = noiseAmplitude;
+        this.particlesList = initialParticles;
+        this.particlesPerTime.putIfAbsent(0, particlesList);
+    }
+
+    private List<Particle> generateRandomParticles() {
         Random random = new Random();
+        List<Particle> particlesList = new ArrayList<>();
 
         for (int i = 0; i < N; i++) {
             // Posición x aleatoria dentro del área L x L
@@ -31,13 +42,12 @@ public class OffLattice {
             double y = random.nextDouble() * L;
             double radius = 0;
             double angle = random.nextDouble() * Math.PI * 2;
-            this.particlesList.add(new Particle(i, x, y, radius,VELOCITY,angle));
+            particlesList.add(new Particle(i, x, y, radius,VELOCITY,angle));
         }
-        particlesPerTime.putIfAbsent(0,particlesList);
+        return particlesList;
     }
 
     public double calculateAngle(List<Particle> neighbours){
-
         double sinSum = 0;
         double cosSum = 0;
 
@@ -57,12 +67,8 @@ public class OffLattice {
     }
 
     public Map<Integer,List<Particle>> run(int rc, int maxTime) throws Exception {
-        int time = 0;
-
-        generateRandomParticles();
-        time++;
-        for (; time < maxTime ; time++) {
-            CIMImpl cim = new CIMImpl(M,N,L,0,particlesList);
+        for (int time = 1; time < maxTime ; time++) {
+            CIMImpl cim = new CIMImpl(M,N,L,0, this.particlesPerTime.get(time-1));
             Map<Integer,List<Particle>> neighboursByParticle = cim.findInteractions(rc,true);
             List<Particle> newParticles = new ArrayList<>();
             for (Particle p : this.particlesPerTime.get(time-1)){
@@ -107,25 +113,34 @@ public class OffLattice {
         double vx = VELOCITY * Math.cos(newAngle);
         double vy = VELOCITY * Math.sin(newAngle);
 
-        double newX = p.getPosX();
-        double newY;
+        double newX = p.getPosX() + vx * dt;
+        double newY = p.getPosY() + vy * dt;
 
-        if (p.getPosX() > L ){
-            newX = 0;
-        } else if (p.getPosX() < 0){
-            newX = L;
+        if (newX > L) {
+            newX = newX - L;
+        } else if (newX < 0) {
+            newX = newX + L;
         }
 
-        if (p.getPosY() > L ){
-            newY = 0;
-        } else if (p.getPosY() < 0){
-            newY = L;
-        } else {
-            newX += vx * dt;
-            newY = p.getPosY() + vy * dt;
+        if (newY > L) {
+            newY = newY - L;
+        } else if (newY < 0) {
+            newY = newY + L;
         }
 
-        return new Pair<>(newX,newY);
+        return new Pair<>(newX, newY);
+    }
+
+    public int getM() {
+        return M;
+    }
+
+    public int getN() {
+        return N;
+    }
+
+    public int getL() {
+        return L;
     }
 
     class Pair<U,T> {

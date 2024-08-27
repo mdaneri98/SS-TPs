@@ -103,45 +103,50 @@ def animate_particles(static_file, dynamic_file):
     arrows = []
     for idx, radius, _ in particles_info:
         # Escalar la flecha según L
-        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=0.25 * L)
+        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=10)
         ax.add_patch(arrow)
         arrows.append(arrow)
 
-    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(arrows, timesteps), repeat=False, blit=False)
+    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(arrows, timesteps), repeat=False, blit=False, repeat_delay=10000)
     plt.show()
 
-
-# Función para mostrar un frame específico
-def show_specific_frame(static_file, dynamic_file, frame_number):
+# Función para graficar un frame específico
+def plot_specific_frame(static_file, dynamic_file, frame_number):
     N, L, particles_info = read_static_file(static_file)
     timesteps = read_dynamic_file(dynamic_file, N)
+
+    if frame_number >= len(timesteps) or frame_number < 0:
+        raise ValueError("El número de frame está fuera de los límites.")
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
-    scatters = []
-    quivers = []
-    for idx, radius, _ in particles_info:
-        scatter = patches.Circle((0, 0), max(radius, min_radius), fc=default_color)  # Radio mínimo de 0.5
-        ax.add_patch(scatter)
-        scatters.append(scatter)
+    _, particle_states = timesteps[frame_number]
 
-        # Añadimos la flecha de velocidad
-        if idx == 10:
-            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='blue')
-            quivers.append(quiver)
-        else:
-            quiver = ax.quiver(0, 0, 0, 0, angles='xy', scale_units='xy', scale=1, color='red')
-            quivers.append(quiver)
+    for i, (idx, radius, _) in enumerate(particles_info):
+        idx, x, y, v, theta = particle_states[i]
 
-    # Actualizar el frame específico
-    update(frame_number, scatters, quivers, timesteps)
+        # Cálculo de las componentes del vector de velocidad
+        u = v * np.cos(theta)
+        w = v * np.sin(theta)
+
+        # Posición inicial de la flecha (en la cola)
+        start_x = x
+        start_y = y
+
+        # Posición final de la flecha (en la cabeza)
+        end_x = x + u * 0.1 * L  # Ajusta el factor de escala 0.1 según sea necesario
+        end_y = y + w * 0.1 * L
+
+        # Dibujo de la flecha alineada con el movimiento
+        arrow = patches.FancyArrowPatch((start_x, start_y), (end_x, end_y), color=angle_to_color(theta),
+                                        arrowstyle='-|>', mutation_scale=0.1 * L)
+        ax.add_patch(arrow)
 
     plt.show()
-
 
 # Llamada a la función principal con los archivos correspondientes
 animate_particles('static', 'dynamic')
 
-# show_specific_frame('static.txt', 'dynamic.txt', 0)
+#plot_specific_frame('static', 'dynamic', 0)
