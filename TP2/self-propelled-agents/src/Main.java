@@ -19,7 +19,6 @@ public class Main {
                 for (Particle particle : particlesPerTime.get(0)) {
                     writer.write(particle.getRadius() + "\t" + 1 + "\n");
                 }
-                System.out.println("Datos estáticos guardadas en el archivo: " + staticPath);
             }
 
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
@@ -33,7 +32,6 @@ public class Main {
                         writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY() + "\t" + particle.getVel() + "\t" + particle.getAngle() );
                         writer.newLine();
                     }
-                    System.out.println("Posiciones guardadas en el archivo: " + dynamicPath);
                 }
             }
         } catch (IOException e) {
@@ -49,7 +47,6 @@ public class Main {
                 for (Integer time : orderPerTime.keySet()) {
                     writer.write(time + "\t" + orderPerTime.get(time) + "\n");
                 }
-                System.out.println("Orders según t guardados en el archivo: " + staticPath);
             }
         } catch (Exception e) {
             System.err.println("Error al guardar el archivo orders: " + e.getMessage());
@@ -64,7 +61,6 @@ public class Main {
                 for (Double noise : ordersPerNoise.keySet()) {
                     writer.write(noise + "\t" + ordersPerNoise.get(noise) + "\n");
                 }
-                System.out.println("Orders según ruido guardados en el archivo: " + staticPath);
             }
         } catch (Exception e) {
             System.err.println("Error al guardar el archivo orders per noise: " + e.getMessage());
@@ -116,23 +112,25 @@ public class Main {
         int[] ls = new int[] { 3, 5, 10, 32, 50 };
 
         for (int i = 0; i < ms.length; i++) {
-            OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.getFirst());
-            Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
+            for (int j = 0; j < noises.size(); j++) {
+                OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.get(j));
+                Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
 
-            Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
-            Map<Double, Double> ordersPerNoise = Main.getOrdersPerNoise(M, N, L, maxTime, noises);
+                Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
+                Map<Double, Double> ordersPerNoise = Main.getOrdersPerNoise(ms[i], ns[i], ls[i], maxTime, noises);
 
-            // --- Save ---
-            String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, String.format("/test/N%dL%d", ns[i], ls[i]));
+                // --- Save ---
+                String projectPath = Paths.get("").toAbsolutePath().toString();
+                Path directoryPath = Paths.get(projectPath, String.format("/test/outputs/N%dL%d_n%.2f", ns[i], ls[i], noises.get(j)));
 
-            // Crea los directorios si no existen
-            Files.createDirectories(directoryPath);
+                // Crea los directorios si no existen
+                Files.createDirectories(directoryPath);
 
 
-            Main.save(offLattice.getN(), L, directoryPath.toString(), particlesPerTime);
-            Main.save(directoryPath.toString(), orderPerTime);
-            Main.saveOrdersPerNoise(directoryPath.toString(), ordersPerNoise);
+                Main.save(offLattice.getN(), ls[i], directoryPath.toString(), particlesPerTime);
+                Main.save(directoryPath.toString(), orderPerTime);
+                Main.saveOrdersPerNoise(directoryPath.toString(), ordersPerNoise);
+            }
         }
     }
 }
