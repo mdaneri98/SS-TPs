@@ -1,18 +1,12 @@
 import os
-import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def read_orders_file(filename):
+def read_order_file(filename) -> float:
+    # Lee el único float en el archivo 'orders'
     with open(filename, 'r') as file:
-        lines = file.readlines()
-        orders_info = []
-        for line in lines:
-            data = line.strip().split('\t')
-            noise = float(data[0])
-            order = float(data[1])
-            orders_info.append((noise, order))
-    return orders_info
+        order = float(file.readline())
+    return order
 
 
 def plot_orders(orders_info_dict):
@@ -28,7 +22,6 @@ def plot_orders(orders_info_dict):
     # Etiquetas y título
     plt.xlabel('Ruido')
     plt.ylabel('Va')
-    # plt.title('Order vs Noise for Different Simulations')
     plt.legend()
 
     # Mostrar la gráfica
@@ -42,14 +35,26 @@ def gather_and_plot_data(root_dir):
     for folder_name in os.listdir(root_dir):
         folder_path = os.path.join(root_dir, folder_name)
         if os.path.isdir(folder_path):
-            orders_file = os.path.join(folder_path, 'orders_per_noise')
+            orders_file = os.path.join(folder_path, 'prom_order')
             if os.path.exists(orders_file):
-                orders_info = read_orders_file(orders_file)
-                orders_info_dict[folder_name] = orders_info
+                noise_value_str = folder_name.split('_n')[-1].replace(',', '.')
+                noise_value = float(noise_value_str)
+                order_value = read_order_file(orders_file)
+
+                N_L_value = folder_name.split('_')[0]  # Esto separa el valor N y L
+
+                if N_L_value not in orders_info_dict:
+                    orders_info_dict[N_L_value] = []
+
+                orders_info_dict[N_L_value].append((noise_value, order_value))
+
+    # Ordenar cada lista por valor de ruido antes de graficar
+    for key in orders_info_dict:
+        orders_info_dict[key].sort(key=lambda x: x[0])
 
     plot_orders(orders_info_dict)
 
 
 # Llamada a la función principal con el directorio raíz que contiene las carpetas
-root_directory = '.'  # Puedes cambiar esto al directorio donde están las carpetas /N100L7, /N400L7, etc.
+root_directory = 'outputs'  # Ajusta esto al directorio donde están las carpetas /N40L3_n0,00, /N40L3_n0,25, etc.
 gather_and_plot_data(root_directory)

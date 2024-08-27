@@ -183,7 +183,7 @@ class CIMImpl {
     }
 
     public Map<Integer, List<Particle>> findInteractions(double rc, boolean continious) throws Exception {
-        if ((double)(this.L / this.M) <= rc + 2 * maxR) {
+        if ((double)(this.L) / this.M <= rc + 2 * maxR) {
             throw new Exception("L/M debe ser mayor o igual a (rc + 2 * maxR).");
         }
 

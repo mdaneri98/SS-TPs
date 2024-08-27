@@ -29,25 +29,25 @@ def read_static_file(filename):
 
 
 # Función para leer el archivo dynamic.txt
-def read_dynamic_file(filename, N):
-    timesteps = []
+def read_dynamic_file(filename, n) -> list[list]:
+    particles_per_time = []
     with open(filename, 'r') as file:
         while True:
             time_line = file.readline().strip()
             if not time_line:
                 break
             t = float(time_line)
-            particle_states = []
-            for i in range(N):
+            particles = []
+            for i in range(n):
                 values = file.readline().strip().split('\t')
                 idx = int(values[0])
                 x = float(values[1])
                 y = float(values[2])
                 v = float(values[3])
                 theta = float(values[4])
-                particle_states.append(DynamicParticle(idx, x, y, v, theta))
-            timesteps.append((t, particle_states))
-    return timesteps
+                particles.append(DynamicParticle(idx, x, y, v, theta))
+            particles_per_time.append(particles)
+    return particles_per_time
 
 
 # Función para convertir ángulo en color usando colormap 'hsv'
@@ -88,7 +88,7 @@ def update(frame, arrows, timesteps):
 # Función principal para generar la animación
 def animate_particles(static_file, dynamic_file):
     N, L, particles_info = read_static_file(static_file)
-    timesteps = read_dynamic_file(dynamic_file, N)
+    particles_per_time = read_dynamic_file(dynamic_file, N)
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
@@ -100,26 +100,26 @@ def animate_particles(static_file, dynamic_file):
         ax.add_patch(arrow)
         arrows.append(arrow)
 
-    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(arrows, timesteps), repeat=False, blit=False)
+    ani = FuncAnimation(fig, update, frames=len(particles_per_time), fargs=(arrows, particles_per_time), repeat=False, blit=False)
     plt.show()
 
 
 # Función para graficar un frame específico
 def plot_specific_frame(static_file, dynamic_file, frame_number):
     N, L, particles_info = read_static_file(static_file)
-    timesteps = read_dynamic_file(dynamic_file, N)
+    particles_per_time = read_dynamic_file(dynamic_file, N)
 
-    if frame_number >= len(timesteps) or frame_number < 0:
+    if frame_number >= len(particles_per_time) or frame_number < 0:
         raise ValueError("El número de frame está fuera de los límites.")
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
-    _, particle_states = timesteps[frame_number]
+    particles = particles_per_time[frame_number]
 
     for i, (idx, radius, _) in enumerate(particles_info):
-        particle = particle_states[i]
+        particle = particles[i]
 
         u = particle.vel * np.cos(particle.theta)
         w = particle.vel * np.sin(particle.theta)
