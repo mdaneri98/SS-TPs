@@ -30,7 +30,7 @@ def gather_and_plot_data_for_all_noises(root_dir, label):
                 if os.path.exists(orders_file):
                     noise_value_str = folder_name.split('_n')[-1].replace(',', '.')
                     noise_value = float(noise_value_str)
-                    if noise_value == 3.5:
+                    if noise_value == 0:
                         time_values, va_values = read_order_file(orders_file)
                         plot_time_vs_va(time_values, va_values, noise_value, label)
 

@@ -2,7 +2,7 @@
 
 public class Particle {
 
-    private int id;
+    public int id;
     private double posX;
     private double posY;
     private double radius;
