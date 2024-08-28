@@ -68,12 +68,12 @@ public class Main {
     public static void saveOrdersPerDensity(String directoryPath, double order) {
         try {
             // Crear la ruta para el archivo de orders dentro de la carpeta "test"
-            String staticPath = Paths.get(directoryPath, "prom_order-density").toString();
+            String staticPath = Paths.get(directoryPath, "prom_order_density").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
                 writer.write("" + order);
             }
         } catch (Exception e) {
-            System.err.println("Error al guardar el archivo prom_order-density: " + e.getMessage());
+            System.err.println("Error al guardar el archivo prom_order_density: " + e.getMessage());
         }
     }
 
@@ -85,10 +85,10 @@ public class Main {
         Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
         Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
         double prom = 0;
-        for (int i = 100; i<orderPerTime.keySet().size();i++) {
+        for (int i = 50; i<orderPerTime.keySet().size();i++) {
             prom += orderPerTime.get(i);
         }
-        prom /= (orderPerTime.keySet().size()- 100);
+        prom /= (orderPerTime.keySet().size()- 50);
         return prom;
     }
 
@@ -141,15 +141,16 @@ public class Main {
             }
         }
         for (int i =0; i < ns2.length; i++){
-            OffLattice offLattice = new OffLattice(9, ns2[i], 10, 0.5);
+            double noise = 0.5;
+            OffLattice offLattice = new OffLattice(9, ns2[i], 10, noise);
             Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTimes2[i]);
 
             Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
-            double order = Main.getOrder(9, ns2[i], 10, maxTimes2[i], 0.5);
+            double order = Main.getOrder(9, ns2[i], 10, maxTimes2[i], noise);
 
             // --- Save ---
             String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, String.format("/test/outputs/density/N%dL%d_n%.2f", ns2[i], 10, densities[i]));
+            Path directoryPath = Paths.get(projectPath, String.format("/test/outputs/density/density_p%.2f", densities[i]));
 
             // Crea los directorios si no existen
             Files.createDirectories(directoryPath);
