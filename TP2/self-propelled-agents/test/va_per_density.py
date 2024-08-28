@@ -43,5 +43,7 @@ def gather_and_plot_data(root_dir):
 
     plot_orders(orders_info_dict)
 
-root_directory = 'outputs/density'
-gather_and_plot_data(root_directory)
+
+root_directory = 'outputs'
+num_iterations = 10
+gather_and_plot_data(root_directory, num_iterations)

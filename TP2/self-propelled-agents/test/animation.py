@@ -138,4 +138,4 @@ def plot_specific_frame(static_file, dynamic_file, frame_number):
 
 
 # Llamada a la función principal con los archivos correspondientes
-animate_particles('outputs/N100L5_n0.30/static', 'outputs/N100L5_n0.30/dynamic')
+animate_particles('outputs_1/N100L5_n0.30/static', 'outputs_1/N100L5_n0.30/dynamic')
