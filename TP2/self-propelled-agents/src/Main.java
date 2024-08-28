@@ -85,28 +85,14 @@ public class Main {
         Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
         Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
         double prom = 0;
-        for (int i = 100; i<orderPerTime.keySet().size();i++) {
+        for (int i = 200; i<orderPerTime.keySet().size();i++) {
             prom += orderPerTime.get(i);
         }
-        prom /= (orderPerTime.keySet().size() - 100);
+        prom /= (orderPerTime.keySet().size() - 200);
         return prom;
     }
 
-    private static List<Particle> getParticles1(int L) {
-        List<Particle> particles = new ArrayList<>();
-        double velocity = 0.03;
-
-        particles.add(new Particle(0, 0, 0, 0,velocity,Math.toRadians(45)));
-        particles.add(new Particle(1, L /2.0, L/2.0, 0,velocity,Math.toRadians(135)));
-
-        particles.add(new Particle(2, L/2.0, 0, 0,velocity,Math.toRadians(0)));
-        particles.add(new Particle(3, L /2.0, 0, 0,velocity,Math.toRadians(180)));
-
-        return particles;
-    }
-
     public static void main(String[] args) throws Exception {
-        int maxTime = 800;
 
         for (int iteration = 0; iteration < 10; iteration++) {
             List<Double> noises = new ArrayList<>();
@@ -121,7 +107,7 @@ public class Main {
             int[] maxTimes = new int[]{200, 400, 800};
             int[] ns2 = new int[]{50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
             double[] densities = new double[]{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5};
-            int[] maxTimes2 = new int[]{200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
+            int[] maxTimes2 = new int[]{400, 400, 400, 400, 400, 400, 400, 400, 400, 400};
             for (int i = 0; i < ms.length; i++) {
                 for (int j = 0; j < noises.size(); j++) {
                     OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.get(j));
