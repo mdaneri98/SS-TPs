@@ -85,66 +85,78 @@ public class Main {
         Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTime);
         Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
         double prom = 0;
-        for (int i = 200; i<orderPerTime.keySet().size();i++) {
+        for (int i = 115; i<orderPerTime.keySet().size();i++) {
             prom += orderPerTime.get(i);
         }
-        prom /= (orderPerTime.keySet().size() - 200);
+        prom /= (orderPerTime.keySet().size()- 115);
         return prom;
     }
 
+    private static List<Particle> getParticles1(int L) {
+        List<Particle> particles = new ArrayList<>();
+        double velocity = 0.03;
+
+        particles.add(new Particle(0, 0, 0, 0,velocity,Math.toRadians(45)));
+        particles.add(new Particle(1, L /2.0, L/2.0, 0,velocity,Math.toRadians(135)));
+
+        particles.add(new Particle(2, L/2.0, 0, 0,velocity,Math.toRadians(0)));
+        particles.add(new Particle(3, L /2.0, 0, 0,velocity,Math.toRadians(180)));
+
+        return particles;
+    }
+
     public static void main(String[] args) throws Exception {
+        int maxTime = 800;
 
-        for (int iteration = 0; iteration < 10; iteration++) {
-            List<Double> noises = new ArrayList<>();
-            for (double i = 0; i <= 5; i += 0.5) {
-                noises.add(i);
-            }
+        List<Double> noises = new ArrayList<>();
+        for (double i = 0; i <= 5; i += 0.25) {
+            noises.add(i);
+        }
 
 
-            int[] ms = new int[]{2, 4, 9};
-            int[] ns = new int[]{40, 100, 400};
-            int[] ls = new int[]{3, 5, 10};
-            int[] maxTimes = new int[]{200, 400, 800};
-            int[] ns2 = new int[]{50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
-            double[] densities = new double[]{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5};
-            int[] maxTimes2 = new int[]{400, 400, 400, 400, 400, 400, 400, 400, 400, 400};
-            for (int i = 0; i < ms.length; i++) {
-                for (int j = 0; j < noises.size(); j++) {
-                    OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.get(j));
-                    Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTimes[i]);
-
-                    Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
-                    double order = Main.getOrder(ms[i], ns[i], ls[i], maxTimes[i], noises.get(j));
-                    // --- Save ---
-                    String projectPath = Paths.get("").toAbsolutePath().toString();
-                    Path directoryPath = Paths.get(projectPath, String.format("/test/outputs_%d/N%dL%d_n%.2f", iteration, ns[i], ls[i], noises.get(j)));
-
-                    // Crea los directorios si no existen
-                    Files.createDirectories(directoryPath);
-
-                    Main.save(offLattice.getN(), ls[i], directoryPath.toString(), particlesPerTime);
-                    Main.save(directoryPath.toString(), orderPerTime);
-                    Main.saveOrdersPerNoise(directoryPath.toString(), order);
-                }
-            }
-            for (int i = 0; i < ns2.length; i++) {
-                double noise = 0.5;
-                OffLattice offLattice = new OffLattice(9, ns2[i], 10, noise);
-                Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTimes2[i]);
+        int[] ms = new int[] { 2, 4, 9 };
+        int[] ns = new int[] { 40, 100, 400 };
+        int[] ls = new int[] { 3, 5, 10 };
+        int[] maxTimes = new int[] { 200, 400, 800 };
+        int [] ns2 = new int[] {50,100,150,200,250,300,350,400,450,500};
+        double[] densities = new double[] { 0.5,1,1.5,2,2.5,3,3.5,4,4.5,5 };
+        for (int i = 0; i < ms.length; i++) {
+            for (int j = 0; j < noises.size(); j++) {
+                OffLattice offLattice = new OffLattice(ms[i], ns[i], ls[i], noises.get(j));
+                Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, maxTimes[i]);
 
                 Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
-                double order = Main.getOrder(9, ns2[i], 10, maxTimes2[i], noise);
-
+                double order = Main.getOrder(ms[i], ns[i], ls[i], maxTimes[i], noises.get(j));
                 // --- Save ---
                 String projectPath = Paths.get("").toAbsolutePath().toString();
-                Path directoryPath = Paths.get(projectPath, String.format("/test/outputs_%d/density/density_p%.2f", iteration, densities[i]));
+                Path directoryPath = Paths.get(projectPath, String.format("/test/outputs/N%dL%d_n%.2f", ns[i], ls[i], noises.get(j)));
 
                 // Crea los directorios si no existen
                 Files.createDirectories(directoryPath);
-                Main.save(offLattice.getN(), 10, directoryPath.toString(), particlesPerTime);
+
+                Main.save(offLattice.getN(), ls[i], directoryPath.toString(), particlesPerTime);
                 Main.save(directoryPath.toString(), orderPerTime);
-                Main.saveOrdersPerDensity(directoryPath.toString(), order);
+                Main.saveOrdersPerNoise(directoryPath.toString(), order);
             }
         }
+        for (int i =0; i < ns2.length; i++){
+            double noise = 0.5;
+            OffLattice offLattice = new OffLattice(9, ns2[i], 10, noise);
+            Map<Integer, List<Particle>> particlesPerTime = offLattice.run(1, 400);
+
+            Map<Integer, Double> orderPerTime = offLattice.orderPerTime(particlesPerTime);
+            double order = Main.getOrder(9, ns2[i], 10,400, noise);
+
+            // --- Save ---
+            String projectPath = Paths.get("").toAbsolutePath().toString();
+            Path directoryPath = Paths.get(projectPath, String.format("/test/outputs/density/density_p%.2f", densities[i]));
+
+            // Crea los directorios si no existen
+            Files.createDirectories(directoryPath);
+            Main.save(offLattice.getN(), 10, directoryPath.toString(), particlesPerTime);
+            Main.save(directoryPath.toString(), orderPerTime);
+            Main.saveOrdersPerDensity(directoryPath.toString(), order);
+        }
+
     }
 }

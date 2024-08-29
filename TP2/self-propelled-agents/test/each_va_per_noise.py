@@ -17,21 +17,22 @@ def read_order_file(filename):
 def plot_va_vs_noise(noise_values, va_means, va_stds):
     plt.errorbar(noise_values, va_means, yerr=va_stds, marker='o', linestyle='-', capsize=5)
     plt.ylim(0, 1)
-    plt.xlabel('Densidad')
+    plt.xlabel('Ruido')
     plt.ylabel('Va')
     plt.grid(True)
 
-def gather_and_plot_data_for_all_noises(root_dir):
+def gather_and_plot_data_for_all_noises(root_dir, label):
     noise_values = []
     va_means = []
     va_stds = []
 
     for folder_name in os.listdir(root_dir):
+        if folder_name.startswith(label):
             folder_path = os.path.join(root_dir, folder_name)
             if os.path.isdir(folder_path):
                 orders_file = os.path.join(folder_path, 'orders')
                 if os.path.exists(orders_file):
-                    noise_value_str = folder_name.split('_p')[-1].replace(',', '.')
+                    noise_value_str = folder_name.split('_n')[-1].replace(',', '.')
                     noise_value = float(noise_value_str)
                     va_values = read_order_file(orders_file)
                     # Obtener los últimos 100 valores
@@ -49,6 +50,9 @@ def gather_and_plot_data_for_all_noises(root_dir):
     plot_va_vs_noise(noise_values, va_means, va_stds)
     plt.show()
 
-root_directory = 'outputs/density'
-gather_and_plot_data_for_all_noises(root_directory)
+# Especifica la carpeta raíz y el prefijo de las carpetas que deseas analizar
+root_directory = 'outputs'  # Directorio donde están las carpetas
+label_prefix = 'N40L3'  # Prefijo para identificar las carpetas
+
+gather_and_plot_data_for_all_noises(root_directory, label_prefix)
 
