@@ -1,54 +1,47 @@
 import os
-import matplotlib
-import statistics
-
-matplotlib.use('TkAgg')  # O 'Qt5Agg', dependiendo de tu entorno
+import re
 import matplotlib.pyplot as plt
 
-def read_order_file(filename):
-    va_values = []
+def read_order_file(filename) -> float:
     with open(filename, 'r') as file:
-        for line in file:
-            _, va = line.split()  # Ignorar el tiempo
-            va_values.append(float(va.replace(',', '.')))
+        order = float(file.readline())
+    return order
 
-    return va_values
+def plot_orders(orders_info_dict):
+    plt.figure(figsize=(10, 6))
 
-def plot_va_vs_noise(noise_values, va_means, va_stds):
-    plt.errorbar(noise_values, va_means, yerr=va_stds, marker='o', linestyle='-', capsize=5)
+    for label, orders_info in orders_info_dict.items():
+        orders_info.sort(key=lambda x: x[0])  # Ordenar por valor de ruido (eje X)
+        noises, orders = zip(*orders_info)
+        plt.plot(noises, orders, marker='o', linestyle='-', label=label)
+
     plt.ylim(0, 1)
     plt.xlabel('Densidad')
     plt.ylabel('Va')
+    plt.legend()
     plt.grid(True)
-
-def gather_and_plot_data_for_all_noises(root_dir):
-    noise_values = []
-    va_means = []
-    va_stds = []
-
-    for folder_name in os.listdir(root_dir):
-            folder_path = os.path.join(root_dir, folder_name)
-            if os.path.isdir(folder_path):
-                orders_file = os.path.join(folder_path, 'orders')
-                if os.path.exists(orders_file):
-                    noise_value_str = folder_name.split('_p')[-1].replace(',', '.')
-                    noise_value = float(noise_value_str)
-                    va_values = read_order_file(orders_file)
-                    # Obtener los últimos 100 valores
-                    last_100_values = va_values[-100:]
-
-                    mean_va = statistics.mean(last_100_values)
-                    std_dev_va = statistics.stdev(last_100_values) if len(last_100_values) > 1 else 0
-
-                    noise_values.append(noise_value)
-                    va_means.append(mean_va)
-                    va_stds.append(std_dev_va)
-
-    # Crear el gráfico Va vs. Ruido
-    plt.figure(figsize=(10, 6))
-    plot_va_vs_noise(noise_values, va_means, va_stds)
     plt.show()
 
-root_directory = 'outputs/density'
-gather_and_plot_data_for_all_noises(root_directory)
+def gather_and_plot_data(root_dir):
+    orders_info_dict = {}
 
+    for folder_name in os.listdir(root_dir):
+        folder_path = os.path.join(root_dir, folder_name)
+        if os.path.isdir(folder_path):
+            orders_file = os.path.join(folder_path, 'prom_order_density')
+            if os.path.exists(orders_file):
+                noise_value_str = folder_name.split('_p')[-1].replace(',', '.')
+                noise_value = float(noise_value_str)
+                order_value = read_order_file(orders_file)
+
+                N_L_value = folder_name.split('_')[0]
+
+                if N_L_value not in orders_info_dict:
+                    orders_info_dict[N_L_value] = []
+
+                orders_info_dict[N_L_value].append((noise_value, order_value))
+
+    plot_orders(orders_info_dict)
+
+root_directory = 'outputs/density'
+gather_and_plot_data(root_directory)

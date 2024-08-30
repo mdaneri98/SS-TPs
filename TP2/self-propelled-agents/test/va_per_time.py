@@ -46,6 +46,6 @@ def gather_and_plot_data_for_all_noises(root_dir, label):
 
 # Especifica la carpeta raíz y el prefijo de las carpetas que deseas analizar
 root_directory = 'outputs'  # Directorio donde están las carpetas
-label_prefix = 'N400L10'  # Prefijo para identificar las carpetas
+label_prefix = 'N40L3'  # Prefijo para identificar las carpetas
 
 gather_and_plot_data_for_all_noises(root_directory, label_prefix)
