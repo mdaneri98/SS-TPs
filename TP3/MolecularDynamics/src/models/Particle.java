@@ -38,8 +38,41 @@ public class Particle implements Obstacle {
     }
 
     @Override
-    public void update(Particle particle) {
-        //FIXME: TODO
+    public void update(Particle p) {
+        // Calcular deltaR (diferencia de posiciones) y deltaV (diferencia de velocidades)
+        double deltaRx = this.getPosX() - p.getPosX();
+        double deltaRy = this.getPosY() - p.getPosY();
+        double deltaVx = this.getVelocityX() - p.getVelocityX();
+        double deltaVy = this.getVelocityY() - p.getVelocityY();
+
+        // Calcular el valor de sigma (distancia entre centros)
+        double sigma = this.getRadius() + p.getRadius();
+
+        // Calcular deltaV · deltaR
+        double deltaVDeltaR = deltaVx * deltaRx + deltaVy * deltaRy;
+
+        // Calcular el valor de J (el impulso en la colisión)
+        double J = (2 * this.getMass() * p.getMass() * deltaVDeltaR) / (sigma * (this.getMass() + p.getMass()));
+
+        // Calcular Jx y Jy
+        double Jx = (J * deltaRx) / sigma;
+        double Jy = (J * deltaRy) / sigma;
+
+        // Actualizar las velocidades de la partícula actual (this)
+        double newVxThis = this.getVelocityX() + Jx / this.getMass();
+        double newVyThis = this.getVelocityY() + Jy / this.getMass();
+
+        // Actualizar las velocidades de la otra partícula (p)
+        double newVxP = p.getVelocityX() - Jx / p.getMass();
+        double newVyP = p.getVelocityY() - Jy / p.getMass();
+
+        // Establecer las nuevas velocidades
+        this.setVelocity(Math.sqrt(newVxThis * newVxThis + newVyThis * newVyThis));
+        p.setVelocity(Math.sqrt(newVxP * newVxP + newVyP * newVyP));
+
+        // Actualizar los ángulos de las partículas
+        this.setAngle(Math.atan2(newVyThis, newVxThis));
+        p.setAngle(Math.atan2(newVyP, newVxP));
 
 
     }
