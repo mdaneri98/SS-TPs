@@ -3,7 +3,7 @@ package models;
 public class VerticalWall extends Wall {
 
 
-    public VerticalWall(int l) {
+    public VerticalWall(double l) {
         super(l);
     }
 
@@ -18,10 +18,11 @@ public class VerticalWall extends Wall {
     }
 
     @Override
-    public void update(Particle p) {
-        if (p.getPosY() == 0 || p.getPosY() == this.getL()) {
-            p.setAngle(-p.getAngle());
+    public Particle applyCollision(Particle p) {
+        if (p.getPosX() - p.getRadius() <= 0 || p.getPosX() + p.getRadius() >= this.getL()){
+            return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), -p.getAngle(), p.getRadius(), p.getMass());
         }
+        return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass());
     }
 
 }

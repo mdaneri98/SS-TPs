@@ -7,7 +7,7 @@ public class StaticParticle extends Particle {
     }
 
     @Override
-    public void update(Particle particle) {
+    public Particle applyCollision(final Particle particle) {
         // Ángulo de la dirección relativa entre las partículas
         double deltaX = this.getPosX() - particle.getPosX();
         double deltaY = this.getPosY() - particle.getPosY();
@@ -21,16 +21,29 @@ public class StaticParticle extends Particle {
         double cn = -1;
         double ct = 1;
 
+        double sin = Math.abs(this.getPosY() - particle.getPosY()) / (this.getRadius() + particle.getRadius());
+        double cos = Math.abs(this.getPosX() - particle.getPosX()) / (this.getRadius() + particle.getRadius());
+
         // Aplicar la matriz de colisión (basado en la filmina)
-        double newVX = (-cn * Math.pow(Math.cos(angle), 2) + ct * Math.pow(Math.sin(angle), 2)) * vX
+/*        double newVX = (-cn * Math.pow(Math.cos(angle), 2) + ct * Math.pow(Math.sin(angle), 2)) * vX
                 - (cn + ct) * Math.sin(angle) * Math.cos(angle) * vY;
 
         double newVY = (-(cn + ct) * Math.sin(angle) * Math.cos(angle)) * vX
-                + (-cn * Math.pow(Math.sin(angle), 2) + ct * Math.pow(Math.cos(angle), 2)) * vY;
+                + (-cn * Math.pow(Math.sin(angle), 2) + ct * Math.pow(Math.cos(angle), 2)) * vY;*/
+
+        double newVX = (-cn * Math.pow(cos, 2) + ct * Math.pow(sin, 2)) * vX
+                - (cn + ct) * sin * cos * vY;
+
+        double newVY = (-(cn + ct) * sin * cos) * vX
+                + (-cn * Math.pow(sin, 2) + ct * Math.pow(cos, 2)) * vY;
+
+        Particle newParticle = new Particle(particle.getId(), particle.getPosX(), particle.getPosY(), particle.getVelocity(), particle.getAngle(), particle.getRadius(), particle.getMass());
 
         // Actualizar la velocidad de la partícula incidente después de la colisión
-        particle.setVelocity(Math.sqrt(newVX * newVX + newVY * newVY));
-        particle.setAngle(Math.atan2(newVY, newVX));
+        newParticle.setVelocity(Math.sqrt(newVX * newVX + newVY * newVY));
+        newParticle.setAngle(Math.atan2(newVY, newVX));
+
+        return newParticle;
     }
 
 

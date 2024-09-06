@@ -17,7 +17,7 @@ public class Particle implements Obstacle {
         this.posX = posX;
         this.posY = posY;
         this.velocity = velocity;
-        this.angle = angle;
+        this.angle = (angle + (2 * Math.PI)) % (2 * Math.PI);
         this.radius = radius;
         this.mass = mass;
     }
@@ -38,12 +38,12 @@ public class Particle implements Obstacle {
     }
 
     @Override
-    public void update(Particle p) {
+    public Particle applyCollision(final Particle p) {
         // Calcular deltaR (diferencia de posiciones) y deltaV (diferencia de velocidades)
-        double deltaRx = this.getPosX() - p.getPosX();
-        double deltaRy = this.getPosY() - p.getPosY();
-        double deltaVx = this.getVelocityX() - p.getVelocityX();
-        double deltaVy = this.getVelocityY() - p.getVelocityY();
+        double deltaRx = p.getPosX() - this.getPosX();
+        double deltaRy = p.getPosY() - this.getPosY();
+        double deltaVx = p.getVelocityX() - this.getVelocityX();
+        double deltaVy = p.getVelocityY() - this.getVelocityY();
 
         // Calcular el valor de sigma (distancia entre centros)
         double sigma = this.getRadius() + p.getRadius();

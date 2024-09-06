@@ -4,19 +4,19 @@ import java.util.*;
 
 public class MolecularDynamic {
 
-    private final double VELOCITY = 0.03;
-    private final double RADIUS = 1;
+    private final double VELOCITY = 1;
+    private final double RADIUS = 0.001;
     private final double MASS = 1;
 
     private int N;
 
     // Horizontal, Vertical
-    private List<Wall> walls;
+    private List<Wall> walls = new ArrayList<>();
     private Map<Integer, State> states;
 
     private StaticParticle staticParticle;
 
-    public MolecularDynamic(int n, int l, double staticRadius) {
+    public MolecularDynamic(int n, double l, double staticRadius) {
         N = n;
 
         createWalls(l);
@@ -25,7 +25,7 @@ public class MolecularDynamic {
         states.put(0, generateInitialState(staticRadius));
     }
 
-    private void createWalls(int L) {
+    private void createWalls(double L) {
         walls.add(new HorizontalWall(L));
         walls.add(new VerticalWall(L));
     }
@@ -34,7 +34,7 @@ public class MolecularDynamic {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
 
-        int L = walls.get(0).getL();
+        double L = walls.get(0).getL();
         staticParticle = new StaticParticle(0, L/2.0, L/2.0, 0, 0, staticRadius, MASS);
         particleSet.add(staticParticle);
 
@@ -66,22 +66,16 @@ public class MolecularDynamic {
         Pair<Particle, Obstacle> pair = nextCollide.firstEntry().getValue();
 
 
-        State newState;
-        Set<Particle> newSet = new HashSet<>();
-        for (Particle p : currentState.getParticleSet()) {
-            if (!p.equals(pair.getLeft())) {
-                // Particula no colisiona, actualizamos su ubicación.
-                double newX = p.getPosX() + p.getVelocityX() * tc;
-                double newY = p.getPosY() + p.getVelocityY() * tc;
-                newSet.add(new Particle(p.getId(), newX, newY, p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass()));
+            State newState;
+            Set<Particle> newSet = new HashSet<>();
+            for (Particle p : currentState.getParticleSet()) {
+                if (!p.equals(pair.getLeft()) && !p.equals(pair.getRight())) {
+                    // Particula no colisiona, actualizamos su ubicación.
+                    double newX = p.getPosX() + p.getVelocityX() * tc;
+                    double newY = p.getPosY() + p.getVelocityY() * tc;
+                    newSet.add(new Particle(p.getId(), newX, newY, p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass()));
+                }
             }
-
-            //p colisiona con pair.getRight()
-            pair.getRight().update(p);
-
-
-
-        }
 
 
 

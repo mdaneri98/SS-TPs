@@ -2,13 +2,13 @@ package models;
 
 public abstract class Wall implements Obstacle {
 
-    private int L;
+    private double L;
 
-    public Wall(int l) {
+    public Wall(double l) {
         L = l;
     }
 
-    public int getL() {
+    public double getL() {
         return L;
     }
 }
