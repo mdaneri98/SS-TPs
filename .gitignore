@@ -1,0 +1,52 @@
+### IntelliJ IDEA ###
+TP1/out/
+TP1/!**/src/main/**/out/
+TP1/!**/src/test/**/out/
+
+TP2/self-propelled-agents/out/
+TP2/self-propelled-agents/!**/src/main/**/out/
+TP2/self-propelled-agents/!**/src/test/**/out/
+
+# Ignorar archivos de configuración de IDEs (IntelliJ IDEA, PyCharm)
+*.iml
+*.idea/
+*.pyc
+__pycache__/
+
+# Ignorar salidas de test
+TP2/self-propelled-agents/test/outputs_*/
+
+# Ignorar directorios de configuración para TP3
+TP3/.idea/
+TP3/MolecularDynamics/.idea/
+TP3/MolecularDynamics/MolecularDynamics.iml
+
+
+TP3/out/
+TP3/!**/src/main/**/out/
+TP3/!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
