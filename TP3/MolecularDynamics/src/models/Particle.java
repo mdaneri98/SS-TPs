@@ -45,6 +45,22 @@ public class Particle implements Obstacle {
     }
 
     @Override
+    public double timeToCollide(Particle particle) {
+        /* Tiempo en colisionar la particula 'particle' con esta instancia. */
+        Pair<Double, Double> deltaR = new Pair<>(this.getPosX() - particle.getPosX(), this.getPosY() - particle.getPosY() );
+        Pair<Double, Double> deltaV = new Pair<>(this.getVelocityX() - particle.getVelocityX(), this.getVelocityY() - particle.getVelocityY());
+        double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2);
+        double deltaV2 = Math.pow(deltaV.getLeft(), 2) + Math.pow(deltaV.getRight(), 2);;
+        double deltaVDeltaR = deltaV.getLeft() * deltaR.getLeft() + deltaV.getRight() * deltaR.getRight();
+        double phi = particle.getRadius() + this.getRadius();
+        double d = Math.pow(deltaVDeltaR, 2) - deltaV2 * (deltaR2 - phi * phi);
+
+        if (deltaVDeltaR < 0 || d >= 0)
+            return - ((deltaVDeltaR + Math.sqrt(d)) / (deltaV2));
+        return Double.POSITIVE_INFINITY;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

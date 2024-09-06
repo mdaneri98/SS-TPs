@@ -58,13 +58,6 @@ public class MolecularDynamic {
     }
 
 
-    public boolean collideWithWall(Particle p, int L) {
-
-
-        return false;
-    }
-
-
     public void run(int maxEpoch) {
         State currentState = states.get(states.size() - 1);
         TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
