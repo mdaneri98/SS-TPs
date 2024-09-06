@@ -23,6 +23,10 @@ public class State {
         updateCollisionsTimes();
     }
 
+    public Set<Particle> getParticles() {
+        return particleSet;
+    }
+
 
     private void updateCollisionsTimes() {
         for (Particle current : particleSet) {

@@ -59,11 +59,15 @@ public class MolecularDynamic {
 
 
     public void run(int maxEpoch) {
-        State currentState = states.get(states.size() - 1);
-        TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
+        int epoch = 1;
+        while (epoch <= maxEpoch) {
+            State currentState = states.get(epoch - 1);
+            if (currentState == null)
+                break;
+            TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
 
-        double tc = nextCollide.firstKey();
-        Pair<Particle, Obstacle> pair = nextCollide.firstEntry().getValue();
+            double tc = nextCollide.firstKey();
+            Pair<Particle, Obstacle> pair = nextCollide.firstEntry().getValue();
 
 
             State newState;
@@ -77,12 +81,24 @@ public class MolecularDynamic {
                 }
             }
 
+            //p colisiona con pair.getRight()
+            // p1 -> p2     => p1.applyCollision(p2) && p2.applyCollision(p1)
+            // p1 -> |      => |.applyCollision(p1) && p1.applyCollision(|)
+            Obstacle obstacle = pair.getRight();
+            Particle particleCollided = pair.getLeft();
+
+            newSet.add(obstacle.applyCollision(particleCollided));
+            if (obstacle instanceof Particle)
+                newSet.add(particleCollided.applyCollision((Particle) obstacle));
 
 
-
-
-        states.put(newState);
+            states.put(epoch, new State(walls, newSet));
+            epoch++;
+        }
     }
 
+    public Map<Integer, State> getStates() {
+        return states;
+    }
 
 }

@@ -58,23 +58,14 @@ public class Particle implements Obstacle {
         double Jx = (J * deltaRx) / sigma;
         double Jy = (J * deltaRy) / sigma;
 
-        // Actualizar las velocidades de la partícula actual (this)
-        double newVxThis = this.getVelocityX() + Jx / this.getMass();
-        double newVyThis = this.getVelocityY() + Jy / this.getMass();
-
-        // Actualizar las velocidades de la otra partícula (p)
+        // Actualizar las velocidades de la partícula (p)
         double newVxP = p.getVelocityX() - Jx / p.getMass();
         double newVyP = p.getVelocityY() - Jy / p.getMass();
 
-        // Establecer las nuevas velocidades
-        this.setVelocity(Math.sqrt(newVxThis * newVxThis + newVyThis * newVyThis));
-        p.setVelocity(Math.sqrt(newVxP * newVxP + newVyP * newVyP));
+        Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass());
+        newParticle.setAngle(Math.atan2(newVyP, newVxP));
 
-        // Actualizar los ángulos de las partículas
-        this.setAngle(Math.atan2(newVyThis, newVxThis));
-        p.setAngle(Math.atan2(newVyP, newVxP));
-
-
+        return newParticle;
     }
 
     @Override
