@@ -1,7 +1,7 @@
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 
-import models.MolecularDynamic;
+import models.MDImpl;
 import models.Particle;
 import models.State;
 
@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Set;
 
 public class Main {
 
@@ -20,7 +19,7 @@ public class Main {
     public static void save(int N, double L, String directoryPath, Map<Integer, State> states) {
         try {
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
-            String staticPath = Paths.get(directoryPath, "static").toString();
+            String staticPath = Paths.get(directoryPath, "static.txt").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
                 writer.write("" + L + "\n");
                 writer.write("" + N + "\n");
@@ -30,13 +29,13 @@ public class Main {
             }
 
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
-            String dynamicPath = Paths.get(directoryPath, "dynamic").toString();
+            String dynamicPath = Paths.get(directoryPath, "dynamic.txt").toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(dynamicPath))) {
-                for (Integer time : states.keySet()) {
-                    writer.write("" + time);
+                for (Integer index : states.keySet()) {
+                    writer.write("" + states.get(index).getTime());
                     writer.newLine();
 
-                    for (Particle particle : states.get(time).getParticles()) {
+                    for (Particle particle : states.get(index).getParticles()) {
                         writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY() + "\t" + particle.getVelocityX() + "\t" + particle.getVelocityY());
                         writer.newLine();
                     }
@@ -48,21 +47,20 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        int maxEpoch = 800;
+        int maxEpoch = 1000000;
 
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 300;
+        int N = 10;
 
-        MolecularDynamic molecularDynamic = new MolecularDynamic(N, L, staticRadius);
+        MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
         molecularDynamic.run(maxEpoch);
 
         Map<Integer,State> states = molecularDynamic.getStates();
 
-
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
-        Path directoryPath = Paths.get(projectPath, String.format("/output"));
+        Path directoryPath = Paths.get(projectPath, String.format("test/output"));
         Files.createDirectories(directoryPath);
         save(N, L, directoryPath.toString(), states);
 

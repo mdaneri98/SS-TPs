@@ -2,7 +2,7 @@ package models;
 
 import java.util.*;
 
-public class MolecularDynamic {
+public class MDImpl {
 
     private final double VELOCITY = 1;
     private final double RADIUS = 0.001;
@@ -16,7 +16,7 @@ public class MolecularDynamic {
 
     private StaticParticle staticParticle;
 
-    public MolecularDynamic(int n, double l, double staticRadius) {
+    public MDImpl(int n, double l, double staticRadius) {
         N = n;
 
         createWalls(l);
@@ -40,8 +40,8 @@ public class MolecularDynamic {
 
         while (particleSet.size() < N) {
             // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * L;
-            double y = random.nextDouble() * L;
+            double x = random.nextDouble() * (L - RADIUS);
+            double y = random.nextDouble() * (L - RADIUS);
             double angle = random.nextDouble() * Math.PI * 2;
             Particle newParticle = new Particle(particleSet.size(), x, y, VELOCITY, angle, RADIUS, MASS);
 
@@ -54,7 +54,7 @@ public class MolecularDynamic {
             if (!match)
                 particleSet.add(newParticle);
         }
-        return new State(walls, particleSet);
+        return new State(0, walls, particleSet);
     }
 
 
@@ -67,17 +67,16 @@ public class MolecularDynamic {
             TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
 
             double tc = nextCollide.firstKey();
+            System.out.println("TC: " + tc);
             Pair<Particle, Obstacle> pair = nextCollide.firstEntry().getValue();
 
-
-            State newState;
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
                 if (!p.equals(pair.getLeft()) && !p.equals(pair.getRight())) {
                     // Particula no colisiona, actualizamos su ubicación.
-                    double newX = p.getPosX() + p.getVelocityX() * tc;
-                    double newY = p.getPosY() + p.getVelocityY() * tc;
-                    newSet.add(new Particle(p.getId(), newX, newY, p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass()));
+                    Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass());
+                    newParticle.move(tc);
+                    newSet.add(newParticle);
                 }
             }
 
@@ -86,13 +85,15 @@ public class MolecularDynamic {
             // p1 -> |      => |.applyCollision(p1) && p1.applyCollision(|)
             Obstacle obstacle = pair.getRight();
             Particle particleCollided = pair.getLeft();
+            particleCollided.move(tc);
 
             newSet.add(obstacle.applyCollision(particleCollided));
-            if (obstacle instanceof Particle)
-                newSet.add(particleCollided.applyCollision((Particle) obstacle));
-
-
-            states.put(epoch, new State(walls, newSet));
+            if (obstacle instanceof Particle obstacleParticle) {
+                obstacleParticle.move(tc);
+                newSet.add(particleCollided.applyCollision(obstacleParticle));
+            }
+            double previousTime = states.get(epoch-1).getTime();
+            states.put(epoch, new State(previousTime + tc, walls, newSet));
             epoch++;
         }
     }

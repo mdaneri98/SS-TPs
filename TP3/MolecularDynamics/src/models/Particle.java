@@ -37,6 +37,13 @@ public class Particle implements Obstacle {
         return distance + this.radius <= other.radius;
     }
 
+    public void move(double tc) {
+        double newX = this.getPosX() + this.getVelocityX() * tc;
+        double newY = this.getPosY() + this.getVelocityY() * tc;
+        this.setPosX(newX);
+        this.setPosY(newY);
+    }
+
     @Override
     public Particle applyCollision(final Particle p) {
         // Calcular deltaR (diferencia de posiciones) y deltaV (diferencia de velocidades)
@@ -71,18 +78,42 @@ public class Particle implements Obstacle {
     @Override
     public double timeToCollide(Particle particle) {
         /* Tiempo en colisionar la particula 'particle' con esta instancia. */
-        Pair<Double, Double> deltaR = new Pair<>(this.getPosX() - particle.getPosX(), this.getPosY() - particle.getPosY() );
+
+        // Calculamos las diferencias de posición (deltaR) y velocidad (deltaV)
+        Pair<Double, Double> deltaR = new Pair<>(this.getPosX() - particle.getPosX(), this.getPosY() - particle.getPosY());
         Pair<Double, Double> deltaV = new Pair<>(this.getVelocityX() - particle.getVelocityX(), this.getVelocityY() - particle.getVelocityY());
-        double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2);
-        double deltaV2 = Math.pow(deltaV.getLeft(), 2) + Math.pow(deltaV.getRight(), 2);;
-        double deltaVDeltaR = deltaV.getLeft() * deltaR.getLeft() + deltaV.getRight() * deltaR.getRight();
+
+        // Magnitudes al cuadrado
+        double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2); // deltaR^2
+        double deltaV2 = Math.pow(deltaV.getLeft(), 2) + Math.pow(deltaV.getRight(), 2); // deltaV^2
+        double deltaVDeltaR = deltaV.getLeft() * deltaR.getLeft() + deltaV.getRight() * deltaR.getRight(); // deltaV * deltaR
+
+        // La suma de los radios de ambas partículas
         double phi = particle.getRadius() + this.getRadius();
+
+        // Calculamos el discriminante
         double d = Math.pow(deltaVDeltaR, 2) - deltaV2 * (deltaR2 - phi * phi);
 
-        if (deltaVDeltaR < 0 || d >= 0)
-            return - ((deltaVDeltaR + Math.sqrt(d)) / (deltaV2));
+        // Si el discriminante es negativo, no hay colisión
+        if (d < 0) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        // Si deltaVDeltaR es negativo, significa que las partículas están acercándose
+        if (deltaVDeltaR < 0) {
+            // Calculamos el tiempo de colisión
+            double time = -(deltaVDeltaR + Math.sqrt(d)) / deltaV2;
+
+            // Si el tiempo es positivo, devolvemos ese valor, de lo contrario no colisionarán en el futuro
+            if (time > 0) {
+                return time;
+            }
+        }
+
+        // Si las partículas no colisionan en el futuro, devolvemos infinito
         return Double.POSITIVE_INFINITY;
     }
+
 
     @Override
     public boolean equals(Object o) {

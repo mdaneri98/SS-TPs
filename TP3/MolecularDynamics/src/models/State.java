@@ -5,6 +5,7 @@ import java.util.*;
 public class State {
 
 
+    private double time;
     private int L;
 
 
@@ -14,7 +15,8 @@ public class State {
     // <Tiempo de choque, Particulas>
     private TreeMap<Double, Pair<Particle, Obstacle>> collidesByTime;
 
-    public State(List<Wall> walls, Set<Particle> particleSet) {
+    public State(double time, List<Wall> walls, Set<Particle> particleSet) {
+        this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
 
@@ -29,8 +31,10 @@ public class State {
 
 
     private void updateCollisionsTimes() {
+        // Particula que colisiona
         for (Particle current : particleSet) {
             Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
+            //Particula a la que colisiona.
             for (Particle other : particleSet) {
                 double tc = current.timeToCollide(other);
                 if (tc > 0) {
@@ -67,5 +71,9 @@ public class State {
 
     public Set<Particle> getParticleSet() {
         return particleSet;
+    }
+
+    public double getTime() {
+        return time;
     }
 }
