@@ -1,9 +1,7 @@
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 
-import models.MDImpl;
-import models.Particle;
-import models.State;
+import models.*;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
@@ -46,17 +45,28 @@ public class Main {
         }
     }
 
+
+
     public static void main(String[] args) throws Exception {
         int maxEpoch = 1000000;
 
         double L = 0.1;
         double staticRadius = 0.005;
         int N = 10;
+        double collisionDelta = 1;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
-        molecularDynamic.run(maxEpoch);
+        molecularDynamic.run(maxEpoch, collisionDelta);
 
         Map<Integer,State> states = molecularDynamic.getStates();
+        Map<WallType, Wall> walls = molecularDynamic.getWalls();
+
+        for (int i = 0; i < walls.get(WallType.LEFT).getCollisions().size(); i++) {
+            System.out.println(walls.get(WallType.LEFT).getCollisions().get(i));
+        }
+
+
+
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();

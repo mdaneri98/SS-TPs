@@ -9,13 +9,13 @@ public class State {
     private int L;
 
 
-    private List<Wall> walls;
+    private Map<WallType, Wall> walls;
     private Set<Particle> particleSet;
 
     // <Tiempo de choque, Particulas>
     private TreeMap<Double, Pair<Particle, Obstacle>> collidesByTime;
 
-    public State(double time, List<Wall> walls, Set<Particle> particleSet) {
+    public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
         this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
@@ -49,9 +49,8 @@ public class State {
     }
 
     private Pair<Wall, Double> timeUntilCollisionWithWall(Particle p) {
-        // Asumimos que walls.get(0) es una pared horizontal y walls.get(1) es una pared vertical
-        Wall horizontalWall = this.walls.get(0);
-        Wall verticalWall = this.walls.get(1);
+        Wall horizontalWall = this.walls.get(WallType.TOP);
+        Wall verticalWall = this.walls.get(WallType.LEFT);
 
         double timeToVerticalWall = verticalWall.timeToCollide(p);
         double timeToHorizontalWall = horizontalWall.timeToCollide(p);
