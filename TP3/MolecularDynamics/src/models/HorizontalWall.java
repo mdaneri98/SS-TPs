@@ -19,8 +19,8 @@ public class HorizontalWall extends Wall {
     }
 
     public void incrementMomentum(Particle particle) {
-        double newMomentum = this.collisions.get(index) + 2 * particle.getMass() *  Math.abs(particle.getVelocityX());
-        this.collisions.set(index, newMomentum);
+        double newMomentum = this.momentum.get(index) + 2 * particle.getMass() *  Math.abs(particle.getVelocityX());
+        this.momentum.set(index, newMomentum);
     }
 
     @Override

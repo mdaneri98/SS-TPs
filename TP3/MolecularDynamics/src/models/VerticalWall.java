@@ -18,8 +18,8 @@ public class VerticalWall extends Wall {
     }
 
     public void incrementMomentum(Particle particle) {
-        double newMomentum = this.collisions.get(index) + 2 * particle.getMass() * Math.abs(particle.getVelocityY());
-        this.collisions.set(index, newMomentum);
+        double newMomentum = this.momentum.get(index) + 2 * particle.getMass() * Math.abs(particle.getVelocityY());
+        this.momentum.set(index, newMomentum);
     }
 
     @Override

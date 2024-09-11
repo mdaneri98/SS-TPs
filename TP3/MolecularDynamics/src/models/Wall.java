@@ -3,27 +3,27 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Wall implements Obstacle {
+public abstract class Wall implements Obstacle, Pressurable {
 
     protected int index;
-    protected List<Double> collisions;
+    protected List<Double> momentum;
 
     private double L;
 
     public Wall(double l) {
         L = l;
-        collisions = new ArrayList<>();
+        momentum = new ArrayList<>();
         index = 0;
-        collisions.add(0.0);
+        momentum.add(0.0);
     }
 
     public void newInterval() {
         this.index += 1;
-        this.collisions.add(0.0);
+        this.momentum.add(0.0);
     }
 
-    public List<Double> getCollisions() {
-        return collisions;
+    public List<Double> getMomentum() {
+        return momentum;
     }
 
     public double getL() {

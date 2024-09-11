@@ -9,8 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
 
@@ -45,14 +44,39 @@ public class Main {
         }
     }
 
+    public static Map<Double, Double> calculatePressureByTime(Wall wall, double collisionDelta) {
+        Map<Double, Double> pressureByTime = new TreeMap<>();
+        List<Double> momentums = wall.getMomentum();
+        double timeInterval = 0;
+        for (int i = 0; i < momentums.size(); timeInterval += collisionDelta, i++) {
+            double pressure = momentums.get(i) / (timeInterval * wall.getL());
+            pressureByTime.put(timeInterval, pressure);
+        }
+        return pressureByTime;
+    }
+
+    public static Map<Double, Double> calculatePressureByTime(StaticParticle staticParticle, double collisionDelta) {
+        Map<Double, Double> pressureByTime = new TreeMap<>();
+        List<Double> momentums = staticParticle.getMomentum();
+        double timeInterval = 0;
+        for (int i = 0; i < momentums.size(); timeInterval += collisionDelta, i++) {
+            // Área de contacto (aproximación simplificada, puede ser ajustada según el contexto)
+            double contactArea = 4 * Math.PI * Math.pow(staticParticle.getRadius(), 2); // Área total de la esfera (ajustar según el contacto real)
+
+            double pressure = momentums.get(i) / (timeInterval * contactArea);
+            pressureByTime.put(timeInterval, pressure);
+        }
+        return pressureByTime;
+    }
+
 
 
     public static void main(String[] args) throws Exception {
         int maxEpoch = 1000000;
 
-        double L = 0.1;
-        double staticRadius = 0.005;
-        int N = 10;
+        double L = 0.01;
+        double staticRadius = 0.5;
+        int N = 200;
         double collisionDelta = 1;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
@@ -61,10 +85,10 @@ public class Main {
         Map<Integer,State> states = molecularDynamic.getStates();
         Map<WallType, Wall> walls = molecularDynamic.getWalls();
 
-        for (int i = 0; i < walls.get(WallType.LEFT).getCollisions().size(); i++) {
-            System.out.println(walls.get(WallType.LEFT).getCollisions().get(i));
+        Map<Double, Double> pressureByTime = Main.calculatePressureByTime(molecularDynamic.getStaticParticle(), collisionDelta);
+        for (Double time : pressureByTime.keySet()) {
+            System.out.println(time + ": " + pressureByTime.get(time));
         }
-
 
 
 

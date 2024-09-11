@@ -101,6 +101,7 @@ public class MDImpl {
             /* Nuevo intervalo para contabilizar las colisiones por segundo. */
             double previousTime = states.get(epoch-1).getTime();
             if (previousTime + tc >= collisionDelta) {
+                staticParticle.newInterval();
                 walls.get(WallType.BOTTOM).newInterval();
                 walls.get(WallType.RIGHT).newInterval();
                 walls.get(WallType.TOP).newInterval();
@@ -114,6 +115,10 @@ public class MDImpl {
 
     public Map<Integer, State> getStates() {
         return states;
+    }
+
+    public StaticParticle getStaticParticle() {
+        return staticParticle;
     }
 
     public Map<WallType, Wall> getWalls() {

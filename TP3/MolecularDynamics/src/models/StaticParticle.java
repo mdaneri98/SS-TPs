@@ -1,9 +1,19 @@
 package models;
 
-public class StaticParticle extends Particle {
+import java.util.ArrayList;
+import java.util.List;
+
+public class StaticParticle extends Particle implements Pressurable {
+
+    private int index;
+    private List<Double> momentums;
+
 
     public StaticParticle(int id, double posX, double posY, double velocity, double angle, double radius, double mass) {
         super(id, posX, posY, velocity, angle, radius, mass);
+        this.momentums = new ArrayList<>();
+        this.index = 0;
+        this.momentums.addFirst(0.0);
     }
 
     @Override
@@ -43,8 +53,43 @@ public class StaticParticle extends Particle {
         newParticle.setVelocity(Math.sqrt(newVX * newVX + newVY * newVY));
         newParticle.setAngle(Math.atan2(newVY, newVX));
 
+        //Incrementamos momento
+        this.incrementMomentum(particle);
+
         return newParticle;
     }
 
+    @Override
+    public void incrementMomentum(Particle particle) {
+        // Diferencia de posición entre la pared y la partícula
+        double deltaX = this.getPosX() - particle.getPosX();
+        double deltaY = this.getPosY() - particle.getPosY();
+
+        // Ángulo de la línea que conecta los centros de las partículas
+        double normalAngle = Math.atan2(deltaY, deltaX);
+
+        // Componentes de la velocidad tangencial
+        double vX = particle.getVelocityX();
+        double vY = particle.getVelocityY();
+
+        // Velocidades tangencial y normal
+        double velocityNormal = vX * Math.cos(normalAngle) + vY * Math.sin(normalAngle);
+        double velocityTangential = -vX * Math.sin(normalAngle) + vY * Math.cos(normalAngle);
+
+        // Incrementamos el momento usando la componente tangencial
+        double newMomentum = this.momentums.get(index) + 2 * particle.getMass() * Math.abs(velocityTangential);
+        this.momentums.set(index, newMomentum);
+    }
+
+    @Override
+    public List<Double> getMomentum() {
+        return this.momentums;
+    }
+
+    @Override
+    public void newInterval() {
+        this.index += 1;
+        this.momentums.add(index, 0.0);
+    }
 
 }
