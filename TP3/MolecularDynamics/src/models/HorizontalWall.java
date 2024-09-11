@@ -18,14 +18,14 @@ public class HorizontalWall extends Wall {
         return (0 - particle.getRadius() - particle.getPosX()) / particle.getVelocityX();
     }
 
-    public void incrementPressure(Particle particle) {
-        double newPressure = this.collisions.get(index) + 2 * particle.getMass() *  Math.abs(particle.getVelocityX());
-        this.collisions.set(index, newPressure);
+    public void incrementMomentum(Particle particle) {
+        double newMomentum = this.collisions.get(index) + 2 * particle.getMass() *  Math.abs(particle.getVelocityX());
+        this.collisions.set(index, newMomentum);
     }
 
     @Override
     public Particle applyCollision(final Particle p) {
-        this.incrementPressure(p);
+        this.incrementMomentum(p);
         return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), Math.PI - p.getAngle(), p.getRadius(), p.getMass());
     }
 

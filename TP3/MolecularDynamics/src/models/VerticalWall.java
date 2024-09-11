@@ -17,14 +17,14 @@ public class VerticalWall extends Wall {
         return (0 - particle.getPosY() - particle.getRadius()) / particle.getVelocityY();
     }
 
-    public void incrementPressure(Particle particle) {
-        double newPressure = this.collisions.get(index) + 2 * particle.getMass() * Math.abs(particle.getVelocityY());
-        this.collisions.set(index, newPressure);
+    public void incrementMomentum(Particle particle) {
+        double newMomentum = this.collisions.get(index) + 2 * particle.getMass() * Math.abs(particle.getVelocityY());
+        this.collisions.set(index, newMomentum);
     }
 
     @Override
     public Particle applyCollision(Particle p) {
-        this.incrementPressure(p);
+        this.incrementMomentum(p);
         return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), - p.getAngle(), p.getRadius(), p.getMass());
     }
 
