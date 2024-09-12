@@ -108,7 +108,7 @@ if __name__ == "__main__":
     datos, tiempos = leer_datos(archivo_entrada)
 
     # Parámetros de la interpolación
-    intervalo = 1.0  # Define el intervalo de tiempo para la interpolación
+    intervalo = 0.25  # Define el intervalo de tiempo para la interpolación
 
     # Realizar la interpolación
     posiciones_interpoladas = interpolar_posiciones(datos, tiempos, intervalo)

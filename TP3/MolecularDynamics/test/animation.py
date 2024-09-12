@@ -2,16 +2,12 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 from matplotlib.animation import FuncAnimation
-from matplotlib import cm
+from models import Particle
 
 # Definimos las variables N, L y M a nivel del script
 N = 0  # Número de partículas (será leído del archivo static.txt)
 L = 0  # Tamaño del gráfico (será leído del archivo static.txt)
 M = 0  # Valor adicional si es necesario (por ejemplo, para dimensiones adicionales)
-
-min_radius = 1
-default_color = 'black'
-
 
 # Función para leer el archivo static.txt
 def read_static_file(filename):
@@ -28,15 +24,15 @@ def read_static_file(filename):
 
 
 # Función para leer el archivo dynamic.txt
-def read_dynamic_file(filename, N):
-    timesteps = []
+def read_dynamic_file(filename, particles_info, N):
+    states = []
     with open(filename, 'r') as file:
         while True:
             time_line = file.readline().strip()
             if not time_line:
                 break
             t = float(time_line)
-            particle_states = []
+            particles = []
             for i in range(N):
                 values = file.readline().strip().split('\t')
                 idx = int(values[0])
@@ -44,96 +40,79 @@ def read_dynamic_file(filename, N):
                 y = float(values[2])
                 vx = float(values[3])
                 vy = float(values[4])
-                particle_states.append((idx, x, y, vx, vy))
-            timesteps.append((t, particle_states))
-    return timesteps
-
-
-# Función para convertir ángulo en color usando colormap 'hsv'
-def angle_to_color(theta):
-    # Normaliza el ángulo theta al rango [0, 1]
-    normalized_value = (theta % (2 * np.pi)) / (2 * np.pi)
-    # Convierte el valor normalizado a un color usando la colormap hsv
-    color = cm.hsv(normalized_value)
-    return color
-
-def angle_to_gray(theta):
-    # Normaliza el ángulo theta al rango [0, 1]
-    normalized_value = (theta % (2 * np.pi)) / (2 * np.pi)
-    # Mapea el valor normalizado a una escala de grises
-    gray_value = str(normalized_value)  # Matplotlib acepta cadenas para colores de grises, e.g., '0.5'
-    return gray_value
+                # Crear instancia de Particle con el orden correcto
+                particle = Particle(idx, particles_info[i][1], particles_info[i][2], x, y, vx, vy)
+                particles.append(particle)
+            states.append((t, particles))
+    return states
 
 
 # Función para actualizar la animación
-def update(frame, arrows, timesteps):
+def update(frame, circles, timesteps, particles_info):
     _, particle_states = timesteps[frame]
-    for i, arrow in enumerate(arrows):
-        idx, x, y, vx, vy = particle_states[i]
 
-        # Escalar las posiciones para hacer la flecha visible
-        start_x = x - vx * 0.05 * L  # Ajusta el factor de escala 0.1 según sea necesario
-        start_y = y - vy * 0.05 * L
-        end_x = x + vx * 0.05 * L
-        end_y = y + vy * 0.05 * L
+    for i, circle in enumerate(circles):
+        particle = particle_states[i]
+        radius = particles_info[i][1]
 
-        # Asigna el color en escala de grises según el ángulo
-        arrow.set_color('red')
+        # Actualizamos la posición de la circunferencia
+        circle.center = (particle.x, particle.y)
+        circle.radius = radius
 
-        # Actualizamos la posición y dirección de la flecha con cola
-        arrow.set_positions((start_x, start_y), (end_x, end_y))
-
-    return arrows
+    return circles
 
 
 # Función principal para generar la animación
 def animate_particles(static_file, dynamic_file):
     N, L, particles_info = read_static_file(static_file)
-    timesteps = read_dynamic_file(dynamic_file, N)
+    states = read_dynamic_file(dynamic_file, particles_info, N)
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
-    arrows = []
-    for idx, radius, mass, _ in particles_info:
-        # Escalar la flecha según L
-        arrow = patches.FancyArrowPatch((0, 0), (0, 0), color='red', arrowstyle='-|>', mutation_scale=1)
-        ax.add_patch(arrow)
-        arrows.append(arrow)
+    # Crear las circunferencias para representar las partículas
+    circles = []
+    for idx, radius, _, color in particles_info:
+        if (idx == 0):
+            circle = patches.Circle((0, 0), radius=radius, color='orange', fill=True)
+        else:
+            circle = patches.Circle((0, 0), radius=radius, color='black', fill=True)
+        ax.add_patch(circle)
+        circles.append(circle)
 
-    ani = FuncAnimation(fig, update, frames=len(timesteps), fargs=(arrows, timesteps), repeat=False, blit=False, repeat_delay=10000)
+    # Crear la animación
+    ani = FuncAnimation(fig, update, frames=len(states), fargs=(circles, states, particles_info),
+                        repeat=False, blit=True)
     plt.show()
 
 # Función para graficar un frame específico
 def plot_specific_frame(static_file, dynamic_file, frame_number):
     N, L, particles_info = read_static_file(static_file)
-    timesteps = read_dynamic_file(dynamic_file, N)
+    states = read_dynamic_file(dynamic_file, particles_info, N)
 
-    if frame_number >= len(timesteps) or frame_number < 0:
+    if frame_number >= len(states) or frame_number < 0:
         raise ValueError("El número de frame está fuera de los límites.")
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
-    _, particle_states = timesteps[frame_number]
+    _, particle_states = states[frame_number]
 
     for i, (idx, radius, _) in enumerate(particles_info):
-        idx, x, y, vx, vy = particle_states[i]
-
+        particle = particle_states[i]
 
         # Posición inicial de la flecha (en la cola)
-        start_x = x
-        start_y = y
+        start_x = particle.x
+        start_y = particle.y
 
-        # Posición final de la flecha (en la cabeza)
-        end_x = x + vx * 0.1 * L  # Ajusta el factor de escala 0.1 según sea necesario
-        end_y = y + vy * 0.1 * L
+        end_x = particle.x + particle.vx * 1
+        end_y = particle.y + particle.vy * 1 # dt = 1
 
         # Dibujo de la flecha alineada con el movimiento
         arrow = patches.FancyArrowPatch((start_x, start_y), (end_x, end_y), color='black',
-                                        arrowstyle='-|>', mutation_scale=0.1 * L)
+                                        arrowstyle='-|>', mutation_scale=1)
         ax.add_patch(arrow)
 
     plt.show()
@@ -141,4 +120,4 @@ def plot_specific_frame(static_file, dynamic_file, frame_number):
 # Llamada a la función principal con los archivos correspondientes
 animate_particles('output/static.txt', 'output/interpolated_dynamic.txt')
 
-#plot_specific_frame('static', 'dynamic', 0)
+# plot_specific_frame('static.txt', 'dynamic.txt', 0)
