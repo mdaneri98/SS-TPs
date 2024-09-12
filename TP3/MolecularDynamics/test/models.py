@@ -1,7 +1,9 @@
 class Particle:
 
-    def __init__(self, id, x, y, vx, vy):
+    def __init__(self, id, radius, mass, x, y, vx, vy):
         self.id = id
+        self.radius = radius
+        self.mass = mass
         self.x = x
         self.y = y
         self.vx = vx
