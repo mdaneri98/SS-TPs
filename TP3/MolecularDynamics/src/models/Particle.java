@@ -34,7 +34,7 @@ public class Particle implements Obstacle {
         double distance = Math.sqrt(Math.pow(other.posX - this.posX, 2) + Math.pow(other.posY - this.posY, 2));
 
         // Verificar si la partícula actual está completamente dentro de la otra
-        return distance + this.radius <= other.radius;
+        return distance < this.radius + other.radius;
     }
 
     public void move(double tc) {
@@ -121,6 +121,11 @@ public class Particle implements Obstacle {
         if (o == null || getClass() != o.getClass()) return false;
         Particle particle = (Particle) o;
         return id == particle.id;
+    }
+
+    @Override
+    public String toString() {
+        return "Particle[" + this.id + "]";
     }
 
     @Override

@@ -31,8 +31,8 @@ public class MDImpl {
     private void createWalls(double L) {
         walls.put(WallType.BOTTOM, new HorizontalWall(L));
         walls.put(WallType.RIGHT, new VerticalWall(L));
-        walls.put(WallType.TOP, new VerticalWall(L));
-        walls.put(WallType.LEFT, new HorizontalWall(L));
+        walls.put(WallType.TOP, new HorizontalWall(L));
+        walls.put(WallType.LEFT, new VerticalWall(L));
     }
 
     private State generateInitialState(double staticRadius) {
@@ -45,8 +45,8 @@ public class MDImpl {
 
         while (particleSet.size() < N) {
             // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * (L - RADIUS);
-            double y = random.nextDouble() * (L - RADIUS);
+            double x = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
+            double y = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
             double angle = random.nextDouble() * Math.PI * 2;
             Particle newParticle = new Particle(particleSet.size(), x, y, VELOCITY, angle, RADIUS, MASS);
 
@@ -70,6 +70,11 @@ public class MDImpl {
             if (currentState == null)
                 break;
             TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
+            System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
+            for (Double time : nextCollide.keySet()) {
+                Pair<Particle, Obstacle> pair = nextCollide.get(time);
+                System.out.println(time + "s" + " entre " + pair.getLeft() + " y " + pair.getRight());
+            }
 
             double tc = nextCollide.firstKey();
             System.out.println("TC: " + tc);
@@ -90,12 +95,15 @@ public class MDImpl {
             // p1 -> |      => |.applyCollision(p1) && p1.applyCollision(|)
             Obstacle obstacle = pair.getRight();
             Particle particleCollided = pair.getLeft();
-            particleCollided.move(tc);
 
-            newSet.add(obstacle.applyCollision(particleCollided));
             if (obstacle instanceof Particle obstacleParticle) {
+                particleCollided.move(tc);
                 obstacleParticle.move(tc);
                 newSet.add(particleCollided.applyCollision(obstacleParticle));
+                newSet.add(obstacle.applyCollision(particleCollided));
+            } else {
+                particleCollided.move(tc);
+                newSet.add(obstacle.applyCollision(particleCollided));
             }
 
             /* Nuevo intervalo para contabilizar las colisiones por segundo. */

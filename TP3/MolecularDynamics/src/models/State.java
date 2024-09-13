@@ -31,11 +31,13 @@ public class State {
 
 
     private void updateCollisionsTimes() {
-        // Particula que colisiona
-        for (Particle current : particleSet) {
+        List<Particle> particleList = particleSet.stream().toList();
+        for (int i = 0; i < particleList.size(); i++) {
+            Particle current = particleList.get(i);
             Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
             //Particula a la que colisiona.
-            for (Particle other : particleSet) {
+            for (int j = i+1; j < particleList.size(); j++) {
+                Particle other = particleList.get(j);
                 double tc = current.timeToCollide(other);
                 if (tc > 0) {
                     if (timeUntilCollisionWithWall.getRight() < tc) {
@@ -49,17 +51,31 @@ public class State {
     }
 
     private Pair<Wall, Double> timeUntilCollisionWithWall(Particle p) {
-        Wall horizontalWall = this.walls.get(WallType.TOP);
-        Wall verticalWall = this.walls.get(WallType.LEFT);
+        Wall bottomWall = this.walls.get(WallType.BOTTOM);
+        Wall rightWall = this.walls.get(WallType.RIGHT);
+        Wall topWall = this.walls.get(WallType.TOP);
+        Wall leftWall = this.walls.get(WallType.LEFT);
 
-        double timeToVerticalWall = verticalWall.timeToCollide(p);
-        double timeToHorizontalWall = horizontalWall.timeToCollide(p);
+        double timeToBottomWall = bottomWall.timeToCollide(p);
+        double timeToRightWall = rightWall.timeToCollide(p);
+        double timeToTopWall = topWall.timeToCollide(p);
+        double timeToLeftWall = leftWall.timeToCollide(p);
 
         // Comparar los tiempos de colisión y devolver el menor
-        double minTime = Math.min(timeToVerticalWall, timeToHorizontalWall);
+        Map<Wall, Double> timeToWallMap = new HashMap<>();
+        timeToWallMap.put(bottomWall, timeToBottomWall);
+        timeToWallMap.put(rightWall, timeToRightWall);
+        timeToWallMap.put(topWall, timeToTopWall);
+        timeToWallMap.put(leftWall, timeToLeftWall);
 
-        // Determinar la pared con la que colisionará primero
-        Wall collidingWall = (minTime == timeToVerticalWall) ? verticalWall : horizontalWall;
+        // Encontrar el mínimo tiempo
+        Wall collidingWall = timeToWallMap.entrySet()
+                .stream()
+                .min(Comparator.comparing(Map.Entry::getValue))
+                .get()
+                .getKey();
+
+        double minTime = timeToWallMap.get(collidingWall);
 
         return new Pair<>(collidingWall, minTime);
     }

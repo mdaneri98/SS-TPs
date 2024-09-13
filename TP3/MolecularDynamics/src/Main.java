@@ -72,11 +72,11 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        int maxEpoch = 1000000;
+        int maxEpoch = 50;
 
-        double L = 0.01;
-        double staticRadius = 0.5;
-        int N = 200;
+        double L = 0.1;
+        double staticRadius = 0.005;
+        int N = 3;
         double collisionDelta = 1;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);

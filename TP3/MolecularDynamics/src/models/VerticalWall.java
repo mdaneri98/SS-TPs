@@ -9,12 +9,14 @@ public class VerticalWall extends Wall {
 
     @Override
     public double timeToCollide(Particle particle) {
-        if (particle.getVelocityY() == 0) {
-            return Double.POSITIVE_INFINITY;
-        } else if (particle.getVelocityY() > 0) {
-            return (this.getL() - particle.getRadius() - particle.getPosY()) / particle.getVelocityY();
+        if (particle.getVelocityX() == 0) {
+            return Double.POSITIVE_INFINITY; // Nunca colisionará si la velocidad en X es 0
+        } else if (particle.getVelocityX() > 0) {
+            // Colisión con la pared derecha
+            return (this.getL() - particle.getRadius() - particle.getPosX()) / particle.getVelocityX();
         }
-        return (0 - particle.getPosY() - particle.getRadius()) / particle.getVelocityY();
+        // Colisión con la pared izquierda
+        return (particle.getRadius() - particle.getPosX()) / particle.getVelocityX();
     }
 
     public void incrementMomentum(Particle particle) {
@@ -25,7 +27,7 @@ public class VerticalWall extends Wall {
     @Override
     public Particle applyCollision(Particle p) {
         this.incrementMomentum(p);
-        return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), - p.getAngle(), p.getRadius(), p.getMass());
+        return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), Math.PI - p.getAngle(), p.getRadius(), p.getMass());
     }
 
 

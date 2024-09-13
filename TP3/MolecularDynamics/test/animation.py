@@ -83,41 +83,45 @@ def animate_particles(static_file, dynamic_file):
 
     # Crear la animación
     ani = FuncAnimation(fig, update, frames=len(states), fargs=(circles, states, particles_info),
-                        repeat=False, blit=True)
+                        repeat=False, blit=False)
     plt.show()
+
+
 
 # Función para graficar un frame específico
 def plot_specific_frame(static_file, dynamic_file, frame_number):
     N, L, particles_info = read_static_file(static_file)
     states = read_dynamic_file(dynamic_file, particles_info, N)
 
-    if frame_number >= len(states) or frame_number < 0:
-        raise ValueError("El número de frame está fuera de los límites.")
+    # Verificar que el número de frame esté en el rango válido
+    if frame_number < 0 or frame_number >= len(states):
+        print(f"Frame {frame_number} fuera de rango.")
+        return
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
 
+    # Obtener la información del frame específico
     _, particle_states = states[frame_number]
 
-    for i, (idx, radius, _) in enumerate(particles_info):
-        particle = particle_states[i]
+    # Crear y dibujar las circunferencias de las partículas
+    for particle in particle_states:
+        color = 'orange' if particle.id == 0 else 'black'
 
-        # Posición inicial de la flecha (en la cola)
-        start_x = particle.x
-        start_y = particle.y
+        # Crear la circunferencia en la posición (x, y)
+        circle = patches.Circle((particle.x, particle.y), radius=particle.radius, color=color, fill=True)
+        ax.add_patch(circle)
 
-        end_x = particle.x + particle.vx * 1
-        end_y = particle.y + particle.vy * 1 # dt = 1
+        # Agregar el índice de la partícula cerca de la circunferencia
+        ax.text(particle.x, particle.y, str(particle.id), color='green', fontsize=12, ha='center', va='center')
 
-        # Dibujo de la flecha alineada con el movimiento
-        arrow = patches.FancyArrowPatch((start_x, start_y), (end_x, end_y), color='black',
-                                        arrowstyle='-|>', mutation_scale=1)
-        ax.add_patch(arrow)
-
+    plt.title(f"Frame {frame_number}")
     plt.show()
 
-# Llamada a la función principal con los archivos correspondientes
-animate_particles('output/static.txt', 'output/interpolated_dynamic.txt')
 
-# plot_specific_frame('static.txt', 'dynamic.txt', 0)
+
+# Llamada a la función principal con los archivos correspondientes
+#animate_particles('output/static.txt', 'output/dynamic.txt')
+
+plot_specific_frame('output/static.txt', 'output/dynamic.txt', 21)
