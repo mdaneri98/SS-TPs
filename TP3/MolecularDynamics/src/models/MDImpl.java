@@ -1,5 +1,6 @@
 package models;
 
+import java.sql.SQLOutput;
 import java.util.*;
 
 
@@ -28,6 +29,16 @@ public class MDImpl {
         states.put(0, generateInitialState(staticRadius));
     }
 
+    public static MDImpl newInstance(int n, double l, double staticRadius, Set<Particle> initialParticles) {
+        MDImpl current = new MDImpl(n, l, staticRadius);
+
+        current.states = new HashMap<>();
+        current.states.put(0, new State(0, current.getWalls(), initialParticles));
+
+        return current;
+    }
+
+
     private void createWalls(double L) {
         walls.put(WallType.BOTTOM, new HorizontalWall(L));
         walls.put(WallType.RIGHT, new VerticalWall(L));
@@ -47,8 +58,12 @@ public class MDImpl {
             // Posición x aleatoria dentro del área L x L
             double x = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
             double y = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
-            double angle = random.nextDouble() * Math.PI * 2;
-            Particle newParticle = new Particle(particleSet.size(), x, y, VELOCITY, angle, RADIUS, MASS);
+
+            double angle = random.nextDouble() * (2 * Math.PI);
+            double vx = Math.cos(angle) * VELOCITY;
+            double vy = Math.sin(angle) * VELOCITY;
+
+            Particle newParticle = new Particle(particleSet.size(), x, y, vx, vy, RADIUS, MASS);
 
             boolean match = false;
             for (Particle particle : particleSet) {
@@ -67,25 +82,26 @@ public class MDImpl {
         int epoch = 1;
         while (epoch <= maxEpoch) {
             State currentState = states.get(epoch - 1);
-            if (currentState == null)
-                break;
-            TreeMap<Double, Pair<Particle, Obstacle>> nextCollide = currentState.getCollidesByTime();
+            System.out.println("Time[" + currentState.getTime() + "]");
+
+
+            PriorityQueue<Collision> collisionQueue = currentState.getCollisionList();
             System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
-            for (Double time : nextCollide.keySet()) {
-                Pair<Particle, Obstacle> pair = nextCollide.get(time);
-                System.out.println(time + "s" + " entre " + pair.getLeft() + " y " + pair.getRight());
+            for (Collision collision : collisionQueue) {
+                Double time = collision.getTc();
+                System.out.println(time + "s" + " entre " + collision.getParticle() + " y " + collision.getObstacle());
             }
 
-            double tc = nextCollide.firstKey();
-            System.out.println("TC: " + tc);
-            Pair<Particle, Obstacle> pair = nextCollide.firstEntry().getValue();
+
+            Collision nextCollision = collisionQueue.poll();
+            System.out.println("Próxima colisión: " + nextCollision);
 
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
-                if (!p.equals(pair.getLeft()) && !p.equals(pair.getRight())) {
+                if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
                     // Particula no colisiona, actualizamos su ubicación.
-                    Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass());
-                    newParticle.move(tc);
+                    Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
+                    newParticle.move(nextCollision.getTc());
                     newSet.add(newParticle);
                 }
             }
@@ -93,22 +109,22 @@ public class MDImpl {
             //p colisiona con pair.getRight()
             // p1 -> p2     => p1.applyCollision(p2) && p2.applyCollision(p1)
             // p1 -> |      => |.applyCollision(p1) && p1.applyCollision(|)
-            Obstacle obstacle = pair.getRight();
-            Particle particleCollided = pair.getLeft();
+            Obstacle obstacle = nextCollision.getObstacle();
+            Particle particleCollided = nextCollision.getParticle();
 
             if (obstacle instanceof Particle obstacleParticle) {
-                particleCollided.move(tc);
-                obstacleParticle.move(tc);
+                particleCollided.move(nextCollision.getTc());
+                obstacleParticle.move(nextCollision.getTc());
                 newSet.add(particleCollided.applyCollision(obstacleParticle));
                 newSet.add(obstacle.applyCollision(particleCollided));
             } else {
-                particleCollided.move(tc);
+                particleCollided.move(nextCollision.getTc());
                 newSet.add(obstacle.applyCollision(particleCollided));
             }
 
             /* Nuevo intervalo para contabilizar las colisiones por segundo. */
             double previousTime = states.get(epoch-1).getTime();
-            if (previousTime + tc >= collisionDelta) {
+            if (previousTime + nextCollision.getTc() >= collisionDelta) {
                 staticParticle.newInterval();
                 walls.get(WallType.BOTTOM).newInterval();
                 walls.get(WallType.RIGHT).newInterval();
@@ -116,7 +132,15 @@ public class MDImpl {
                 walls.get(WallType.LEFT).newInterval();
             }
 
-            states.put(epoch, new State(previousTime + tc, walls, newSet));
+            /*
+            for (Particle p : currentState.getParticleSet()) {
+                if (p.getId() != 0 && Math.hypot(p.getVelX(), p.getVelY()) != VELOCITY) {
+                    System.out.println("Velocidad: " + p.getVelX() + p.getVelY() + " | Módulo: " + Math.hypot(p.getVelX(), p.getVelY()));
+                }
+            }
+             */
+
+            states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
             epoch++;
         }
     }

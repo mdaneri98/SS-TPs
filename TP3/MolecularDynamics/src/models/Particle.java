@@ -7,17 +7,17 @@ public class Particle implements Obstacle {
     private int id;
     private double posX;
     private double posY;
-    private double velocity;
-    private double angle;
+    private double velX;
+    private double velY;
     private double radius;
     private double mass;
 
-    public Particle(int id, double posX, double posY, double velocity, double angle, double radius, double mass) {
+    public Particle(int id, double posX, double posY, double velX, double velY, double radius, double mass) {
         this.id = id;
         this.posX = posX;
         this.posY = posY;
-        this.velocity = velocity;
-        this.angle = (angle + (2 * Math.PI)) % (2 * Math.PI);
+        this.velX = velX;
+        this.velY = velY;
         this.radius = radius;
         this.mass = mass;
     }
@@ -38,8 +38,8 @@ public class Particle implements Obstacle {
     }
 
     public void move(double tc) {
-        double newX = this.getPosX() + this.getVelocityX() * tc;
-        double newY = this.getPosY() + this.getVelocityY() * tc;
+        double newX = this.getPosX() + this.getVelX() * tc;
+        double newY = this.getPosY() + this.getVelY() * tc;
         this.setPosX(newX);
         this.setPosY(newY);
     }
@@ -49,8 +49,8 @@ public class Particle implements Obstacle {
         // Calcular deltaR (diferencia de posiciones) y deltaV (diferencia de velocidades)
         double deltaRx = p.getPosX() - this.getPosX();
         double deltaRy = p.getPosY() - this.getPosY();
-        double deltaVx = p.getVelocityX() - this.getVelocityX();
-        double deltaVy = p.getVelocityY() - this.getVelocityY();
+        double deltaVx = p.getVelX() - this.getVelX();
+        double deltaVy = p.getVelY() - this.getVelY();
 
         // Calcular el valor de sigma (distancia entre centros)
         double sigma = this.getRadius() + p.getRadius();
@@ -66,11 +66,10 @@ public class Particle implements Obstacle {
         double Jy = (J * deltaRy) / sigma;
 
         // Actualizar las velocidades de la partícula (p)
-        double newVxP = p.getVelocityX() - Jx / p.getMass();
-        double newVyP = p.getVelocityY() - Jy / p.getMass();
+        double newVxP = p.getVelX() - Jx / p.getMass();
+        double newVyP = p.getVelY() - Jy / p.getMass();
 
-        Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelocity(), p.getAngle(), p.getRadius(), p.getMass());
-        newParticle.setAngle(Math.atan2(newVyP, newVxP));
+        Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
 
         return newParticle;
     }
@@ -81,7 +80,7 @@ public class Particle implements Obstacle {
 
         // Calculamos las diferencias de posición (deltaR) y velocidad (deltaV)
         Pair<Double, Double> deltaR = new Pair<>(this.getPosX() - particle.getPosX(), this.getPosY() - particle.getPosY());
-        Pair<Double, Double> deltaV = new Pair<>(this.getVelocityX() - particle.getVelocityX(), this.getVelocityY() - particle.getVelocityY());
+        Pair<Double, Double> deltaV = new Pair<>(this.getVelX() - particle.getVelX(), this.getVelY() - particle.getVelY());
 
         // Magnitudes al cuadrado
         double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2); // deltaR^2
@@ -92,7 +91,7 @@ public class Particle implements Obstacle {
         double phi = particle.getRadius() + this.getRadius();
 
         // Calculamos el discriminante
-        double d = Math.pow(deltaVDeltaR, 2) - deltaV2 * (deltaR2 - phi * phi);
+        double d = Math.pow(deltaVDeltaR, 2) - deltaV2 * (deltaR2 - (phi * phi));
 
         // Si el discriminante es negativo, no hay colisión
         if (d < 0) {
@@ -133,14 +132,6 @@ public class Particle implements Obstacle {
         return Objects.hash(id);
     }
 
-    public double getVelocityX() {
-        return this.velocity * Math.cos(this.getAngle());
-    }
-
-    public double getVelocityY() {
-        return this.velocity * Math.sin(this.getAngle());
-    }
-
     // Getters and Setters
     public int getId() {
         return id;
@@ -166,20 +157,20 @@ public class Particle implements Obstacle {
         this.posY = posY;
     }
 
-    public double getVelocity() {
-        return velocity;
+    public double getVelX() {
+        return velX;
     }
 
-    public void setVelocity(double velocity) {
-        this.velocity = velocity;
+    public void setVelX(double velX) {
+        this.velX = velX;
     }
 
-    public double getAngle() {
-        return angle;
+    public double getVelY() {
+        return velY;
     }
 
-    public void setAngle(double angle) {
-        this.angle = (angle + 2*Math.PI) % (2 * Math.PI);
+    public void setVelY(double velY) {
+        this.velY = velY;
     }
 
     public double getRadius() {

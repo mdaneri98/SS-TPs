@@ -13,14 +13,14 @@ public class State {
     private Set<Particle> particleSet;
 
     // <Tiempo de choque, Particulas>
-    private TreeMap<Double, Pair<Particle, Obstacle>> collidesByTime;
+    private PriorityQueue<Collision> collisionQueue;
 
     public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
         this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
 
-        collidesByTime = new TreeMap<>();
+        collisionQueue = new PriorityQueue<>();
 
         updateCollisionsTimes();
     }
@@ -31,19 +31,18 @@ public class State {
 
 
     private void updateCollisionsTimes() {
-        List<Particle> particleList = particleSet.stream().toList();
-        for (int i = 0; i < particleList.size(); i++) {
-            Particle current = particleList.get(i);
+        for (Particle current : particleSet) {
             Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
             //Particula a la que colisiona.
-            for (int j = i+1; j < particleList.size(); j++) {
-                Particle other = particleList.get(j);
+            for (Particle other : particleSet) {
+                if (current.equals(other))
+                    continue;
                 double tc = current.timeToCollide(other);
                 if (tc > 0) {
                     if (timeUntilCollisionWithWall.getRight() < tc) {
-                        collidesByTime.put(timeUntilCollisionWithWall.getRight(), new Pair<>(current, timeUntilCollisionWithWall.getLeft()));
+                        collisionQueue.add(new Collision(timeUntilCollisionWithWall.getRight(), current, timeUntilCollisionWithWall.getLeft()));
                     } else {
-                        collidesByTime.put(tc, new Pair<>(current, other));
+                        collisionQueue.add(new Collision(tc, current, other));
                     }
                 }
             }
@@ -80,8 +79,8 @@ public class State {
         return new Pair<>(collidingWall, minTime);
     }
 
-    public TreeMap<Double, Pair<Particle, Obstacle>> getCollidesByTime() {
-        return collidesByTime;
+    public PriorityQueue<Collision> getCollisionList() {
+        return collisionQueue;
     }
 
     public Set<Particle> getParticleSet() {

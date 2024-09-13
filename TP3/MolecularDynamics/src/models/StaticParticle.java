@@ -24,8 +24,8 @@ public class StaticParticle extends Particle implements Pressurable {
         double angle = Math.atan2(deltaY, deltaX); // Ángulo entre las partículas
 
         // Obtener componentes de la velocidad de la partícula incidente
-        double vX = particle.getVelocityX();
-        double vY = particle.getVelocityY();
+        double vX = particle.getVelX();
+        double vY = particle.getVelY();
 
         // Coeficientes cn y ct
         double cn = -1;
@@ -47,11 +47,10 @@ public class StaticParticle extends Particle implements Pressurable {
         double newVY = (-(cn + ct) * sin * cos) * vX
                 + (-cn * Math.pow(sin, 2) + ct * Math.pow(cos, 2)) * vY;
 
-        Particle newParticle = new Particle(particle.getId(), particle.getPosX(), particle.getPosY(), particle.getVelocity(), particle.getAngle(), particle.getRadius(), particle.getMass());
+        Particle newParticle = new Particle(particle.getId(), particle.getPosX(), particle.getPosY(), newVX, newVY, particle.getRadius(), particle.getMass());
 
         // Actualizar la velocidad de la partícula incidente después de la colisión
-        newParticle.setVelocity(Math.sqrt(newVX * newVX + newVY * newVY));
-        newParticle.setAngle(Math.atan2(newVY, newVX));
+        //newParticle.setAngle(Math.atan2(newVY, newVX));
 
         //Incrementamos momento
         this.incrementMomentum(particle);
@@ -69,8 +68,8 @@ public class StaticParticle extends Particle implements Pressurable {
         double normalAngle = Math.atan2(deltaY, deltaX);
 
         // Componentes de la velocidad tangencial
-        double vX = particle.getVelocityX();
-        double vY = particle.getVelocityY();
+        double vX = particle.getVelX();
+        double vY = particle.getVelY();
 
         // Velocidades tangencial y normal
         double velocityNormal = vX * Math.cos(normalAngle) + vY * Math.sin(normalAngle);
