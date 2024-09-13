@@ -31,21 +31,28 @@ public class State {
 
 
     private void updateCollisionsTimes() {
+        Set<Obstacle> visited = new HashSet<>();
         for (Particle current : particleSet) {
+            if (visited.contains(current))
+                continue;
+
             Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
-            //Particula a la que colisiona.
             for (Particle other : particleSet) {
-                if (current.equals(other))
+                if (current.equals(other) || visited.contains(other))
                     continue;
                 double tc = current.timeToCollide(other);
                 if (tc > 0) {
                     if (timeUntilCollisionWithWall.getRight() < tc) {
+                        if (visited.contains(timeUntilCollisionWithWall.getLeft()))
+                            continue;
+                        visited.add(timeUntilCollisionWithWall.getLeft());
                         collisionQueue.add(new Collision(timeUntilCollisionWithWall.getRight(), current, timeUntilCollisionWithWall.getLeft()));
                     } else {
                         collisionQueue.add(new Collision(tc, current, other));
                     }
                 }
             }
+            visited.add(current);
         }
     }
 

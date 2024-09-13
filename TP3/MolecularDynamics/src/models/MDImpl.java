@@ -56,8 +56,8 @@ public class MDImpl {
 
         while (particleSet.size() < N) {
             // Posición x aleatoria dentro del área L x L
-            double x = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
-            double y = random.nextDouble() * (L - 2 * RADIUS) + RADIUS;
+            double x = RADIUS + random.nextDouble() * (L - 2 * RADIUS);
+            double y = RADIUS + random.nextDouble() * (L - 2 * RADIUS);
 
             double angle = random.nextDouble() * (2 * Math.PI);
             double vx = Math.cos(angle) * VELOCITY;
@@ -99,6 +99,10 @@ public class MDImpl {
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
                 if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
+                    String green = "\u001B[32m";
+                    String reset = "\u001B[0m";
+                    System.out.println(green + "Movilizamo la particula " + p + reset);
+
                     // Particula no colisiona, actualizamos su ubicación.
                     Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
                     newParticle.move(nextCollision.getTc());

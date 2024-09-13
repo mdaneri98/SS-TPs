@@ -147,7 +147,7 @@ public class Main {
 
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 3;
+        int N = 5;
         double collisionDelta = 1;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
