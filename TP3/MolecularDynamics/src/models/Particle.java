@@ -124,7 +124,15 @@ public class Particle implements Obstacle {
 
     @Override
     public String toString() {
-        return "Particle[" + this.id + "]";
+        return "Particle{" +
+                "id=" + id +
+                ", posX=" + posX +
+                ", posY=" + posY +
+                ", velX=" + velX +
+                ", velY=" + velY +
+                ", radius=" + radius +
+                ", mass=" + mass +
+                '}';
     }
 
     @Override

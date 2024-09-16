@@ -40,17 +40,15 @@ public class MDImpl {
 
 
     private void createWalls(double L) {
-        walls.put(WallType.BOTTOM, new HorizontalWall(L));
-        walls.put(WallType.RIGHT, new VerticalWall(L));
-        walls.put(WallType.TOP, new HorizontalWall(L));
-        walls.put(WallType.LEFT, new VerticalWall(L));
+        walls.put(WallType.HORIZONTAL, new HorizontalWall(L));
+        walls.put(WallType.VERTICAL, new VerticalWall(L));
     }
 
     private State generateInitialState(double staticRadius) {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
 
-        double L = walls.get(WallType.LEFT).getL();
+        double L = walls.get(WallType.VERTICAL).getL();
         staticParticle = new StaticParticle(0, L/2.0, L/2.0, 0, 0, staticRadius, MASS);
         particleSet.add(staticParticle);
 
@@ -84,16 +82,23 @@ public class MDImpl {
             State currentState = states.get(epoch - 1);
             System.out.println("Time[" + currentState.getTime() + "]");
 
+/*            for (Particle particle: currentState.getParticleSet()) {
+                System.out.println(particle);
+            }*/
 
-            PriorityQueue<Collision> collisionQueue = currentState.getCollisionList();
+            TreeSet<Collision> collisionList = currentState.getCollisionList();
             System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
-            for (Collision collision : collisionQueue) {
+            for (Collision collision : collisionList) {
                 Double time = collision.getTc();
                 System.out.println(time + "s" + " entre " + collision.getParticle() + " y " + collision.getObstacle());
             }
 
 
-            Collision nextCollision = collisionQueue.poll();
+            if (collisionList.isEmpty()) {
+                System.out.println("No hay más colisiones.");
+                break;
+            }
+            Collision nextCollision = collisionList.getFirst();
             System.out.println("Próxima colisión: " + nextCollision);
 
             Set<Particle> newSet = new HashSet<>();
@@ -130,10 +135,8 @@ public class MDImpl {
             double previousTime = states.get(epoch-1).getTime();
             if (previousTime + nextCollision.getTc() >= collisionDelta) {
                 staticParticle.newInterval();
-                walls.get(WallType.BOTTOM).newInterval();
-                walls.get(WallType.RIGHT).newInterval();
-                walls.get(WallType.TOP).newInterval();
-                walls.get(WallType.LEFT).newInterval();
+                walls.get(WallType.VERTICAL).newInterval();
+                walls.get(WallType.HORIZONTAL).newInterval();
             }
 
             /*
@@ -146,6 +149,9 @@ public class MDImpl {
 
             states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
             epoch++;
+            collisionList.removeFirst();
+            State nextState = states.get(epoch - 1);
+            nextState.updateCollisionsTimes();
         }
     }
 

@@ -29,7 +29,12 @@ public class HorizontalWall extends Wall {
     @Override
     public Particle applyCollision(final Particle p) {
         this.incrementMomentum(p);
-        return new Particle(p.getId(), p.getPosX(), p.getPosY(), -p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
+        return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(),- p.getVelY(), p.getRadius(), p.getMass());
+    }
+
+    @Override
+    public String toString() {
+        return "HorizontalWall";
     }
 
 

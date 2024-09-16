@@ -44,9 +44,9 @@ public class Main {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileDynamicPath))) {
             //Salteamos la primer linea.
             reader.readLine();
-
+            int i = 0;
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null && i < N) {
                 String[] parts = line.trim().split("\t");
 
                 int idx = Integer.parseInt(parts[0]);
@@ -60,6 +60,7 @@ public class Main {
                 p.setPosY(posY);
                 p.setVelX(velX);
                 p.setVelY(velY);
+                i++;
             }
         } catch (IOException e) {
             System.err.println("Error leyendo el archivo: " + e.getMessage());
@@ -124,7 +125,7 @@ public class Main {
     }
 
 
-    public static void mainA(String[] args) throws Exception {
+    public static void main2(String[] args) throws Exception {
         int maxEpoch = 50;
 
         double L = 0.1;
@@ -135,7 +136,7 @@ public class Main {
         String projectPath = Paths.get("").toAbsolutePath().toString();
         Path directoryPath = Paths.get(projectPath, String.format("test/output"));
 
-        Set<Particle> particleSet = Main.loadFromFile(directoryPath + "/static.txt", directoryPath + "dynamic.txt");
+        Set<Particle> particleSet = Main.loadFromFile(directoryPath + "/static.txt", directoryPath + "/dynamic.txt");
         MDImpl molecularDynamic = MDImpl.newInstance(N, L, staticRadius, particleSet);
         molecularDynamic.run(maxEpoch, collisionDelta);
 
