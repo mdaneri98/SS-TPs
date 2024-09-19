@@ -126,11 +126,11 @@ public class Main {
 
 
     public static void main2(String[] args) throws Exception {
-        int maxEpoch = 50;
+        int maxEpoch = 500;
 
         double L = 0.1;
-        double staticRadius = 0.005;
-        int N = 5;
+        double staticRadius = 0.05;
+        int N = 250;
         double collisionDelta = 1;
 
         String projectPath = Paths.get("").toAbsolutePath().toString();
@@ -152,11 +152,11 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        int maxEpoch = 50;
+        int maxEpoch = 500;
 
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 5;
+        int N = 250;
         double collisionDelta = 1;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);

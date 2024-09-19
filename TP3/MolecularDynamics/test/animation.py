@@ -9,6 +9,7 @@ N = 0  # Número de partículas (será leído del archivo static.txt)
 L = 0  # Tamaño del gráfico (será leído del archivo static.txt)
 M = 0  # Valor adicional si es necesario (por ejemplo, para dimensiones adicionales)
 
+
 # Función para leer el archivo static.txt
 def read_static_file(filename):
     global N, L
@@ -87,7 +88,6 @@ def animate_particles(static_file, dynamic_file):
     plt.show()
 
 
-
 # Función para graficar un frame específico
 def plot_specific_frame(static_file, dynamic_file, frame_number):
     N, L, particles_info = read_static_file(static_file)
@@ -120,8 +120,7 @@ def plot_specific_frame(static_file, dynamic_file, frame_number):
     plt.show()
 
 
-
 # Llamada a la función principal con los archivos correspondientes
-#animate_particles('output/static.txt', 'output/dynamic.txt')
+animate_particles('output/static.txt', 'output/dynamic.txt')
 
-plot_specific_frame('output/static.txt', 'output/dynamic.txt', 5)
+# plot_specific_frame('output/static.txt', 'output/dynamic.txt', 5)

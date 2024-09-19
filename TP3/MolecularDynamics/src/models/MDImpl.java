@@ -82,17 +82,12 @@ public class MDImpl {
             State currentState = states.get(epoch - 1);
             System.out.println("Time[" + currentState.getTime() + "]");
 
-/*            for (Particle particle: currentState.getParticleSet()) {
-                System.out.println(particle);
-            }*/
-
             TreeSet<Collision> collisionList = currentState.getCollisionList();
             System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
             for (Collision collision : collisionList) {
                 Double time = collision.getTc();
                 System.out.println(time + "s" + " entre " + collision.getParticle() + " y " + collision.getObstacle());
             }
-
 
             if (collisionList.isEmpty()) {
                 System.out.println("No hay más colisiones.");
@@ -127,6 +122,8 @@ public class MDImpl {
                 newSet.add(obstacleParticle.applyCollision(particleCollided));
                 if (obstacleParticle.getId() != 0) {
                     newSet.add(particleCollided.applyCollision(obstacleParticle));
+                } else {
+                    newSet.add(obstacleParticle);
                 }
             } else {
                 particleCollided.move(nextCollision.getTc());
