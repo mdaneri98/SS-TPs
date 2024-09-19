@@ -106,7 +106,7 @@ public class MDImpl {
                 if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
                     String green = "\u001B[32m";
                     String reset = "\u001B[0m";
-                    System.out.println(green + "Movilizamo la particula " + p + reset);
+                    System.out.println(green + "Movilizamos la particula " + p + reset);
 
                     // Particula no colisiona, actualizamos su ubicación.
                     Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
@@ -124,8 +124,10 @@ public class MDImpl {
             if (obstacle instanceof Particle obstacleParticle) {
                 particleCollided.move(nextCollision.getTc());
                 obstacleParticle.move(nextCollision.getTc());
-                newSet.add(particleCollided.applyCollision(obstacleParticle));
-                newSet.add(obstacle.applyCollision(particleCollided));
+                newSet.add(obstacleParticle.applyCollision(particleCollided));
+                if (obstacleParticle.getId() != 0) {
+                    newSet.add(particleCollided.applyCollision(obstacleParticle));
+                }
             } else {
                 particleCollided.move(nextCollision.getTc());
                 newSet.add(obstacle.applyCollision(particleCollided));

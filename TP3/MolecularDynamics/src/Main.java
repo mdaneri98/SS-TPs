@@ -130,7 +130,7 @@ public class Main {
 
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 3;
+        int N = 5;
         double collisionDelta = 1;
 
         String projectPath = Paths.get("").toAbsolutePath().toString();
@@ -139,6 +139,14 @@ public class Main {
         Set<Particle> particleSet = Main.loadFromFile(directoryPath + "/static.txt", directoryPath + "/dynamic.txt");
         MDImpl molecularDynamic = MDImpl.newInstance(N, L, staticRadius, particleSet);
         molecularDynamic.run(maxEpoch, collisionDelta);
+
+        Map<Integer,State> states = molecularDynamic.getStates();
+        Map<WallType, Wall> walls = molecularDynamic.getWalls();
+
+
+        // --- Save ---
+        Files.createDirectories(directoryPath);
+        save(N, L, directoryPath.toString(), states);
 
     }
 
@@ -157,10 +165,10 @@ public class Main {
         Map<Integer,State> states = molecularDynamic.getStates();
         Map<WallType, Wall> walls = molecularDynamic.getWalls();
 
-        Map<Double, Double> pressureByTime = Main.calculatePressureByTime(molecularDynamic.getStaticParticle(), collisionDelta);
+/*        Map<Double, Double> pressureByTime = Main.calculatePressureByTime(molecularDynamic.getStaticParticle(), collisionDelta);
         for (Double time : pressureByTime.keySet()) {
             System.out.println(time + ": " + pressureByTime.get(time));
-        }
+        }*/
 
 
 

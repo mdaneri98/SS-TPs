@@ -124,4 +124,4 @@ def plot_specific_frame(static_file, dynamic_file, frame_number):
 # Llamada a la función principal con los archivos correspondientes
 #animate_particles('output/static.txt', 'output/dynamic.txt')
 
-plot_specific_frame('output/static.txt', 'output/dynamic.txt', 13)
+plot_specific_frame('output/static.txt', 'output/dynamic.txt', 5)
