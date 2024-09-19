@@ -21,14 +21,12 @@ public class HorizontalWall extends Wall {
     }
 
 
-    public void incrementMomentum(Particle particle) {
-        double newMomentum = this.momentum.get(index) + 2 * particle.getMass() *  Math.abs(particle.getVelX());
-        this.momentum.set(index, newMomentum);
+    public Double getMomentum(Particle particle) {
+        return 2 * particle.getMass() *  Math.abs(particle.getVelY());
     }
 
     @Override
     public Particle applyCollision(final Particle p) {
-        this.incrementMomentum(p);
         return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(),- p.getVelY(), p.getRadius(), p.getMass());
     }
 

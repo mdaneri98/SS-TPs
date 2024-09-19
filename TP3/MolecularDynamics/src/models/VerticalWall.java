@@ -19,15 +19,14 @@ public class VerticalWall extends Wall {
         return (particle.getRadius() - particle.getPosX()) / particle.getVelX();
     }
 
-    public void incrementMomentum(Particle particle) {
-        double newMomentum = this.momentum.get(index) + 2 * particle.getMass() * Math.abs(particle.getVelY());
-        this.momentum.set(index, newMomentum);
+    @Override
+    public Double getMomentum(Particle particle) {
+        return 2 * particle.getMass() * Math.abs(particle.getVelX());
     }
 
     @Override
     public Particle applyCollision(Particle p) {
-        this.incrementMomentum(p);
-        return new Particle(p.getId(), p.getPosX(), p.getPosY(),- p.getVelX(),p.getVelY(), p.getRadius(), p.getMass());
+        return new Particle(p.getId(), p.getPosX(), p.getPosY(),- p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
     }
 
     @Override

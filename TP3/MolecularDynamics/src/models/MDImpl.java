@@ -13,8 +13,13 @@ public class MDImpl {
 
     private int N;
 
+    private double staticRadius;
+
     // Horizontal, Vertical
     private Map<WallType, Wall> walls = new HashMap<>();
+    private Map<Double, Double> wallsPressure = new HashMap<>();
+    private Map<Double, Double> staticParticlePressure = new HashMap<>();
+
 
     private Map<Integer, State> states;
 
@@ -22,11 +27,10 @@ public class MDImpl {
 
     public MDImpl(int n, double l, double staticRadius) {
         N = n;
+        this.staticRadius = staticRadius;
+        states = new HashMap<>();
 
         createWalls(l);
-
-        states = new HashMap<>();
-        states.put(0, generateInitialState(staticRadius));
     }
 
     public static MDImpl newInstance(int n, double l, double staticRadius, Set<Particle> initialParticles) {
@@ -44,7 +48,7 @@ public class MDImpl {
         walls.put(WallType.VERTICAL, new VerticalWall(L));
     }
 
-    private State generateInitialState(double staticRadius) {
+    private State generateInitialState(double time, double staticRadius) {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
 
@@ -72,14 +76,17 @@ public class MDImpl {
             if (!match)
                 particleSet.add(newParticle);
         }
-        return new State(0, walls, particleSet);
+        return new State(time, walls, particleSet);
     }
 
 
-    public void run(int maxEpoch, double collisionDelta) {
+    public void run(int maxSeconds, double collisionDelta) {
         int epoch = 1;
-        while (epoch <= maxEpoch) {
-            State currentState = states.get(epoch - 1);
+
+        double start = System.currentTimeMillis();
+        states.put(0, generateInitialState(0, this.staticRadius));
+        while (true) {
+            State currentState = states.get(states.size()-1);
             System.out.println("Time[" + currentState.getTime() + "]");
 
             TreeSet<Collision> collisionList = currentState.getCollisionList();
@@ -120,6 +127,10 @@ public class MDImpl {
                 particleCollided.move(nextCollision.getTc());
                 obstacleParticle.move(nextCollision.getTc());
                 newSet.add(obstacleParticle.applyCollision(particleCollided));
+
+                if (obstacleParticle instanceof MomentumObstacle momentumObstacle)
+                    staticParticlePressure.put(currentState.getTime(), momentumObstacle.getMomentum(particleCollided));
+
                 if (obstacleParticle.getId() != 0) {
                     newSet.add(particleCollided.applyCollision(obstacleParticle));
                 } else {
@@ -128,30 +139,85 @@ public class MDImpl {
             } else {
                 particleCollided.move(nextCollision.getTc());
                 newSet.add(obstacle.applyCollision(particleCollided));
+
+                if (obstacle instanceof MomentumObstacle mo)
+                    wallsPressure.put(currentState.getTime(), mo.getMomentum(particleCollided));
             }
 
-            /* Nuevo intervalo para contabilizar las colisiones por segundo. */
             double previousTime = states.get(epoch-1).getTime();
-            if (previousTime + nextCollision.getTc() >= collisionDelta) {
-                staticParticle.newInterval();
-                walls.get(WallType.VERTICAL).newInterval();
-                walls.get(WallType.HORIZONTAL).newInterval();
-            }
-
-            /*
-            for (Particle p : currentState.getParticleSet()) {
-                if (p.getId() != 0 && Math.hypot(p.getVelX(), p.getVelY()) != VELOCITY) {
-                    System.out.println("Velocidad: " + p.getVelX() + p.getVelY() + " | Módulo: " + Math.hypot(p.getVelX(), p.getVelY()));
-                }
-            }
-             */
-
+            double end = System.currentTimeMillis();
             states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
             epoch++;
             collisionList.removeFirst();
-            State nextState = states.get(epoch - 1);
-            nextState.updateCollisionsTimes();
+
+            if (end - start > maxSeconds) {
+                break;
+            }
         }
+    }
+
+
+    private List<List<Double>> getMomentums(double deltaTime, Map<Double, Double> momentumsByTime) {
+        // Encontrar el tiempo máximo para determinar el tamaño de la lista
+        double maxTime = Collections.max(momentumsByTime.keySet());
+
+        // Crear una lista donde cada índice será un múltiplo de deltaT
+        int size = (int) Math.ceil(maxTime / deltaTime);
+        List<List<Double>> momentums = new ArrayList<>();
+
+        // Inicializar cada índice con una nueva lista vacía
+        for (int i = 0; i < size; i++) {
+            momentums.add(new ArrayList<>());
+        }
+
+        // Iterar sobre el mapa combinado y agregar los valores a la lista correspondiente
+        for (Map.Entry<Double, Double> entry : momentumsByTime.entrySet()) {
+            double collisionTime = entry.getKey();
+            double momentum = entry.getValue();
+
+            // Encontrar el índice correspondiente en la lista
+            int index = (int) Math.floor(collisionTime / deltaTime);
+
+            // Sumar el valor del momento al índice correspondiente
+            List<Double> frame = momentums.get(index);
+            frame.add(momentum);
+        }
+        return momentums;
+    }
+
+    public Map<Double, Double> calculatePressureForWalls(double deltaTime) {
+        Map<Double, Double> pressureByTime = new TreeMap<>();
+        List<List<Double>> momentums = this.getMomentums(deltaTime, this.wallsPressure);
+
+
+        for (int i = 0; i < momentums.size(); i++) {
+            double sumMomentum = 0;
+            for (Double momentum : momentums.get(i)) {
+                sumMomentum += momentum;
+            }
+
+            double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * this.getWalls().get(WallType.VERTICAL).getL());
+            pressureByTime.put(deltaTime*i, pressure);
+        }
+        return pressureByTime;
+    }
+
+    public Map<Double, Double> calculatePressureForStatic(double deltaTime) {
+        Map<Double, Double> pressureByTime = new TreeMap<>();
+        List<List<Double>> momentums = this.getMomentums(deltaTime, this.wallsPressure);
+
+
+        for (int i = 0; i < momentums.size(); i++) {
+            double sumMomentum = 0;
+            for (Double momentum : momentums.get(i)) {
+                sumMomentum += momentum;
+            }
+            double contactArea = 4 * Math.PI * Math.pow(staticParticle.getRadius(), 2); // Área total de la esfera (ajustar según el contacto real)
+
+            double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * contactArea);
+            pressureByTime.put(deltaTime*i, pressure);
+        }
+        return pressureByTime;
     }
 
     public Map<Integer, State> getStates() {

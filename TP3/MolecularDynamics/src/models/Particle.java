@@ -113,7 +113,6 @@ public class Particle implements Obstacle {
         return Double.POSITIVE_INFINITY;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
