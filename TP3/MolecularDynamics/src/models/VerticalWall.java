@@ -19,8 +19,7 @@ public class VerticalWall extends Wall {
         return (particle.getRadius() - particle.getPosX()) / particle.getVelX();
     }
 
-    @Override
-    public Double getMomentum(Particle particle) {
+    public double getMomentum(Particle particle) {
         return 2 * particle.getMass() * Math.abs(particle.getVelX());
     }
 

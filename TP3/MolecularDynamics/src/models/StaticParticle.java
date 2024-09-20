@@ -3,7 +3,7 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StaticParticle extends Particle implements MomentumObstacle {
+public class StaticParticle extends Particle {
 
     private int index;
 
@@ -47,7 +47,6 @@ public class StaticParticle extends Particle implements MomentumObstacle {
         return newParticle;
     }
 
-    @Override
     public Double getMomentum(Particle particle) {
         // Diferencia de posición entre la pared y la partícula
         double deltaX = this.getPosX() - particle.getPosX();

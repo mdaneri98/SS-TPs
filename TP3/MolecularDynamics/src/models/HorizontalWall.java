@@ -21,7 +21,7 @@ public class HorizontalWall extends Wall {
     }
 
 
-    public Double getMomentum(Particle particle) {
+    public double getMomentum(Particle particle) {
         return 2 * particle.getMass() *  Math.abs(particle.getVelY());
     }
 

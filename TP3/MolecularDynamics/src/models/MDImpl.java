@@ -103,6 +103,13 @@ public class MDImpl {
             Collision nextCollision = collisionList.getFirst();
             System.out.println("Próxima colisión: " + nextCollision);
 
+            for (Collision collision : collisionList) {
+                if (collision.getObstacle() instanceof Particle p) {
+                    if (p.getId() == 0)
+                        System.out.println("asd");
+                }
+            }
+
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
                 if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
@@ -124,29 +131,32 @@ public class MDImpl {
             Particle particleCollided = nextCollision.getParticle();
 
             if (obstacle instanceof Particle obstacleParticle) {
-                particleCollided.move(nextCollision.getTc());
-                obstacleParticle.move(nextCollision.getTc());
-                newSet.add(obstacleParticle.applyCollision(particleCollided));
+                if (obstacleParticle.getId() == 0) {
+                    particleCollided.move(nextCollision.getTc());
 
-                if (obstacleParticle instanceof MomentumObstacle momentumObstacle)
-                    staticParticlePressure.put(currentState.getTime(), momentumObstacle.getMomentum(particleCollided));
+                    //staticParticlePressure.put(currentState.getTime(), sp.getMomentum(particleCollided));
 
-                if (obstacleParticle.getId() != 0) {
-                    newSet.add(particleCollided.applyCollision(obstacleParticle));
-                } else {
+                    newSet.add(obstacleParticle.applyCollision(particleCollided));
                     newSet.add(obstacleParticle);
+                } else {
+                    particleCollided.move(nextCollision.getTc());
+                    obstacleParticle.move(nextCollision.getTc());
+
+                    newSet.add(obstacleParticle.applyCollision(particleCollided));
+                    newSet.add(particleCollided.applyCollision(obstacleParticle));
                 }
-            } else {
+            } else if (obstacle instanceof Wall wall) {
+                // Wall
+                wallsPressure.put(currentState.getTime(), wall.getMomentum(particleCollided));
                 particleCollided.move(nextCollision.getTc());
                 newSet.add(obstacle.applyCollision(particleCollided));
-
-                if (obstacle instanceof MomentumObstacle mo)
-                    wallsPressure.put(currentState.getTime(), mo.getMomentum(particleCollided));
             }
 
             double previousTime = states.get(epoch-1).getTime();
             double end = System.currentTimeMillis();
+
             states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
+            states.get(epoch).updateCollisionsTimes();
             epoch++;
             collisionList.removeFirst();
 
@@ -204,7 +214,7 @@ public class MDImpl {
 
     public Map<Double, Double> calculatePressureForStatic(double deltaTime) {
         Map<Double, Double> pressureByTime = new TreeMap<>();
-        List<List<Double>> momentums = this.getMomentums(deltaTime, this.wallsPressure);
+        List<List<Double>> momentums = this.getMomentums(deltaTime, this.staticParticlePressure);
 
 
         for (int i = 0; i < momentums.size(); i++) {
@@ -212,7 +222,7 @@ public class MDImpl {
             for (Double momentum : momentums.get(i)) {
                 sumMomentum += momentum;
             }
-            double contactArea = 4 * Math.PI * Math.pow(staticParticle.getRadius(), 2); // Área total de la esfera (ajustar según el contacto real)
+            double contactArea = 2 * Math.PI * staticParticle.getRadius();
 
             double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * contactArea);
             pressureByTime.put(deltaTime*i, pressure);

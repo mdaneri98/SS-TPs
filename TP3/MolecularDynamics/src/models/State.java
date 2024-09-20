@@ -43,6 +43,7 @@ public class State {
             for (Particle other : particleSet) {
                 if (current.equals(other) || visited.contains(other))
                     continue;
+
                 double tc = current.timeToCollide(other);
                 if (tc > 0 && tc < Double.POSITIVE_INFINITY)
                     timeUntilCollisionWithParticle.add(tc);
@@ -55,13 +56,26 @@ public class State {
             }
             double min = Collections.min(timeUntilCollisionWithParticle);
             if (min < timeUntilCollisionWithWall.getRight()) {
-                collisionQueue.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
+                //collisionQueue.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
+                Particle collideWith = null;
+                for (Particle p : particleSet) {
+                    if (current.timeToCollide(p) == min) {
+                        collideWith = p;
+                    }
+                }
+                collisionQueue.add(new Collision(min, current, collideWith));
             } else if (timeUntilCollisionWithWall.getRight() > 0) {
                 collisionQueue.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
             }
             visited.add(current);
         }
     }
+
+    /*
+        p1 ---> |
+
+
+     */
 
     private Pair<Wall, Double> timeUntilCollisionWithWall(Particle p) {
         Wall horizontalWall = this.walls.get(WallType.HORIZONTAL);
