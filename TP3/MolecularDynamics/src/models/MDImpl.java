@@ -80,45 +80,47 @@ public class MDImpl {
     }
 
 
-    public void run(int maxSeconds, double collisionDelta) {
+    public void run(int maxSeconds) {
         int epoch = 1;
 
         double start = System.currentTimeMillis();
         states.put(0, generateInitialState(0, this.staticRadius));
         while (true) {
             State currentState = states.get(states.size()-1);
-            System.out.println("Time[" + currentState.getTime() + "]");
+            //System.out.println("Time[" + currentState.getTime() + "]");
 
             TreeSet<Collision> collisionList = currentState.getCollisionList();
+            /*
             System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
             for (Collision collision : collisionList) {
                 Double time = collision.getTc();
                 System.out.println(time + "s" + " entre " + collision.getParticle() + " y " + collision.getObstacle());
             }
+             */
 
             if (collisionList.isEmpty()) {
                 System.out.println("No hay más colisiones.");
                 break;
             }
             Collision nextCollision = collisionList.getFirst();
-            System.out.println("Próxima colisión: " + nextCollision);
-
-            for (Collision collision : collisionList) {
-                if (collision.getObstacle() instanceof Particle p) {
-                    if (p.getId() == 0)
-                        System.out.println("asd");
-                }
-            }
+            //System.out.println("Próxima colisión: " + nextCollision);
 
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
                 if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
+                    /*
                     String green = "\u001B[32m";
                     String reset = "\u001B[0m";
                     System.out.println(green + "Movilizamos la particula " + p + reset);
+                    */
 
                     // Particula no colisiona, actualizamos su ubicación.
-                    Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
+                    Particle newParticle = null;
+                    if (p.getId() == 0)
+                        newParticle = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
+                    else
+                        newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
+
                     newParticle.move(nextCollision.getTc());
                     newSet.add(newParticle);
                 }
@@ -134,7 +136,7 @@ public class MDImpl {
                 if (obstacleParticle.getId() == 0) {
                     particleCollided.move(nextCollision.getTc());
 
-                    //staticParticlePressure.put(currentState.getTime(), sp.getMomentum(particleCollided));
+                    staticParticlePressure.put(currentState.getTime(), ((StaticParticle) obstacleParticle).getMomentum(particleCollided));
 
                     newSet.add(obstacleParticle.applyCollision(particleCollided));
                     newSet.add(obstacleParticle);
@@ -156,7 +158,7 @@ public class MDImpl {
             double end = System.currentTimeMillis();
 
             states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
-            states.get(epoch).updateCollisionsTimes();
+            //states.get(epoch).updateCollisionsTimes();
             epoch++;
             collisionList.removeFirst();
 

@@ -12,22 +12,22 @@ public class StaticParticle extends Particle {
     }
 
     @Override
-    public Particle applyCollision(final Particle particle) {
+    public Particle applyCollision(final Particle p) {
         // Ángulo de la dirección relativa entre las partículas
-        double deltaX = this.getPosX() - particle.getPosX();
-        double deltaY = this.getPosY() - particle.getPosY();
+        double deltaX = this.getPosX() - p.getPosX();
+        double deltaY = this.getPosY() - p.getPosY();
         double angle = Math.atan2(deltaY, deltaX); // Ángulo entre las partículas
 
         // Obtener componentes de la velocidad de la partícula incidente
-        double vX = particle.getVelX();
-        double vY = particle.getVelY();
+        double vX = p.getVelX();
+        double vY = p.getVelY();
 
         // Coeficientes cn y ct
         double cn = -1;
         double ct = 1;
 
-        double sin = Math.abs(this.getPosY() - particle.getPosY()) / (this.getRadius() + particle.getRadius());
-        double cos = Math.abs(this.getPosX() - particle.getPosX()) / (this.getRadius() + particle.getRadius());
+        double sin = Math.abs(this.getPosY() - p.getPosY()) / (this.getRadius() + p.getRadius());
+        double cos = Math.abs(this.getPosX() - p.getPosX()) / (this.getRadius() + p.getRadius());
 
         // Aplicar la matriz de colisión (basado en la filmina)
 /*        double newVX = (-cn * Math.pow(Math.cos(angle), 2) + ct * Math.pow(Math.sin(angle), 2)) * vX
@@ -42,9 +42,10 @@ public class StaticParticle extends Particle {
         double newVY = (-(cn + ct) * sin * cos) * vX
                 + (-cn * Math.pow(sin, 2) + ct * Math.pow(cos, 2)) * vY;
 
-        Particle newParticle = new Particle(particle.getId(), particle.getPosX(), particle.getPosY(), newVX, newVY, particle.getRadius(), particle.getMass());
-
-        return newParticle;
+        if (p.getId() == 0)
+            return new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), newVX, newVY, p.getRadius(), p.getMass());
+        else
+            return new Particle(p.getId(), p.getPosX(), p.getPosY(), newVX, newVY, p.getRadius(), p.getMass());
     }
 
     public Double getMomentum(Particle particle) {

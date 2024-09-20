@@ -69,7 +69,11 @@ public class Particle implements Obstacle {
         double newVxP = p.getVelX() - Jx / p.getMass();
         double newVyP = p.getVelY() - Jy / p.getMass();
 
-        Particle newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
+        Particle newParticle = null;
+        if (p.getId() == 0)
+            newParticle = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
+        else
+            newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
 
         return newParticle;
     }

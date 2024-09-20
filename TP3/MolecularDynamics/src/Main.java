@@ -120,14 +120,13 @@ public class Main {
         double L = 0.1;
         double staticRadius = 0.05;
         int N = 250;
-        double collisionDelta = 1;
 
         String projectPath = Paths.get("").toAbsolutePath().toString();
         Path directoryPath = Paths.get(projectPath, String.format("test/output"));
 
         Set<Particle> particleSet = Main.loadFromFile(directoryPath + "/static.txt", directoryPath + "/dynamic.txt");
         MDImpl molecularDynamic = MDImpl.newInstance(N, L, staticRadius, particleSet);
-        molecularDynamic.run(maxEpoch, collisionDelta);
+        molecularDynamic.run(maxEpoch);
 
         Map<Integer,State> states = molecularDynamic.getStates();
         Map<WallType, Wall> walls = molecularDynamic.getWalls();
@@ -145,18 +144,17 @@ public class Main {
     public static void main(String[] args) throws Exception {
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 20;
-        double collisionDelta = 0.2;
+        int N = 100;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
-        molecularDynamic.run(180000/10, collisionDelta);
+        molecularDynamic.run(180000/6);
 
         Map<Integer,State> states = molecularDynamic.getStates();
         Map<WallType, Wall> walls = molecularDynamic.getWalls();
 
 
-        //Map<Double, Double> wall_pressureByTime = molecularDynamic.calculatePressureForWalls(0.2);
-        //Map<Double, Double> static_pressureByTime = molecularDynamic.calculatePressureForStatic(0.2);
+        Map<Double, Double> wall_pressureByTime = molecularDynamic.calculatePressureForWalls(0.1);
+        Map<Double, Double> static_pressureByTime = molecularDynamic.calculatePressureForStatic(0.1);
 
 
         // --- Save ---
@@ -164,8 +162,8 @@ public class Main {
         Path directoryPath = Paths.get(projectPath, String.format("test/output"));
         Files.createDirectories(directoryPath);
         save(N, L, directoryPath.toString(), states);
-        //save(directoryPath.toString(), "wall_pressures.txt", wall_pressureByTime);
-        //save(directoryPath.toString(), "static_pressures.txt", static_pressureByTime);
+        save(directoryPath.toString(), "wall_pressures.txt", wall_pressureByTime);
+        save(directoryPath.toString(), "static_pressures.txt", static_pressureByTime);
 
     }
 }

@@ -27,7 +27,10 @@ public class HorizontalWall extends Wall {
 
     @Override
     public Particle applyCollision(final Particle p) {
-        return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(),- p.getVelY(), p.getRadius(), p.getMass());
+        if (p.getId() == 0)
+            return new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), -p.getVelY(), p.getRadius(), p.getMass());
+        else
+            return new Particle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), -p.getVelY(), p.getRadius(), p.getMass());
     }
 
     @Override
