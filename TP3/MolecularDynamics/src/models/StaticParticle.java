@@ -7,8 +7,8 @@ public class StaticParticle extends Particle {
 
     private int index;
 
-    public StaticParticle(int id, double posX, double posY, double velocity, double angle, double radius, double mass) {
-        super(id, posX, posY, velocity, angle, radius, mass);
+    public StaticParticle(int id, double posX, double posY, double vx, double vy, double radius, double mass) {
+        super(id, posX, posY, vx, vy, radius, mass);
     }
 
     public Double getMomentum(Particle particle) {

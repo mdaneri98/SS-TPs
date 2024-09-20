@@ -135,7 +135,7 @@ public class MDImpl {
 
 
         while (true) {
-            State currentState = states.pop();
+            State currentState = states.pollLast();
             states.add(currentState);
             //System.out.println("Time[" + currentState.getTime() + "]");
 
@@ -178,8 +178,7 @@ public class MDImpl {
 
                     double momentum = ((StaticParticle) obstacleParticle).getMomentum(particleCollided);
                     if (momentum > 0.5)
-                        wallsPressure.put(currentState.getTime(), momentum);
-                    staticParticlePressure.put(currentState.getTime(), momentum);
+                        staticParticlePressure.put(currentState.getTime(), momentum);
 
                     newSet.add(obstacleParticle.applyCollision(particleCollided));
                     newSet.add(obstacleParticle);
@@ -199,12 +198,13 @@ public class MDImpl {
                 newSet.add(obstacle.applyCollision(particleCollided));
             }
 
-//            State lastState = states.pop();
-            double previousTime = currentState.getTime();
+            for (Particle p : currentState.getParticles()) {
+                double velocity = Math.hypot(p.getVelX(), p.getVelY());  // Usa getVelY() en lugar de getPosY()
+                System.out.printf("Velocidad (idx: %d) = %f\n", p.getId(), velocity);
+            }
 
-            //List<Collision> collisionListCopy = new LinkedList<>(currentState.getCollisionList());
-            //collisionListCopy.remove(nextCollision);
-            System.out.println("Collision tc:" + nextCollision.getTc());
+
+            double previousTime = currentState.getTime();
             states.add(new State(previousTime + nextCollision.getTc(), walls, newSet));
 
             if (states.size() > 6) {

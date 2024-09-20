@@ -46,36 +46,33 @@ public class Particle implements Obstacle {
 
     @Override
     public Particle applyCollision(final Particle p) {
-        // Calcular deltaR (diferencia de posiciones) y deltaV (diferencia de velocidades)
-        double deltaRx = p.getPosX() - this.getPosX();
-        double deltaRy = p.getPosY() - this.getPosY();
-        double deltaVx = p.getVelX() - this.getVelX();
-        double deltaVy = p.getVelY() - this.getVelY();
+        double deltaX = p.getPosX() - this.getPosX();
+        double deltaY = p.getPosY() - this.getPosY();
+        double sigma = p.getRadius() + p.getRadius();
+        double deltaVX = p.getVelX() - this.getVelX();
+        double deltaVY = p.getVelY() - this.getVelY();
 
-        // Calcular el valor de sigma (distancia entre centros)
-        double sigma = this.getRadius() + p.getRadius();
+        double deltas = deltaVX * deltaX + deltaVY * deltaY;;
+        double m1 = this.getMass();
+        double m2 = p.getMass();
 
-        // Calcular deltaV · deltaR
-        double deltaVDeltaR = deltaVx * deltaRx + deltaVy * deltaRy;
+        double J = (2 * m1 * m2 * deltas) / (sigma * (m1 + m2));
 
-        // Calcular el valor de J (el impulso en la colisión)
-        double J = (2 * this.getMass() * p.getMass() * deltaVDeltaR) / (sigma * (this.getMass() + p.getMass()));
+        double Jx = (J * deltaX) / sigma;
+        double Jy = (J * deltaY) / sigma;
 
-        // Calcular Jx y Jy
-        double Jx = (J * deltaRx) / sigma;
-        double Jy = (J * deltaRy) / sigma;
+        // Velocidades de la partícula actual (this)
+        double newVxThis = this.getVelX() + Jx / this.getMass();
+        double newVyThis = this.getVelY() + Jy / this.getMass();
 
-        // Actualizar las velocidades de la partícula (p)
-        double newVxP = p.getVelX() - Jx / p.getMass();
-        double newVyP = p.getVelY() - Jy / p.getMass();
-
-        Particle newParticle = null;
+        // Crear nuevas partículas con las velocidades actualizadas
+        Particle updatedParticleP;
         if (p.getId() == 0)
-            newParticle = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
+            updatedParticleP = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), 0, 0, p.getRadius(), p.getMass());
         else
-            newParticle = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxP, newVyP, p.getRadius(), p.getMass());
+            updatedParticleP = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxThis, newVyThis, p.getRadius(), p.getMass());
 
-        return newParticle;
+        return updatedParticleP;
     }
 
     @Override
