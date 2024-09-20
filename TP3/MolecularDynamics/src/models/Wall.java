@@ -2,10 +2,9 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Wall implements Obstacle {
-
-    protected int index;
 
     private double L;
 

@@ -2,6 +2,10 @@ package models;
 
 import com.sun.source.tree.Tree;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class State {
@@ -15,16 +19,26 @@ public class State {
     private Set<Particle> particleSet;
 
     // <Tiempo de choque, Particulas>
-    private TreeSet<Collision> collisionQueue;
+    private List<Collision> collisionList;
 
     public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
         this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
 
-        collisionQueue = new TreeSet<>();
+        collisionList = new LinkedList<>();
 
         updateCollisionsTimes();
+    }
+
+    public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet, List<Collision> collisionList, Set<Particle> collidedParticles) {
+        this.time = time;
+        this.walls = walls;
+        this.particleSet = particleSet;
+
+        this.collisionList = collisionList;
+
+        updateCollisionsTimesWith(collidedParticles);
     }
 
     public Set<Particle> getParticles() {
@@ -32,7 +46,52 @@ public class State {
     }
 
 
-    public void updateCollisionsTimes() {
+    private void updateCollisionsTimesWith(Set<Particle> particles) {
+        Iterator<Collision> collisionIterator = collisionList.iterator();
+        while (collisionIterator.hasNext()) {
+            Collision collision = collisionIterator.next();
+            for (Particle p : particles) {
+                if (collision.getParticle().equals(p)) {
+                    // Eliminar la colisión de forma segura
+                    collisionIterator.remove();
+                    break; // Salir del bucle si se eliminó la colisión
+                }
+            }
+        }
+
+        for (Particle current : particles) {
+            Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
+            List<Double> timeUntilCollisionWithParticle = new ArrayList<>();
+            for (Particle other : particleSet) {
+                if (current.equals(other))
+                    continue;
+
+                double tc = current.timeToCollide(other);
+                if (tc > 0 && tc < Double.POSITIVE_INFINITY)
+                    timeUntilCollisionWithParticle.add(tc);
+            }
+
+            if (timeUntilCollisionWithParticle.isEmpty()){
+                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
+                continue;
+            }
+            double min = Collections.min(timeUntilCollisionWithParticle);
+            if (min < timeUntilCollisionWithWall.getRight()) {
+                //collisionList.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
+                Particle collideWith = null;
+                for (Particle p : particleSet) {
+                    if (current.timeToCollide(p) == min) {
+                        collideWith = p;
+                    }
+                }
+                collisionList.add(new Collision(min, current, collideWith));
+            } else if (timeUntilCollisionWithWall.getRight() > 0) {
+                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
+            }
+        }
+    }
+
+    private void updateCollisionsTimes() {
         Set<Obstacle> visited = new HashSet<>();
         for (Particle current : particleSet) {
             if (visited.contains(current) || current.getId() == 0)
@@ -50,22 +109,22 @@ public class State {
             }
 
             if (timeUntilCollisionWithParticle.isEmpty()){
-                collisionQueue.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
+                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
                 visited.add(current);
                 continue;
             }
             double min = Collections.min(timeUntilCollisionWithParticle);
             if (min < timeUntilCollisionWithWall.getRight()) {
-                //collisionQueue.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
+                //collisionList.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
                 Particle collideWith = null;
                 for (Particle p : particleSet) {
                     if (current.timeToCollide(p) == min) {
                         collideWith = p;
                     }
                 }
-                collisionQueue.add(new Collision(min, current, collideWith));
+                collisionList.add(new Collision(min, current, collideWith));
             } else if (timeUntilCollisionWithWall.getRight() > 0) {
-                collisionQueue.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
+                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
             }
             visited.add(current);
         }
@@ -101,8 +160,8 @@ public class State {
         return new Pair<>(collidingWall, minTime);
     }
 
-    public TreeSet<Collision> getCollisionList() {
-        return collisionQueue;
+    public List<Collision> getCollisionList() {
+        return collisionList;
     }
 
     public Set<Particle> getParticleSet() {

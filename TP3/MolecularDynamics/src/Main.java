@@ -69,7 +69,7 @@ public class Main {
         return new HashSet<>(particlesList);
     }
 
-    public static void save(int N, double L, String directoryPath, Map<Integer, State> states) {
+    public static void save_static(int N, double L, String directoryPath, Map<Integer, State> states) {
         try {
             // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
             String staticPath = Paths.get(directoryPath, "static.txt").toString();
@@ -78,20 +78,6 @@ public class Main {
                 writer.write("" + N + "\n");
                 for (Particle particle : states.get(0).getParticles()) {
                     writer.write(particle.getRadius() + "\t" + particle.getMass() + "\t" + 1 + "\n");
-                }
-            }
-
-            // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
-            String dynamicPath = Paths.get(directoryPath, "dynamic.txt").toString();
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(dynamicPath))) {
-                for (Integer index : states.keySet()) {
-                    writer.write("" + states.get(index).getTime());
-                    writer.newLine();
-
-                    for (Particle particle : states.get(index).getParticles()) {
-                        writer.write(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY() + "\t" + particle.getVelX() + "\t" + particle.getVelY());
-                        writer.newLine();
-                    }
                 }
             }
         } catch (IOException e) {
@@ -128,14 +114,10 @@ public class Main {
         MDImpl molecularDynamic = MDImpl.newInstance(N, L, staticRadius, particleSet);
         molecularDynamic.run(maxEpoch);
 
-        Map<Integer,State> states = molecularDynamic.getStates();
-        Map<WallType, Wall> walls = molecularDynamic.getWalls();
-
-
 
         // --- Save ---
         Files.createDirectories(directoryPath);
-        save(N, L, directoryPath.toString(), states);
+
 
     }
 
@@ -147,21 +129,19 @@ public class Main {
         int N = 100;
 
         MDImpl molecularDynamic = new MDImpl(N, L, staticRadius);
-        molecularDynamic.run(180000/6);
+        molecularDynamic.run(7500);
 
-        Map<Integer,State> states = molecularDynamic.getStates();
+        LinkedList<State> states = molecularDynamic.getStates();
         Map<WallType, Wall> walls = molecularDynamic.getWalls();
 
-
-        Map<Double, Double> wall_pressureByTime = molecularDynamic.calculatePressureForWalls(0.1);
-        Map<Double, Double> static_pressureByTime = molecularDynamic.calculatePressureForStatic(0.1);
+       Map<Double, Double> wall_pressureByTime = molecularDynamic.calculatePressureForWalls(0.01);
+       Map<Double, Double> static_pressureByTime = molecularDynamic.calculatePressureForStatic(0.01);
 
 
         // --- Save ---
         String projectPath = Paths.get("").toAbsolutePath().toString();
         Path directoryPath = Paths.get(projectPath, String.format("test/output"));
         Files.createDirectories(directoryPath);
-        save(N, L, directoryPath.toString(), states);
         save(directoryPath.toString(), "wall_pressures.txt", wall_pressureByTime);
         save(directoryPath.toString(), "static_pressures.txt", static_pressureByTime);
 

@@ -1,6 +1,7 @@
 package models;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class Collision implements Comparable<Collision> {
 
@@ -14,6 +15,20 @@ public class Collision implements Comparable<Collision> {
         this.obstacle = obstacle;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // Son el mismo objeto
+        if (obj == null || getClass() != obj.getClass()) return false; // Verifica la clase
+
+        Collision that = (Collision) obj; // Casteo seguro
+
+        // Comparar los campos
+        return Double.compare(tc, that.tc) == 0 &&
+                Objects.equals(particle, that.particle) &&
+                Objects.equals(obstacle, that.obstacle);
+    }
+
+
     public double getTc() {
         return tc;
     }
@@ -25,6 +40,8 @@ public class Collision implements Comparable<Collision> {
     public Obstacle getObstacle() {
         return obstacle;
     }
+
+
 
     @Override public String toString(){
         return String.format("En:%f",tc);

@@ -1,5 +1,10 @@
 package models;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLOutput;
 import java.util.*;
 
@@ -13,6 +18,8 @@ public class MDImpl {
 
     private int N;
 
+    private int lastSavedState = -1;
+
     private double staticRadius;
 
     // Horizontal, Vertical
@@ -21,14 +28,14 @@ public class MDImpl {
     private Map<Double, Double> staticParticlePressure = new HashMap<>();
 
 
-    private Map<Integer, State> states;
+    private LinkedList<State> states;
 
     private StaticParticle staticParticle;
 
     public MDImpl(int n, double l, double staticRadius) {
         N = n;
         this.staticRadius = staticRadius;
-        states = new HashMap<>();
+        states = new LinkedList<>();
 
         createWalls(l);
     }
@@ -36,8 +43,8 @@ public class MDImpl {
     public static MDImpl newInstance(int n, double l, double staticRadius, Set<Particle> initialParticles) {
         MDImpl current = new MDImpl(n, l, staticRadius);
 
-        current.states = new HashMap<>();
-        current.states.put(0, new State(0, current.getWalls(), initialParticles));
+        current.states = new LinkedList<>();
+        current.states.add(new State(0, current.getWalls(), initialParticles));
 
         return current;
     }
@@ -79,42 +86,71 @@ public class MDImpl {
         return new State(time, walls, particleSet);
     }
 
+    public void save_static(String directoryPath, State state) {
+        try {
+            // Crear la ruta para el archivo de posiciones dentro de la carpeta "test"
+            String staticPath = Paths.get(directoryPath, "static.txt").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(staticPath))) {
+                writer.write("" + this.walls.get(WallType.VERTICAL).getL() + "\n");
+                writer.write("" + state.getParticles().size() + "\n");
+                for (Particle particle : state.getParticles()) {
+                    writer.write(particle.getRadius() + "\t" + particle.getMass() + "\t" + 1 + "\n");
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar los archivos: " + e.getMessage());
+        }
+    }
+
+    public void save_states(String directoryPath) {
+        try {
+            String dynamicPath = Paths.get(directoryPath, "dynamic.txt").toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(dynamicPath, true))) {
+            // Iterar sobre los estados sin eliminar el último
+                while (states.size() > 2) {
+                    State state = states.poll();  // Elimina y obtiene el primer estado
+                    writer.write("" + state.getTime());
+                    writer.newLine();
+
+                    for (Particle particle : state.getParticles()) {
+                        writer.append(particle.getId() + "\t" + particle.getPosX() + "\t" + particle.getPosY() + "\t" + particle.getVelX() + "\t" + particle.getVelY());
+                        writer.newLine();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar los archivos: " + e.getMessage());
+        }
+    }
 
     public void run(int maxSeconds) {
-        int epoch = 1;
 
         double start = System.currentTimeMillis();
-        states.put(0, generateInitialState(0, this.staticRadius));
+        states.add(generateInitialState(0, this.staticRadius));
+
+        /* Guardamos información estática */
+        String projectPath = Paths.get("").toAbsolutePath().toString();
+        Path directoryPath = Paths.get(projectPath, String.format("test/output"));
+        save_static(directoryPath.toString(), states.peek());
+
+
         while (true) {
-            State currentState = states.get(states.size()-1);
+            State currentState = states.pop();
+            states.add(currentState);
             //System.out.println("Time[" + currentState.getTime() + "]");
 
-            TreeSet<Collision> collisionList = currentState.getCollisionList();
-            /*
-            System.out.println("epoc[" + epoch + "] | Los siguientes tc colisiones son: ");
-            for (Collision collision : collisionList) {
-                Double time = collision.getTc();
-                System.out.println(time + "s" + " entre " + collision.getParticle() + " y " + collision.getObstacle());
-            }
-             */
+            List<Collision> collisionList = currentState.getCollisionList();
 
-            if (collisionList.isEmpty()) {
-                System.out.println("No hay más colisiones.");
-                break;
+            Collision nextCollision = collisionList.get(0);
+            for (Collision collision : collisionList) {
+                if (collision.getTc() < nextCollision.getTc()) {
+                    nextCollision = collision;
+                }
             }
-            Collision nextCollision = collisionList.getFirst();
-            //System.out.println("Próxima colisión: " + nextCollision);
 
             Set<Particle> newSet = new HashSet<>();
             for (Particle p : currentState.getParticleSet()) {
-                if (!p.equals(nextCollision.getParticle()) && !p.equals(nextCollision.getObstacle())) {
-                    /*
-                    String green = "\u001B[32m";
-                    String reset = "\u001B[0m";
-                    System.out.println(green + "Movilizamos la particula " + p + reset);
-                    */
-
-                    // Particula no colisiona, actualizamos su ubicación.
+                if (!p.equals(nextCollision.getParticle()) && !(nextCollision.getObstacle() instanceof Particle && p.equals((Particle) nextCollision.getObstacle()))) {                        // Particula no colisiona, actualizamos su ubicación.
                     Particle newParticle = null;
                     if (p.getId() == 0)
                         newParticle = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), p.getVelX(), p.getVelY(), p.getRadius(), p.getMass());
@@ -132,36 +168,52 @@ public class MDImpl {
             Obstacle obstacle = nextCollision.getObstacle();
             Particle particleCollided = nextCollision.getParticle();
 
+            Set<Particle> collidedParticles = new HashSet<>();
+            collidedParticles.add(particleCollided);
+
+            particleCollided.move(nextCollision.getTc());
             if (obstacle instanceof Particle obstacleParticle) {
                 if (obstacleParticle.getId() == 0) {
-                    particleCollided.move(nextCollision.getTc());
+                    collidedParticles.add(obstacleParticle);
 
-                    staticParticlePressure.put(currentState.getTime(), ((StaticParticle) obstacleParticle).getMomentum(particleCollided));
+                    double momentum = ((StaticParticle) obstacleParticle).getMomentum(particleCollided);
+                    if (momentum > 0.5)
+                        wallsPressure.put(currentState.getTime(), momentum);
+                    staticParticlePressure.put(currentState.getTime(), momentum);
 
                     newSet.add(obstacleParticle.applyCollision(particleCollided));
                     newSet.add(obstacleParticle);
                 } else {
-                    particleCollided.move(nextCollision.getTc());
                     obstacleParticle.move(nextCollision.getTc());
+                    collidedParticles.add(obstacleParticle);
 
                     newSet.add(obstacleParticle.applyCollision(particleCollided));
                     newSet.add(particleCollided.applyCollision(obstacleParticle));
                 }
             } else if (obstacle instanceof Wall wall) {
                 // Wall
-                wallsPressure.put(currentState.getTime(), wall.getMomentum(particleCollided));
-                particleCollided.move(nextCollision.getTc());
+                Double momentum = wall.getMomentum(particleCollided);
+                if (momentum > 0.5)
+                    wallsPressure.put(currentState.getTime(), momentum);
+
                 newSet.add(obstacle.applyCollision(particleCollided));
             }
 
-            double previousTime = states.get(epoch-1).getTime();
+//            State lastState = states.pop();
+            double previousTime = currentState.getTime();
+
+            //List<Collision> collisionListCopy = new LinkedList<>(currentState.getCollisionList());
+            //collisionListCopy.remove(nextCollision);
+            System.out.println("Collision tc:" + nextCollision.getTc());
+            states.add(new State(previousTime + nextCollision.getTc(), walls, newSet));
+
+            if (states.size() > 6) {
+                projectPath = Paths.get("").toAbsolutePath().toString();
+                directoryPath = Paths.get(projectPath, String.format("test/output"));
+                save_states(directoryPath.toString());
+            }
+
             double end = System.currentTimeMillis();
-
-            states.put(epoch, new State(previousTime + nextCollision.getTc(), walls, newSet));
-            //states.get(epoch).updateCollisionsTimes();
-            epoch++;
-            collisionList.removeFirst();
-
             if (end - start > maxSeconds) {
                 break;
             }
@@ -232,7 +284,7 @@ public class MDImpl {
         return pressureByTime;
     }
 
-    public Map<Integer, State> getStates() {
+    public LinkedList<State> getStates() {
         return states;
     }
 
