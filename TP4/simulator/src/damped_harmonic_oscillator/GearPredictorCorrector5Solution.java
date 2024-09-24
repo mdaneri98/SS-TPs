@@ -5,7 +5,7 @@ import damped_harmonic_oscillator.models.State;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class GearPredictorCorrector5 implements Iterator<State> {
+public class GearPredictorCorrector5Solution implements Iterator<State> {
 
 
     // --- Parámetros ---
@@ -18,7 +18,7 @@ public class GearPredictorCorrector5 implements Iterator<State> {
 
     private final LinkedList<State> stateList;
 
-    public GearPredictorCorrector5(double b, double k, double mass, double maxTime, double timestep, double initialAmplitud, State initialState) {
+    public GearPredictorCorrector5Solution(double b, double k, double mass, double maxTime, double timestep, double initialAmplitud, State initialState) {
         this.b = b;
         this.k = k;
         this.mass = mass;

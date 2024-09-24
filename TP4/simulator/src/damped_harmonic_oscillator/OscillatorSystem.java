@@ -61,6 +61,16 @@ public class OscillatorSystem {
         }
     }
 
+    public void beemanSolution(double timestep) {
+        Iterator<State> solutionable = new BeemanSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
+
+        Path filepath = getFilePath("beeman", "particle.csv");
+        while (solutionable.hasNext()) {
+            State currentState = solutionable.next();
+            currentState.save(filepath);
+        }
+    }
+
     public void gearPredictorCorrectorOrder5Solution() {
 
     }

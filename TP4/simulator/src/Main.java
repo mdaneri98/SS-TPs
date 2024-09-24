@@ -12,6 +12,7 @@ public class Main {
 
         os.analiticSolution(0.001);
         os.verletSolution(0.001);
+        os.beemanSolution(0.001);
 
 
 
