@@ -1,4 +1,4 @@
-package damped_harmonic_oscillator;
+package damped_harmonic_oscillator.models;
 
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ public class Particle implements Cloneable {
 
     @Override
     public String toString() {
-        return "damped_harmonic_oscillator.Particle{" +
+        return "damped_harmonic_oscillator.models.Particle{" +
                 "id=" + id +
                 ", position=" + position +
                 ", velocity=" + velocity +

@@ -1,18 +1,14 @@
 package damped_harmonic_oscillator;
 
-import models.Position;
-import models.Velocity;
+import damped_harmonic_oscillator.models.Particle;
+import damped_harmonic_oscillator.models.State;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class OscillatorSystem {
 
@@ -46,38 +42,26 @@ public class OscillatorSystem {
     }
 
     public void analiticSolution(double timestep) {
-        LinkedList<State> stateList = new LinkedList<>();
-        stateList.add(initialize(initialPosition, getInitialVelocity()));
+        Iterator<State> solutionable = new AnaliticSolution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
 
-        while (stateList.peekLast().getTime() < this.maxTime) {
-            State previousState = stateList.peekLast();
-
-            double currentTime = previousState.getTime() + timestep;
-            Particle currentParticle = previousState.getParticle().clone();
-
-            double newPos = this.initialAmplitud
-                    * Math.pow(Math.E, -(this.b / (2 * this.mass)) * currentTime)
-                    * Math.cos(Math.sqrt((this.k / this.mass) - (this.b * this.b / (4 * this.mass * this.mass))) * currentTime);
-
-            currentParticle.setPosition(newPos);
-
-            stateList.add(new State(currentTime, currentParticle));
-        }
-
-
-        // --- Guardamos los estados ---
         Path filepath = getFilePath("analitic", "particle.csv");
-        for (int i = 0; i < stateList.size(); i++) {
-            stateList.get(i).save(filepath);
+        while (solutionable.hasNext()) {
+            State currentState = solutionable.next();
+            currentState.save(filepath);
         }
+    }
 
+    public void verletSolution(double timestep) {
+        Iterator<State> solutionable = new VerletSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
+
+        Path filepath = getFilePath("verlet", "particle.csv");
+        while (solutionable.hasNext()) {
+            State currentState = solutionable.next();
+            currentState.save(filepath);
+        }
     }
 
     public void gearPredictorCorrectorOrder5Solution() {
-
-    }
-
-    public void verletSolution() {
 
     }
 

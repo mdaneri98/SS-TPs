@@ -10,6 +10,8 @@ TP2/self-propelled-agents/!**/src/test/**/out/
 # Ignorar el directorio output
 /TP3/MolecularDynamics/test/output/
 
+/TP4/simulator/python/outputs/
+
 
 # Ignorar archivos de configuración de IDEs (IntelliJ IDEA, PyCharm)
 *.iml
