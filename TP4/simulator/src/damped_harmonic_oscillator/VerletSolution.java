@@ -58,7 +58,7 @@ public class VerletSolution implements Iterator<State> {
                 (getForce(cp) * Math.pow(timestep, 2)) / cp.getMass();
 
         // Calcular la nueva velocidad usando Verlet: v(t) = (r(t + Δt) - r(t)) / Δt
-        double newVelocity = (newPosition - cp.getPosition()) / timestep;
+        double newVelocity = (newPosition - pp.getPosition()) / (2*timestep);
 
         // Clonar la partícula y actualizar posición y velocidad
         Particle np = cp.clone();
