@@ -23,13 +23,13 @@ public class OscillatorSystem {
     private final double initialAmplitud;
 
 
-    public OscillatorSystem(double b, double k, double mass, double maxTime, double initialPosition, double initialAmplitud) {
+    public OscillatorSystem(double b, double k, double mass, double maxTime, double initialPosition) {
         this.b = b;
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
         this.initialPosition = initialPosition;
-        this.initialAmplitud = initialAmplitud;
+        this.initialAmplitud = initialPosition;
     }
 
     private State initialize(double initialPosition, double initialVelocity) {

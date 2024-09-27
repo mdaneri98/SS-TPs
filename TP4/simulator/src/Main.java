@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        OscillatorSystem os = new OscillatorSystem(100, 10e4, 70, 10, 100, 100);
+        OscillatorSystem os = new OscillatorSystem(100, 10e4, 70, 10,  100);
 
         os.analiticSolution(0.001);
         os.verletSolution(0.001);
