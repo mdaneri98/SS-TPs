@@ -5,19 +5,21 @@ import damped_harmonic_oscillator.BeemanSolution;
 import forced_oscillator.models.Particle;
 import forced_oscillator.models.State;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class CoupledOscillatorSystem {
 
     // --- Parámetros ---
     private final int n;
-    private final double b;         // coeficiente de amortiguamiento
     private final double k;         // constante elástica del resorte
     private final double mass;
     private final double maxTime;
@@ -28,9 +30,8 @@ public class CoupledOscillatorSystem {
 
     private final List<State> states;
 
-    public CoupledOscillatorSystem(int n, double b, double k, double mass, double maxTime, double distance, double amplitud) {
+    public CoupledOscillatorSystem(int n, double k, double mass, double maxTime, double distance, double amplitud) {
         this.n = n;
-        this.b = b;
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
@@ -55,12 +56,29 @@ public class CoupledOscillatorSystem {
     }
 
     public void verletSolution(double timestep) {
-        Iterator<State> solutionable = new CoupledVerletSolution(b, k, mass, maxTime, timestep, distance, amplitud, initialize());
+        Path staticPath = getFilePath("coupled_beeman", "static.csv");
+        saveStatic(staticPath);
+
+        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, timestep, amplitud, initialize());
 
         Path filepath = getFilePath("coupled_beeman", "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
+        }
+    }
+
+    private void saveStatic(Path filePath) {
+        boolean fileExists = Files.exists(filePath);
+
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE)) {
+            if (!fileExists) {
+                writer.write("k, mass, distance, amplitud\n"); // Encabezados de CSV
+            }
+            writer.write(String.format(Locale.ENGLISH, "%.6f,%.6f,%.6f,%.6f\n", k, mass, distance, amplitud));
+        } catch (IOException e) {
+            System.out.println("Error al escribir un estado: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

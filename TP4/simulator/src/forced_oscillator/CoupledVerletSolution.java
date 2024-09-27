@@ -12,12 +12,10 @@ public class CoupledVerletSolution implements Iterator<State> {
 
 
     // --- Parámetros ---
-    private final double b;         // coeficiente de amortiguamiento
     private final double k;         // constante elástica del resorte
     private final double mass;
     private final double maxTime;
     private final double amplitud;
-    private final double initialDistance;
     private final double timestep;
 
     private final LinkedList<State> stateList;
@@ -25,13 +23,11 @@ public class CoupledVerletSolution implements Iterator<State> {
     private boolean firstState;
     private int n;
 
-    public CoupledVerletSolution(double b, double k, double mass, double maxTime, double timestep, double initialDistance, double amplitud, State initialState) {
-        this.b = b;
+    public CoupledVerletSolution(double k, double mass, double maxTime, double timestep, double amplitud, State initialState) {
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
         this.amplitud = amplitud;
-        this.initialDistance = initialDistance;
         this.timestep = timestep;
 
         this.firstState = true;
