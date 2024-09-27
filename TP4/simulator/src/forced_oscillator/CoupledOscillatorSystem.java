@@ -45,7 +45,7 @@ public class CoupledOscillatorSystem {
     private State initialize() {
         List<Particle> particles = new LinkedList<>();
         for (int i = 0; i < n; i++) {
-            particles.add(new Particle(i, distance * i, getInitialVelocity(), this.mass));
+            particles.add(new Particle(i, 0, getInitialVelocity(), this.mass));
         }
         return new State(0, particles);
     }

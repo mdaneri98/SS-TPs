@@ -113,13 +113,6 @@ public class CoupledVerletSolution implements Iterator<State> {
         return newState;
     }
 
-    private List<Double> getAcelerations(State actualState) {
-        List<Particle> particles = actualState.getParticles();
-        return particles.stream()
-                .map(p -> getForce(actualState, p) / p.getMass())
-                .collect(Collectors.toList());
-    }
-
     private State eulersMethod() {
         // Obtener el estado anterior
         State actualState = stateList.peekLast();
@@ -130,9 +123,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         for (Particle cp : currentParticles) {
             // Usar Euler para el primer paso
             double newVel = cp.getVelocity() + timestep * (getForce(actualState, cp) / cp.getMass());
-            double newPos = cp.getPosition() + timestep * cp.getVelocity()
-                    + 0.5 * Math.pow(timestep, 2) * getForce(actualState, cp) / cp.getMass();
-
+            double newPos = cp.getPosition() + timestep * cp.getVelocity();
 
             // Actualizar la partícula con la nueva posición y velocidad
             Particle newParticle = cp.clone();
@@ -145,5 +136,6 @@ public class CoupledVerletSolution implements Iterator<State> {
         stateList.add(new State(ct + timestep, newParticles));
         return stateList.peekLast();
     }
+
 
 }

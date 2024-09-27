@@ -13,7 +13,7 @@ public class Main {
         os.verletSolution(0.001);
         os.beemanSolution(0.001);
 */
-        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(1000, 100, 100, 1, 10, 10e-3, 10e-2);
+        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(100, 100, 100, 1, 60, 10e-3, 10e-2);
 
         cos.verletSolution(10e-2);
 

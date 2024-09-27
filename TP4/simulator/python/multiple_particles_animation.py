@@ -8,12 +8,15 @@ df = pd.read_csv('outputs/coupled_beeman/particle.csv')
 # Filtrar los tiempos únicos
 times = df['time'].unique()
 
+# Constante de distancia para la posición en x
+distance = 10e-3  # Ajusta esta constante según tu configuración
+
 # Crear la figura y el eje
 fig, ax = plt.subplots()
-ax.set_xlim(0, 10)  # Establecer los límites del eje x (ajusta según tus datos)
-ax.set_ylim(-5, 5)  # Establecer los límites del eje y (ajusta según tus datos)
-ax.set_xlabel('Position')
-ax.set_ylabel('Velocity')
+ax.set_xlim(0, distance*100)  # Establecer los límites del eje x (ajusta según tus datos)
+ax.set_ylim(-10e-2, 10e-2)  # Establecer los límites del eje y (ajusta según tus datos)
+ax.set_xlabel('Distance (Index * distance)')
+ax.set_ylabel('Position (Vertical)')
 
 # Inicializar el gráfico de dispersión
 scatter = ax.scatter([], [], s=50)
@@ -25,12 +28,15 @@ def update(frame):
     # Filtrar los datos del tiempo actual
     current_data = df[df['time'] == current_time]
 
-    # Actualizar las posiciones y las velocidades de las partículas
-    positions = current_data['position']
-    velocities = current_data['velocity']
+    # Calcular la posición en x como el índice de la partícula multiplicado por la distancia
+    particle_indices = current_data['id']
+    x_positions = particle_indices * distance
+
+    # La posición en y será la posición vertical
+    y_positions = current_data['position']
 
     # Actualizar los datos del gráfico de dispersión
-    scatter.set_offsets(list(zip(positions, velocities)))
+    scatter.set_offsets(list(zip(x_positions, y_positions)))
 
     # Actualizar el título con el tiempo actual
     ax.set_title(f'Time: {current_time:.3f}')
