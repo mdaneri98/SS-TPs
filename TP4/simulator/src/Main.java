@@ -14,7 +14,5 @@ public class Main {
         os.verletSolution(0.001);
         os.beemanSolution(0.001);
 
-
-
     }
 }
