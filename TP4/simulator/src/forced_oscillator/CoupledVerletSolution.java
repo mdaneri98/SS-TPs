@@ -40,23 +40,23 @@ public class CoupledVerletSolution implements Iterator<State> {
     private double getForce(State state, Particle p) {
         List<Particle> particles = state.getParticles();
         int particleIndex = p.getId();
+
         if (particleIndex == 0) {
-            return - this.k *
-                    (particles.get(particleIndex).getPosition()
-                            - particles.get(particleIndex + 1).getPosition());
+            return -this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex + 1).getPosition());
         } else if (particleIndex > 0 && particleIndex < n - 1) {
-            return - this.k *
-                    (particles.get(particleIndex).getPosition()
-                            - particles.get(particleIndex - 1).getPosition())
-                    - this.k *
-                    (particles.get(particleIndex).getPosition()
-                            - particles.get(particleIndex + 1).getPosition());
+            return -this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex - 1).getPosition()) -
+                    this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex + 1).getPosition());
         } else if (particleIndex == n - 1) {
-            return - this.k * (particles.get(particleIndex).getPosition()
-                    - particles.get(particleIndex - 1).getPosition())
-                    + this.amplitud * Math.cos(Math.sqrt(this.k/this.mass) * state.getTime());
+            double forceRestauradora = -this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex - 1).getPosition());
+
+            // Calcular la fuerza externa
+            double omega = Math.sqrt(this.k / this.mass); // Frecuencia angular
+            double fuerzaExterna = this.amplitud * Math.cos(omega * state.getTime());
+
+            return forceRestauradora + fuerzaExterna;
         }
-        return Double.POSITIVE_INFINITY;
+
+        return 0; // No debería llegar aquí
     }
 
     @Override

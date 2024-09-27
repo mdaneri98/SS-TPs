@@ -73,9 +73,9 @@ public class CoupledOscillatorSystem {
 
         try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE)) {
             if (!fileExists) {
-                writer.write("k, mass, distance, amplitud\n"); // Encabezados de CSV
+                writer.write("n, k, mass, distance, amplitud\n"); // Encabezados de CSV
             }
-            writer.write(String.format(Locale.ENGLISH, "%.6f,%.6f,%.6f,%.6f\n", k, mass, distance, amplitud));
+            writer.write(String.format(Locale.ENGLISH, "%d, %.6f,%.6f,%.6f,%.6f\n", n, k, mass, distance, amplitud));
         } catch (IOException e) {
             System.out.println("Error al escribir un estado: " + e.getMessage());
             e.printStackTrace();

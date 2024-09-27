@@ -7,20 +7,24 @@ df = pd.read_csv('outputs/coupled_beeman/particle.csv')
 static_df = pd.read_csv('outputs/coupled_beeman/static.csv', header=None, skiprows=1)
 
 # Asignar nombres a las columnas
-static_df.columns = ['b', 'k', 'mass', 'distance', 'amplitud']
+static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud']
 
 # Convertir los valores de las columnas a float (en caso de que sean strings)
+n = float(static_df['n'].values[0])
 k = float(static_df['k'].values[0])
 mass = float(static_df['mass'].values[0])
 distance = float(static_df['distance'].values[0])
 amplitud = float(static_df['amplitud'].values[0])
+
+print(distance)
+print(amplitud)
 
 # Filtrar los tiempos únicos
 times = df['time'].unique()
 
 # Crear la figura y el eje
 fig, ax = plt.subplots()
-ax.set_xlim(0, distance * 100)  # Usar la distancia del archivo estático para x
+ax.set_xlim(0, distance * n)  # Usar la distancia del archivo estático para x
 ax.set_ylim(-amplitud, amplitud)  # Usar amplitud para los límites de y
 ax.set_xlabel('Distance (Index * distance)')
 ax.set_ylabel('Position (Vertical)')
@@ -50,7 +54,7 @@ def update(frame):
     return scatter,
 
 # Crear la animación
-anim = FuncAnimation(fig, update, frames=len(times), interval=200, blit=True)
+anim = FuncAnimation(fig, update, frames=len(times), blit=True)
 
 # Mostrar la animación
 plt.show()
