@@ -1,4 +1,4 @@
-package damped_harmonic_oscillator.coupled_oscillators.models;
+package forced_oscillator.models;
 
 import java.util.Objects;
 

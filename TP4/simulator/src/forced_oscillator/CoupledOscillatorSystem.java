@@ -1,8 +1,9 @@
-package damped_harmonic_oscillator.coupled_oscillators;
+package forced_oscillator;
 
 
-import damped_harmonic_oscillator.coupled_oscillators.models.Particle;
-import damped_harmonic_oscillator.coupled_oscillators.models.State;
+import damped_harmonic_oscillator.BeemanSolution;
+import forced_oscillator.models.Particle;
+import forced_oscillator.models.State;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,19 +23,19 @@ public class CoupledOscillatorSystem {
     private final double maxTime;
 
     // --- Cond. iniciales ---
-    private final double initialDistance;
+    private final double distance;
     private final double amplitud;
 
     private final List<State> states;
 
-    public CoupledOscillatorSystem(int n, double b, double k, double mass, double maxTime, double initialDistance, double amplitud) {
+    public CoupledOscillatorSystem(int n, double b, double k, double mass, double maxTime, double distance, double amplitud) {
         this.n = n;
         this.b = b;
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
         this.amplitud = amplitud;
-        this.initialDistance = initialDistance;
+        this.distance = distance;
 
         this.states = new LinkedList<>();
         states.add(initialize());
@@ -44,28 +45,23 @@ public class CoupledOscillatorSystem {
     private State initialize() {
         List<Particle> particles = new LinkedList<>();
         for (int i = 0; i < n; i++) {
-            particles.add(new Particle(i, initialDistance * i, getInitialVelocity(), this.mass));
+            particles.add(new Particle(i, distance * i, getInitialVelocity(), this.mass));
         }
         return new State(0, particles);
     }
 
     private double getInitialVelocity() {
-        return -amplitud * b / (2 * mass);
+        return 0;
     }
 
+    public void verletSolution(double timestep) {
+        Iterator<State> solutionable = new CoupledVerletSolution(b, k, mass, maxTime, timestep, distance, amplitud, initialize());
 
-    public void analiticSolution(double timestep) {
-        Iterator<State> solutionable = new CoupledAnaliticSolution(b, k, mass, maxTime, timestep, initialDistance, amplitud, states.get(0));
-
-        Path filepath = getFilePath("coupled_analitic", "particle.csv");
+        Path filepath = getFilePath("coupled_beeman", "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
         }
-    }
-
-    public void gearPredictorCorrectorOrder5Solution() {
-
     }
 
     private Path getFilePath(String directory, String filename) {
