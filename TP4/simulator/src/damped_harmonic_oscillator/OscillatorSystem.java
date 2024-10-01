@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class OscillatorSystem {
 
@@ -44,7 +45,8 @@ public class OscillatorSystem {
     public void analiticSolution(double timestep) {
         Iterator<State> solutionable = new AnaliticSolution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
 
-        Path filepath = getFilePath("analitic", "particle.csv");
+        String directory = String.format(Locale.US,"analitic_%.6f", timestep);
+        Path filepath = getFilePath(directory, "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
@@ -54,7 +56,8 @@ public class OscillatorSystem {
     public void verletSolution(double timestep) {
         Iterator<State> solutionable = new VerletSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
 
-        Path filepath = getFilePath("verlet", "particle.csv");
+        String directory = String.format(Locale.US,"verlet_%.6f", timestep);
+        Path filepath = getFilePath(directory, "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
@@ -64,7 +67,8 @@ public class OscillatorSystem {
     public void beemanSolution(double timestep) {
         Iterator<State> solutionable = new BeemanSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
 
-        Path filepath = getFilePath("beeman", "particle.csv");
+        String directory = String.format(Locale.US, "beeman_%.6f", timestep);
+        Path filepath = getFilePath(directory, "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);

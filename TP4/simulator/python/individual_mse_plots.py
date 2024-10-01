@@ -68,7 +68,7 @@ def process_files(analitic_file, base_dir):
 
 
 # Ruta del archivo analitic/particles.csv
-analitic_file = 'python/outputs/analitic/particle.csv'
+analitic_file = 'outputs/analitic/particle.csv'
 
 # Directorio base donde están las demás carpetas
 base_dir = 'outputs'

@@ -61,7 +61,7 @@ public class CoupledOscillatorSystem {
 
         Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, timestep, amplitud, initialize());
 
-        Path filepath = getFilePath("coupled_beeman", "particle.csv");
+        Path filepath = getFilePath("coupled_verlet", "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
