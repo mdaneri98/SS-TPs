@@ -23,10 +23,10 @@ public class CoupledOscillatorSystem {
     private final double k;         // constante elástica del resorte
     private final double mass;
     private final double maxTime;
+    private final double amplitud;
 
     // --- Cond. iniciales ---
     private final double distance;
-    private final double amplitud;
 
     private final List<State> states;
 
@@ -35,8 +35,8 @@ public class CoupledOscillatorSystem {
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
-        this.amplitud = amplitud;
         this.distance = distance;
+        this.amplitud = amplitud;
 
         this.states = new LinkedList<>();
         states.add(initialize());
@@ -56,10 +56,10 @@ public class CoupledOscillatorSystem {
     }
 
     public void verletSolution(double timestep) {
-        Path staticPath = getFilePath("coupled_beeman", "static.csv");
+        Path staticPath = getFilePath("coupled_verlet", "static.csv");
         saveStatic(staticPath);
 
-        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, timestep, amplitud, initialize());
+        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, initialize());
 
         Path filepath = getFilePath("coupled_verlet", "particle.csv");
         while (solutionable.hasNext()) {

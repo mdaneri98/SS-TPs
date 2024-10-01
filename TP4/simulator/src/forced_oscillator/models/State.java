@@ -31,7 +31,7 @@ public class State implements Comparator<State> {
             }
             // Escribir los datos de la partícula
             for (Particle p : particles) {
-                if (p.getId() == 999 || true) {
+                if (p.getId() == 99 || true) {
                     writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f\n", time, p.getId(), p.getPosition(), p.getVelocity(), p.getMass()));
                 }
             }
