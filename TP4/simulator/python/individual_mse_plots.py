@@ -1,77 +1,97 @@
 import os
-import pandas as pd
+import glob
+
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
-def calculate_mse(positions1, positions2):
-    """Calcula el error cuadrático medio entre dos listas de posiciones."""
-    return np.mean((positions1 - positions2) ** 2)
 
-def calculate_pointwise_error(positions1, positions2):
-    """Calcula el error punto por punto (cuadrático) entre dos listas de posiciones."""
-    return (positions1 - positions2) ** 2
+def find_csv_file(base_dir, method, timestep):
+    pattern = os.path.join(base_dir, f"{method}_{timestep}/particle.csv")
+    files = glob.glob(pattern)
+    return files[0] if files else None
 
-def plot_error_curve(time, errors, method_name):
-    """Grafica el error cuadrático punto por punto a lo largo del tiempo."""
+
+def calculate_cumulative_mse(reference, target):
+    squared_diff = (reference - target) ** 2
+    cumulative_sum = np.cumsum(squared_diff)
+    return cumulative_sum / np.arange(1, len(cumulative_sum) + 1)
+
+
+def generate_mse_errors_and_plot(base_dir):
+    timesteps = ['0.000010', '0.000100', '0.001000', '0.010000']
+    methods = ['verlet', 'beeman']
+
+    results = []
+
+    for timestep in timesteps:
+        # Buscar archivo analítico para el timestep actual
+        analytic_file = find_csv_file(base_dir, 'analitic', timestep)
+        if not analytic_file:
+            print(f"Warning: Analytic file not found for timestep {timestep}")
+            continue
+
+        try:
+            analytic_data = pd.read_csv(analytic_file)
+        except Exception as e:
+            print(f"Error reading analytic file for timestep {timestep}: {e}")
+            continue
+
+        for method in methods:
+            # Buscar archivo del método numérico para el timestep actual
+            method_file = find_csv_file(base_dir, method, timestep)
+            if not method_file:
+                print(f"Warning: {method} file not found for timestep {timestep}")
+                continue
+
+            try:
+                method_data = pd.read_csv(method_file)
+            except Exception as e:
+                print(f"Error reading {method} file for timestep {timestep}: {e}")
+                continue
+
+            # Asegurarse de que ambos datasets tengan la misma longitud
+            min_length = min(len(analytic_data), len(method_data))
+            analytic_positions = analytic_data['position'][:min_length].values
+            method_positions = method_data['position'][:min_length].values
+
+            # Calcular el MSE acumulativo
+            cumulative_mse = calculate_cumulative_mse(analytic_positions, method_positions)
+            final_mse = cumulative_mse[-1]  # Usar el último valor del MSE acumulativo
+
+            results.append({
+                'timestep': float(timestep),
+                'method': method,
+                'mse': final_mse
+            })
+
+    # Crear un DataFrame con los resultados
+    results_df = pd.DataFrame(results)
+
+    if results_df.empty:
+        print("No data to plot. Check if the files exist and the directory structure is correct.")
+        return
+
+    # Graficar los resultados
     plt.figure(figsize=(10, 6))
-    plt.plot(time, errors, label=f'Error Cuadrático ({method_name})', color='purple')
-    plt.xlabel('Tiempo')
-    plt.ylabel('Error Cuadrático')
-    plt.title(f'Curva del Error Cuadrático - Método: {method_name}')
+    for method in methods:
+        method_data = results_df[results_df['method'] == method]
+        plt.plot(method_data['timestep'], method_data['mse'], marker='o', label=method)
+
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Paso de tiempo (s)')
+    plt.ylabel('MSE (m^2)')
+    plt.title('Comparación del MSE según el paso temporal')
     plt.legend()
     plt.grid(True)
+
+    # Mostrar el gráfico sin guardarlo
     plt.show()
 
-def process_files(analitic_file, base_dir):
-    # Leer el archivo analitic/particles.csv
-    analitic_df = pd.read_csv(analitic_file)
 
-    # Obtener las posiciones y tiempos del archivo analítico
-    analitic_positions = analitic_df.set_index(['time', 'id'])['position']
-    analitic_time = analitic_df['time'].unique()
+# Directorio base general
+base_dir = 'outputs/individuals/'
 
-    # Recorrer todos los archivos en la carpeta base excepto la carpeta 'analitic'
-    for root, dirs, files in os.walk(base_dir):
-        dirs[:] = [d for d in dirs if d != 'analitic']  # Excluir la carpeta 'analitic'
-
-        for file in files:
-            if file.endswith('particle.csv'):
-                file_path = os.path.join(root, file)
-                method_name = os.path.basename(root)  # Nombre del método (beeman, verlet, etc.)
-
-                # Leer el archivo de partículas
-                particles_df = pd.read_csv(file_path)
-
-                # Obtener las posiciones y tiempos del archivo numérico
-                numeric_positions = particles_df.set_index(['time', 'id'])['position']
-                numeric_time = particles_df['time'].unique()
-
-                # Comparar posiciones entre el archivo actual y el archivo analitic
-                common_index = numeric_positions.index.intersection(analitic_positions.index)
-
-                if len(common_index) > 0:
-                    mse = calculate_mse(numeric_positions.loc[common_index], analitic_positions.loc[common_index])
-
-                    # Calcular el error punto por punto
-                    pointwise_error = calculate_pointwise_error(numeric_positions.loc[common_index], analitic_positions.loc[common_index])
-
-                    # Escribir el MSE en un archivo mse.txt en la misma carpeta del archivo comparado
-                    mse_file_path = os.path.join(root, 'mse.txt')
-                    with open(mse_file_path, 'w') as mse_file:
-                        mse_file.write(f'MSE: {mse}\n')
-                        print(f'MSE calculado para {file} y guardado en {mse_file_path}')
-
-                    # Graficar la curva del error
-                    plot_error_curve(analitic_time, pointwise_error, method_name)
-                else:
-                    print(f'No hay partículas comunes en {file} y el archivo analitic.')
-
-
-# Ruta del archivo analitic/particles.csv
-analitic_file = 'outputs/analitic/particle.csv'
-
-# Directorio base donde están las demás carpetas
-base_dir = 'outputs'
-
-# Procesar los archivos
-process_files(analitic_file, base_dir)
+# Ejecutar la función para calcular el MSE y generar el gráfico
+generate_mse_errors_and_plot(base_dir)

@@ -45,7 +45,7 @@ public class CoupledOscillatorSystem {
 
     private State initialize() {
         List<Particle> particles = new LinkedList<>();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n + 1; i++) {
             particles.add(new Particle(i, 0, getInitialVelocity(), this.mass));
         }
         return new State(0, particles);
@@ -55,27 +55,29 @@ public class CoupledOscillatorSystem {
         return 0;
     }
 
-    public void verletSolution(double timestep) {
-        Path staticPath = getFilePath("coupled_verlet", "static.csv");
-        saveStatic(staticPath);
+    public void verletSolution(double wf, double timestep) {
+        String directory = String.format(Locale.US, "verlet_%.6f", wf);
 
-        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, initialize());
+        Path staticPath = getFilePath(directory, "static.csv");
+        saveStatic(staticPath, wf);
 
-        Path filepath = getFilePath("coupled_verlet", "particle.csv");
+        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
+
+        Path filepath = getFilePath(directory, "particle.csv");
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
             currentState.save(filepath);
         }
     }
 
-    private void saveStatic(Path filePath) {
+    private void saveStatic(Path filePath, double wf) {
         boolean fileExists = Files.exists(filePath);
 
         try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE)) {
             if (!fileExists) {
-                writer.write("n, k, mass, distance, amplitud\n"); // Encabezados de CSV
+                writer.write("n, k, mass, distance, amplitud, w0, wf\n"); // Encabezados de CSV
             }
-            writer.write(String.format(Locale.ENGLISH, "%d, %.6f,%.6f,%.6f,%.6f\n", n, k, mass, distance, amplitud));
+            writer.write(String.format(Locale.ENGLISH, "%d, %.6f,%.6f,%.6f,%.6f, %.6f, %.6f\n", n, k, mass, distance, amplitud, Math.sqrt(k/mass), wf));
         } catch (IOException e) {
             System.out.println("Error al escribir un estado: " + e.getMessage());
             e.printStackTrace();
@@ -85,7 +87,7 @@ public class CoupledOscillatorSystem {
     private Path getFilePath(String directory, String filename) {
         try {
             String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, "python", "outputs", directory);
+            Path directoryPath = Paths.get(projectPath, "python", "outputs", "multiple", directory);
             Path filePath = directoryPath.resolve(filename);
 
             // Crea los directorios si no existen

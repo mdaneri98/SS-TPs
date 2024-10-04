@@ -18,17 +18,19 @@ public class CoupledVerletSolution implements Iterator<State> {
     private final double amplitud;
 
     private final double w;         // Frec. angular
+    private final double wf;        // Frec. angular de la fuerza
     private final double timestep;
 
     private final LinkedList<State> stateList;
 
     private final int n;
 
-    public CoupledVerletSolution(double k, double mass, double maxTime, double amplitud, State initialState) {
+    public CoupledVerletSolution(double k, double mass, double maxTime, double amplitud, double wf, State initialState) {
         this.k = k;
         this.mass = mass;
         this.maxTime = maxTime;
         this.amplitud = amplitud;
+        this.wf = wf;
 
         this.w = Math.sqrt(k / mass);
         this.timestep = 1 / (100 * w);
@@ -80,7 +82,7 @@ public class CoupledVerletSolution implements Iterator<State> {
             } else if (i == 0) {
                 newPosition = 0;  // Condición de frontera
             } else if (i == n - 1) {
-                newPosition = this.amplitud * Math.cos(w * nextTime);  // Oscilador forzado
+                newPosition = this.amplitud * Math.sin(this.w * nextTime);  // Oscilador forzado
             }
 
             // Calcular la nueva velocidad usando Verlet: v(t) = (r(t + Δt) - r(t)) / (2 * Δt)

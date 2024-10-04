@@ -82,7 +82,7 @@ public class OscillatorSystem {
     private Path getFilePath(String directory, String filename) {
         try {
             String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, "python", "outputs", directory);
+            Path directoryPath = Paths.get(projectPath, "python", "outputs", "individuals", directory);
             Path filePath = directoryPath.resolve(filename);
 
             // Crea los directorios si no existen
