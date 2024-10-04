@@ -4,8 +4,8 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 
 # Leer los archivos CSV
-df = pd.read_csv('outputs/multiple/verlet_2.000000/particle.csv')
-static_df = pd.read_csv('outputs/multiple/verlet_2.000000/static.csv', header=None, skiprows=1)
+df = pd.read_csv('outputs/multiple/verlet_8.000000/particle.csv')
+static_df = pd.read_csv('outputs/multiple/verlet_8.000000/static.csv', header=None, skiprows=1)
 
 # Asignar nombres a las columnas
 static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
@@ -36,6 +36,9 @@ ax.set_ylabel('Position (Vertical)')
 # Inicializar el gráfico de dispersión con un color por defecto
 scatter = ax.scatter([], [], s=50, c='blue')
 
+# Inicializar la línea que conectará los puntos
+line, = ax.plot([], [], lw=2, color='blue')
+
 
 # Función para actualizar la animación en cada frame
 def update(frame):
@@ -58,9 +61,13 @@ def update(frame):
     scatter.set_offsets(list(zip(x_positions, y_positions)))
     scatter.set_color(colors)
 
+    # Actualizar la línea para conectar las partículas
+    line.set_data(x_positions, y_positions)
+
     # Actualizar el título con el tiempo actual
     ax.set_title(f'Time: {current_time:.3f}')
-    return scatter,
+
+    return scatter, line
 
 
 # Crear la animación

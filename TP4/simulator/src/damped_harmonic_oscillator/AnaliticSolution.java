@@ -30,6 +30,17 @@ public class AnaliticSolution implements Iterator<State> {
 
         this.stateList = new LinkedList<>();
         stateList.add(initialState);
+
+        // Mensaje en salida estándar con todos los datos iniciales y parámetros
+        System.out.println("Inicializando AnaliticSolution con los siguientes parámetros:");
+        System.out.println("b: " + b);
+        System.out.println("k: " + k);
+        System.out.println("mass: " + mass);
+        System.out.println("w" + Math.sqrt(k/mass));
+        System.out.println("maxTime: " + maxTime);
+        System.out.println("timestep: " + timestep);
+        System.out.println("initialAmplitud: " + initialAmplitud);
+        System.out.println("initialState: " + initialState);
     }
 
     public boolean hasNext() {

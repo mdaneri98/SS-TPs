@@ -39,6 +39,19 @@ public class CoupledVerletSolution implements Iterator<State> {
 
         this.stateList = new LinkedList<>();
         stateList.add(initialState);
+
+
+        // Mensaje en salida estándar con todos los datos iniciales y parámetros
+        System.out.println("Inicializando CoupledVerlet con los siguientes parámetros:");
+        System.out.println("k: " + k);
+        System.out.println("mass: " + mass);
+        System.out.println("w" + Math.sqrt(k/mass));
+        System.out.println("maxTime: " + maxTime);
+        System.out.println("timestep: " + timestep);
+        System.out.println("frec. angular de la fuerza: " + this.wf);
+        System.out.println("amplitud de la fuerza: " + amplitud);
+        System.out.println("initialState: " + initialState);
+        System.out.println("w0 ideal: " + Math.sin(Math.PI/n) * Math.sqrt(this.k/this.mass)); //debería dar ~10
     }
 
     private double getForce(State state, Particle p) {

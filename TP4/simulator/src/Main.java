@@ -11,19 +11,19 @@ public class Main {
 
         OscillatorSystem os = new OscillatorSystem(100, 10e4, 70, 5,  1);
 
-        double[] timesteps = new double[]{0.0001, 0.001, 0.01, 0.1};
+        double[] timesteps = new double[]{0.00001, 0.00001, 0.0001, 0.001, 0.01, 0.1};
         for (Double timestep : timesteps) {
-            os.analiticSolution(timestep);
-            os.verletSolution(timestep);
-            os.beemanSolution(timestep);
+          //  os.analiticSolution(timestep);
+          //  os.verletSolution(timestep);
+          //  os.beemanSolution(timestep);
         }
 
-        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(100, 100, 1, 60, 10e-3, 10e-2);
-
-        double[] wfs = new double[5];
-        for (int i = 0; i < wfs.length; i++) {
-            wfs[i] = 2*i;
-            cos.verletSolution(wfs[i],10e-3);
+        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(100, 100, 0.001, 60, 10e-3, 10e-2);
+        cos.verletSolution(10, 10e-3);
+        double[] wfs = new double[15];
+        for (int i = 5; i < wfs.length; i++) {
+            wfs[i] = i;
+            //cos.verletSolution(wfs[i],10e-3);
         }
 
 
