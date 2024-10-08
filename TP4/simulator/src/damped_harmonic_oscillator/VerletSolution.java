@@ -95,7 +95,7 @@ public class VerletSolution implements Iterator<State> {
         double position = p.getPosition();
         double velocity = p.getVelocity();
 
-        // Oscilación amortiguada: F = -kx - bv
+        // Oscilación amortiguada: F = - kx - bv
         double elasticForce = position * (-k);  // Fuerza de Hooke
         double dampingForce = velocity * (-b);  // Fuerza de amortiguamiento
 

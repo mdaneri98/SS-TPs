@@ -4,12 +4,16 @@ TP1/!**/src/main/**/out/
 TP1/!**/src/test/**/out/
 
 TP2/self-propelled-agents/out/
+TP2/self-propelled-agents/test/outputs/
 TP2/self-propelled-agents/!**/src/main/**/out/
 TP2/self-propelled-agents/!**/src/test/**/out/
 
 # Ignorar el directorio output
 /TP3/MolecularDynamics/test/output/
 
+# TP4 
+TP4/simulator/out/
+TP4/simulator/!**/src/main/**/out/
 /TP4/simulator/python/outputs/
 
 

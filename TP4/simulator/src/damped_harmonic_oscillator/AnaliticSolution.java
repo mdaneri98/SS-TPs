@@ -55,8 +55,10 @@ public class AnaliticSolution implements Iterator<State> {
         Particle currentParticle = previousState.getParticle().clone();
 
         double newPos = this.initialAmplitud
-                * Math.pow(Math.E, -(this.b / (2 * currentParticle.getMass())) * currentTime)
-                * Math.cos(Math.sqrt((this.k / currentParticle.getMass()) - (this.b * this.b / (4 * this.mass * this.mass))) * currentTime);
+                * Math.exp(-(this.b / (2 * currentParticle.getMass())) * currentTime)
+                * Math.cos(
+                        Math.sqrt((this.k / currentParticle.getMass()) - ((this.b * this.b) / (4 * this.mass * this.mass)))
+                                * currentTime);
         currentParticle.setPosition(newPos);
 
         stateList.add(new State(currentTime, currentParticle));

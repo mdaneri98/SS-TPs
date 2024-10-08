@@ -4,8 +4,8 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 
 # Leer los archivos CSV
-df = pd.read_csv('outputs/multiple/verlet_8.000000/particle.csv')
-static_df = pd.read_csv('outputs/multiple/verlet_8.000000/static.csv', header=None, skiprows=1)
+df = pd.read_csv('outputs/multiple/verlet_10.000000/particle.csv')
+static_df = pd.read_csv('outputs/multiple/verlet_10.000000/static.csv', header=None, skiprows=1)
 
 # Asignar nombres a las columnas
 static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
