@@ -19,8 +19,8 @@ public class Main {
         }
 
         CoupledOscillatorSystem cos = new CoupledOscillatorSystem(100, 100, 0.001, 30, 1e-3, 1e-2);
-        double[] wfs = new double[15];
-        for (int i = 5; i < wfs.length; i+= 2) {
+        double[] wfs = new double[12];
+        for (int i = 8; i < wfs.length; i+= 1) {
             wfs[i] = i;
             cos.verletSolution(wfs[i]);
         }

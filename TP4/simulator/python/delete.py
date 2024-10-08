@@ -18,7 +18,7 @@ distance = float(static_df['distance'].values[0])
 amplitud = float(static_df['amplitud'].values[0])
 
 # Define new timestep
-new_timestep = 0.05
+new_timestep = 0.1
 
 # Filter unique times
 times = df['time'].unique()
@@ -27,7 +27,7 @@ times = times[(times % new_timestep) < 1e-4]
 # Create figure and axis
 fig, ax = plt.subplots()
 ax.set_xlim(0, distance * n)
-ax.set_ylim(-(1.1*amplitud), amplitud*1.1)
+ax.set_ylim(-(1.1*df['position'].max()), df['position'].max()*1.1)
 ax.set_xlabel('Distance (Index * distance)')
 ax.set_ylabel('Position (Vertical)')
 
@@ -74,7 +74,11 @@ def update(frame):
     # Update connecting line
     line.set_data(x_positions, y_positions)
 
-    # Update max and min lines
+    # Add static max and min lines
+    ax.axhline(y=df['position'].max(), color='black', linestyle='--', lw=1)
+    ax.axhline(y=df['position'].min(), color='black', linestyle='--', lw=1)
+
+    # Update current max and min lines
     max_line.set_data([0, distance * n], [global_max, global_max])
     min_line.set_data([0, distance * n], [global_min, global_min])
 

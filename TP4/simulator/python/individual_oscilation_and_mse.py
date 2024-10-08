@@ -127,11 +127,8 @@ def generate_mse_errors_for_all(base_dir):
     return results_df
 
 
-
 # Obtener todas las carpetas dentro de 'outputs/'
 base_dir = 'outputs/individual'
 pattern = os.path.join(base_dir, '**/particle.csv')  # Busca en subcarpetas también
 
-
 mse_results = generate_mse_errors_for_all(base_dir)
-

@@ -145,5 +145,8 @@ public class CoupledVerletSolution implements Iterator<State> {
         return stateList.peekLast();
     }
 
+    public double getTimestep() {
+        return timestep;
+    }
 
 }
