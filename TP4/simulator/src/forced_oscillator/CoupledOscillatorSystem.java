@@ -55,7 +55,7 @@ public class CoupledOscillatorSystem {
         return 0;
     }
 
-    public void verletSolution(double wf, double timestep) {
+    public void verletSolution(double wf) {
         String directory = String.format(Locale.US, "verlet_%.6f", wf);
 
         Path staticPath = getFilePath(directory, "static.csv");

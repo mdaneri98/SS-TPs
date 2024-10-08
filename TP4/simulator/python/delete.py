@@ -1,41 +1,90 @@
-import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import numpy as np
 
-# Parámetros
-A_inicial = 1  # Amplitud inicial en metros
-posicion_inicial = 1  # Posición inicial en metros
-velocidad_inicial = posicion_inicial  # Velocidad inicial (igual a la posición inicial)
-masa = 70  # Masa en kg
-k = 10**4  # Constante del resorte en N/m
-b = 100  # Coeficiente de amortiguamiento en kg/s
-tf = 5  # Tiempo final en segundos
-dt = 0.001  # Incremento de tiempo
+# Read CSV files
+df = pd.read_csv('outputs/multiple/verlet_13.000000/particle.csv')
+static_df = pd.read_csv('outputs/multiple/verlet_13.000000/static.csv', header=None, skiprows=1)
 
-# Función de aceleración derivada de la ecuación diferencial
-def aceleracion(x, v, m, b, k):
-    return -(b / m) * v - (k / m) * x
+# Assign column names
+static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
 
-# Variables para almacenar tiempo, posición y velocidad
-t = np.arange(0, tf, dt)
-x = np.zeros_like(t)
-v = np.zeros_like(t)
+# Convert column values to float
+n = float(static_df['n'].values[0])
+k = float(static_df['k'].values[0])
+mass = float(static_df['mass'].values[0])
+distance = float(static_df['distance'].values[0])
+amplitud = float(static_df['amplitud'].values[0])
 
-# Condiciones iniciales
-x[0] = posicion_inicial
-v[0] = velocidad_inicial
+# Define new timestep
+new_timestep = 0.05
 
-# Método de Euler para resolver la ecuación diferencial
-for i in range(1, len(t)):
-    a = aceleracion(x[i-1], v[i-1], masa, b, k)
-    v[i] = v[i-1] + a * dt
-    x[i] = x[i-1] + v[i-1] * dt
+# Filter unique times
+times = df['time'].unique()
+times = times[(times % new_timestep) < 1e-4]
 
-# Gráfica de posición en función del tiempo
-plt.figure(figsize=(10, 6))
-plt.plot(t, x, label='Posición (m)')
-plt.title('Oscilación Amortiguada: Posición en función del tiempo')
-plt.xlabel('Tiempo (s)')
-plt.ylabel('Posición (m)')
-plt.grid(True)
-plt.legend()
+# Create figure and axis
+fig, ax = plt.subplots()
+ax.set_xlim(0, distance * n)
+ax.set_ylim(-(1.1*amplitud), amplitud*1.1)
+ax.set_xlabel('Distance (Index * distance)')
+ax.set_ylabel('Position (Vertical)')
+
+# Initialize scatter plot and line
+scatter = ax.scatter([], [], s=50, c='blue')
+line, = ax.plot([], [], lw=2, color='blue')
+
+# Initialize max and min lines
+max_line, = ax.plot([], [], lw=1, color='red', linestyle='--')
+min_line, = ax.plot([], [], lw=1, color='green', linestyle='--')
+
+# Initialize max and min values
+global_max = -np.inf
+global_min = np.inf
+
+# Function to update animation for each frame
+def update(frame):
+    global global_max, global_min
+    current_time = times[frame]
+
+    # Filter data for current time
+    current_data = df[df['time'] <= current_time]
+
+    # Calculate x positions
+    particle_indices = current_data['id'].unique()
+    x_positions = particle_indices * distance
+
+    # Get y positions for current time
+    y_positions = current_data[current_data['time'] == current_time]['position']
+
+    # Update global max and min
+    frame_max = current_data['position'].max()
+    frame_min = current_data['position'].min()
+    global_max = max(global_max, frame_max)
+    global_min = min(global_min, frame_min)
+
+    # Create color array
+    colors = ['red' if id == 0 else 'blue' for id in particle_indices]
+
+    # Update scatter plot
+    scatter.set_offsets(list(zip(x_positions, y_positions)))
+    scatter.set_color(colors)
+
+    # Update connecting line
+    line.set_data(x_positions, y_positions)
+
+    # Update max and min lines
+    max_line.set_data([0, distance * n], [global_max, global_max])
+    min_line.set_data([0, distance * n], [global_min, global_min])
+
+    # Update title
+    ax.set_title(f'Time: {current_time:.3f}')
+
+    return scatter, line, max_line, min_line
+
+# Create animation
+anim = FuncAnimation(fig, update, frames=len(times), blit=False)
+
+# Show animation
 plt.show()

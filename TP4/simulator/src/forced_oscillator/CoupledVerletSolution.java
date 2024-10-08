@@ -21,6 +21,7 @@ public class CoupledVerletSolution implements Iterator<State> {
     private final double wf;        // Frec. angular de la fuerza
     private final double timestep;
 
+    private boolean firstTime;
     private final LinkedList<State> stateList;
 
     private final int n;
@@ -35,6 +36,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         this.w = Math.sqrt(k / mass);
         this.timestep = 1 / (100 * w);
 
+        this.firstTime = true;
         this.n = initialState.getParticles().size();
 
         this.stateList = new LinkedList<>();
@@ -72,8 +74,12 @@ public class CoupledVerletSolution implements Iterator<State> {
 
     @Override
     public State next() {
-        if (stateList.size() == 1) {
+        if (firstTime) {
+            firstTime = false;
             return eulersMethod();
+        }
+        if (stateList.size() == 3) {
+            stateList.removeFirst();
         }
 
         // Obtener el estado anterior
