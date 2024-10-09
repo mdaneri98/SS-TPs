@@ -3,75 +3,89 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 
-# Leer los archivos CSV
-df = pd.read_csv('outputs/multiple/verlet_10.000000/particle.csv')
-static_df = pd.read_csv('outputs/multiple/verlet_10.000000/static.csv', header=None, skiprows=1)
+# Read CSV files
+df = pd.read_csv('outputs/multiple/verlet_13.000000/particle.csv')
+static_df = pd.read_csv('outputs/multiple/verlet_13.000000/static.csv', header=None, skiprows=1)
 
-# Asignar nombres a las columnas
+# Assign column names
 static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
 
-# Convertir los valores de las columnas a float (en caso de que sean strings)
+# Convert column values to float
 n = float(static_df['n'].values[0])
 k = float(static_df['k'].values[0])
 mass = float(static_df['mass'].values[0])
 distance = float(static_df['distance'].values[0])
 amplitud = float(static_df['amplitud'].values[0])
 
-# Definir el nuevo timestep
-new_timestep = 0.05  # Por ejemplo, 0.05 segundos
 
-# Filtrar los tiempos únicos
+# Filter unique times
 times = df['time'].unique()
 
-# Quedarse solo con los tiempos que sean múltiplos del nuevo timestep
-times = times[(times % new_timestep) < 1e-4]
-
-# Crear la figura y el eje
+# Create figure and axis
 fig, ax = plt.subplots()
-ax.set_xlim(0, distance * n)  # Usar la distancia del archivo estático para x
-ax.set_ylim(-(1.1*amplitud), amplitud*1.1)  # Usar amplitud para los límites de y
+ax.set_xlim(0, distance * n)
+ax.set_ylim(-(1.1*df['position'].max()), df['position'].max()*1.1)
 ax.set_xlabel('Distance (Index * distance)')
 ax.set_ylabel('Position (Vertical)')
 
-# Inicializar el gráfico de dispersión con un color por defecto
+# Initialize scatter plot and line
 scatter = ax.scatter([], [], s=50, c='blue')
-
-# Inicializar la línea que conectará los puntos
 line, = ax.plot([], [], lw=2, color='blue')
 
+# Initialize max and min lines
+max_line, = ax.plot([], [], lw=1, color='red', linestyle='--')
+min_line, = ax.plot([], [], lw=1, color='green', linestyle='--')
 
-# Función para actualizar la animación en cada frame
+# Initialize max and min values
+global_max = -np.inf
+global_min = np.inf
+
+# Function to update animation for each frame
 def update(frame):
+    global global_max, global_min
     current_time = times[frame]
 
-    # Filtrar los datos del tiempo actual
-    current_data = df[df['time'] == current_time]
+    # Filter data for current time
+    current_data = df[df['time'] <= current_time]
 
-    # Calcular la posición en x como el índice de la partícula multiplicado por la distancia
-    particle_indices = current_data['id']
-    x_positions = particle_indices * distance  # Usar la distancia del archivo estático
+    # Calculate x positions
+    particle_indices = current_data['id'].unique()
+    x_positions = particle_indices * distance
 
-    # La posición en y será la posición vertical
-    y_positions = current_data['position']
+    # Get y positions for current time
+    y_positions = current_data[current_data['time'] == current_time]['position']
 
-    # Crear un array de colores
+    # Update global max and min
+    frame_max = current_data['position'].max()
+    frame_min = current_data['position'].min()
+    global_max = max(global_max, frame_max)
+    global_min = min(global_min, frame_min)
+
+    # Create color array
     colors = ['red' if id == 0 else 'blue' for id in particle_indices]
 
-    # Actualizar los datos del gráfico de dispersión
+    # Update scatter plot
     scatter.set_offsets(list(zip(x_positions, y_positions)))
     scatter.set_color(colors)
 
-    # Actualizar la línea para conectar las partículas
+    # Update connecting line
     line.set_data(x_positions, y_positions)
 
-    # Actualizar el título con el tiempo actual
+    # Add static max and min lines
+    ax.axhline(y=df['position'].max(), color='black', linestyle='--', lw=1)
+    ax.axhline(y=df['position'].min(), color='black', linestyle='--', lw=1)
+
+    # Update current max and min lines
+    max_line.set_data([0, distance * n], [global_max, global_max])
+    min_line.set_data([0, distance * n], [global_min, global_min])
+
+    # Update title
     ax.set_title(f'Time: {current_time:.3f}')
 
-    return scatter, line
+    return scatter, line, max_line, min_line
 
-
-# Crear la animación
+# Create animation
 anim = FuncAnimation(fig, update, frames=len(times), blit=False)
 
-# Mostrar la animación
+# Show animation
 plt.show()

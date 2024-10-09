@@ -55,18 +55,23 @@ public class CoupledOscillatorSystem {
         return 0;
     }
 
-    public void verletSolution(double wf, double timestep) {
+    public void verletSolution(double wf) {
         String directory = String.format(Locale.US, "verlet_%.6f", wf);
 
         Path staticPath = getFilePath(directory, "static.csv");
         saveStatic(staticPath, wf);
 
-        Iterator<State> solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
+        CoupledVerletSolution solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
 
         Path filepath = getFilePath(directory, "particle.csv");
+        int saves = 0;
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
-            currentState.save(filepath);
+            if (saves % 4 == 0) {
+                currentState.save(filepath);
+                saves = -1;
+            }
+            saves++;
         }
     }
 
