@@ -22,7 +22,7 @@ def plot_solutions(time, analitic_positions, numeric_positions, method_name, tim
     print(f'Gráfico guardado en: {save_path}')
 
 def process_files(base_dir):
-    methods = ['analitic', 'beeman', 'verlet']
+    methods = ['analitic', 'beeman', 'verlet','gear']
 
     # Obtener todos los timesteps disponibles
     timesteps = set()
