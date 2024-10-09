@@ -34,7 +34,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         this.wf = wf;
 
         this.w = Math.sqrt(k / mass);
-        this.timestep = 1 / (100 * w);
+        this.timestep = Math.max(1 / (100 * w), 1e-3);
 
         this.firstTime = true;
         this.n = initialState.getParticles().size();
@@ -47,7 +47,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         System.out.println("Inicializando CoupledVerlet con los siguientes parámetros:");
         System.out.println("k: " + k);
         System.out.println("mass: " + mass);
-        System.out.println("w" + Math.sqrt(k/mass));
+        System.out.println("w" + w);
         System.out.println("maxTime: " + maxTime);
         System.out.println("timestep: " + timestep);
         System.out.println("frec. angular de la fuerza: " + this.wf);
@@ -101,7 +101,7 @@ public class CoupledVerletSolution implements Iterator<State> {
             } else if (i == 0) {
                 newPosition = 0;  // Condición de frontera
             } else if (i == n - 1) {
-                newPosition = this.amplitud * Math.sin(this.w * nextTime);  // Oscilador forzado
+                newPosition = this.amplitud * Math.sin(this.wf * nextTime);  // Oscilador forzado
             }
 
             // Calcular la nueva velocidad usando Verlet: v(t) = (r(t + Δt) - r(t)) / (2 * Δt)

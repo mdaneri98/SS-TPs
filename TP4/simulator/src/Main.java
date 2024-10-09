@@ -11,16 +11,17 @@ public class Main {
 
         OscillatorSystem os = new OscillatorSystem(100, 1e4, 70, 5,  1);
 
-        double[] timesteps = new double[]{1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1};
+        //double[] timesteps = new double[]{1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1};
+        double[] timesteps = new double[]{1e-3, 1e-2};
         for (Double timestep : timesteps) {
-            //os.analiticSolution(timestep);
-            //os.verletSolution(timestep);
-            //os.beemanSolution(timestep);
+            os.analiticSolution(timestep);
+            os.verletSolution(timestep);
+            os.beemanSolution(timestep);
         }
 
-        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(100, 100, 0.001, 30, 1e-3, 1e-2);
-        double[] wfs = new double[12];
-        for (int i = 8; i < wfs.length; i+= 1) {
+        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, 100, 0.001, 30, 1e-3, 1e-2);
+        double[] wfs = new double[16];
+        for (int i = 5; i < wfs.length; i+= 1) {
             wfs[i] = i;
             cos.verletSolution(wfs[i]);
         }

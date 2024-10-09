@@ -43,8 +43,12 @@ max_amplitudes = max_amplitudes[sorted_indices]
 # Graficar la amplitud máxima en función de w
 plt.figure(figsize=(8, 6))
 plt.plot(w_values, max_amplitudes, marker='o', linestyle='-', color='blue')
-plt.title('Amplitud máxima en función de w (frecuencia angular)')
-plt.xlabel('Frecuencia angular (w)')
-plt.ylabel('Amplitud máxima')
+plt.title('Amplitud máxima en función de la frecuencia angular externa')
+plt.xlabel('')
+plt.ylabel('')
 plt.grid(True)
-plt.show()
+
+# Guardar la gráfica en outputs/multiple/amplitud_vs_w.jpg
+output_path = 'outputs/multiple/amplitud_vs_w.jpg'
+plt.savefig(output_path, format='jpg')
+#plt.show()

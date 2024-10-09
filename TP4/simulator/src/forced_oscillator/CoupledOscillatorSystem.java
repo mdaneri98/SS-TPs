@@ -67,7 +67,7 @@ public class CoupledOscillatorSystem {
         int saves = 0;
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
-            if (saves % 4 == 0) {
+            if (saves % 1e4 == 0) {
                 currentState.save(filepath);
                 saves = -1;
             }
@@ -92,7 +92,8 @@ public class CoupledOscillatorSystem {
     private Path getFilePath(String directory, String filename) {
         try {
             String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, "python", "outputs", "multiple", directory);
+            String kDirectoryName = String.format(Locale.US, "k_%.6f", k);
+            Path directoryPath = Paths.get(projectPath, "python", "outputs", "multiple", kDirectoryName, directory);
             Path filePath = directoryPath.resolve(filename);
 
             // Crea los directorios si no existen
