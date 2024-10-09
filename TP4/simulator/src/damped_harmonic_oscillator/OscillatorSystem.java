@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Locale;
+import java.util.*;
 
 public class OscillatorSystem {
 
@@ -35,6 +33,17 @@ public class OscillatorSystem {
 
     private State initialize(double initialPosition, double initialVelocity) {
         return new State(0, new Particle(0, initialPosition, initialVelocity, this.mass));
+    }
+
+    private List<Double> getParams(double k,double mass,double b,double initialPosition,double initialVelocity){
+        List<Double> params = new ArrayList<>();
+        params.add(0, initialPosition);
+        params.add(1, initialVelocity);
+        params.add(2, ((-b/mass)*params.get(1)) - (k/mass)*params.get(0));
+        params.add(3, ((-b/mass)*params.get(2)) - (k/mass)*params.get(1));
+        params.add(4, ((-b/mass)*params.get(3)) - (k/mass)*params.get(2));
+        params.add(5, ((-b/mass)*params.get(4)) - (k/mass)*params.get(3));
+        return params;
     }
 
     private double getInitialVelocity() {
@@ -75,8 +84,15 @@ public class OscillatorSystem {
         }
     }
 
-    public void gearPredictorCorrectorOrder5Solution() {
+    public void gearPredictorCorrectorOrder5Solution(double timestep) {
+       Iterator<State> solutionable = new GearPredictorCorrector5Solution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()), getParams(k,mass,b,initialPosition,getInitialVelocity()));
 
+        String directory = String.format(Locale.US, "gear_%.6f", timestep);
+        Path filepath = getFilePath(directory, "particle.csv");
+        while (solutionable.hasNext()) {
+            State currentState = solutionable.next();
+            currentState.save(filepath);
+        }
     }
 
     private Path getFilePath(String directory, String filename) {
