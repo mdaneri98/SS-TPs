@@ -5,17 +5,22 @@ import numpy as np
 import os
 
 
-# Función para buscar las carpetas con la estructura verlet_{numero_de_w_usado}
-def get_verlet_folders(base_path='outputs/multiple/'):
-    folders = [f for f in os.listdir(base_path) if f.startswith('verlet_')]
-    return folders
+def get_k_folders(base_path='outputs/multiple/'):
+    return [f for f in os.listdir(base_path) if f.startswith('k_')]
 
 
-# Función para crear la animación y guardar el GIF
-def create_animation_for_folder(folder):
+def get_verlet_folders(k_folder, base_path='outputs/multiple/'):
+    k_path = os.path.join(base_path, k_folder)
+    return [f for f in os.listdir(k_path) if f.startswith('verlet_')]
+
+
+def create_animation_for_folder(k_folder, verlet_folder):
+    base_path = 'outputs/multiple/'
+    folder_path = os.path.join(base_path, k_folder, verlet_folder)
+
     # Leer archivos CSV
-    df = pd.read_csv(f'outputs/multiple/{folder}/particle.csv')
-    static_df = pd.read_csv(f'outputs/multiple/{folder}/static.csv', header=None, skiprows=1)
+    df = pd.read_csv(os.path.join(folder_path, 'particle.csv'))
+    static_df = pd.read_csv(os.path.join(folder_path, 'static.csv'), header=None, skiprows=1)
 
     # Asignar nombres de columnas
     static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
@@ -96,7 +101,7 @@ def create_animation_for_folder(folder):
         min_line.set_data([0, distance * n], [global_min, global_min])
 
         # Actualizar el título
-        ax.set_title(f'Time: {current_time:.3f}')
+        ax.set_title(f'k={k}, w={wf}, Time: {current_time:.3f}')
 
         return scatter, line, max_line, min_line
 
@@ -104,16 +109,18 @@ def create_animation_for_folder(folder):
     anim = FuncAnimation(fig, update, frames=len(times), blit=False)
 
     # Guardar la animación como un GIF
-    gif_path = f'outputs/multiple/{folder}/animation.gif'
+    gif_path = os.path.join(folder_path, f'animation_k_{k}_w_{wf}.gif')
     anim.save(gif_path, writer='imagemagick', fps=10)
 
     print(f'Guardado GIF en: {gif_path}')
     plt.close(fig)
 
 
-# Buscar todas las carpetas verlet_{numero_de_w_usado}
-folders = get_verlet_folders()
+# Buscar todas las carpetas k_{valor_de_k}
+k_folders = get_k_folders()
 
-# Crear la animación y guardar el GIF para cada carpeta
-for folder in folders:
-    create_animation_for_folder(folder)
+# Crear la animación y guardar el GIF para cada combinación de k y w
+for k_folder in k_folders:
+    verlet_folders = get_verlet_folders(k_folder)
+    for verlet_folder in verlet_folders:
+        create_animation_for_folder(k_folder, verlet_folder)

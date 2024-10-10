@@ -19,11 +19,14 @@ public class Main {
             os.beemanSolution(timestep);
         }
 
-        CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, 100, 0.001, 30, 1e-3, 1e-2);
-        double[] wfs = new double[16];
-        for (int i = 5; i < wfs.length; i+= 1) {
-            wfs[i] = i;
-            cos.verletSolution(wfs[i]);
+        double[] ks = new double[] { 10*10, 20*20, 30*30, 40*40, 50*50 };
+        for (Double k : ks) {
+            CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, k, 0.001, 30, 1e-3, 1e-2);
+            double[] wfs = new double[16];
+            for (int i = 5; i < wfs.length; i += 1) {
+                wfs[i] = i;
+                cos.verletSolution(wfs[i]);
+            }
         }
     }
 
