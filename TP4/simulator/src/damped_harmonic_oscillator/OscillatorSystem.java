@@ -35,17 +35,6 @@ public class OscillatorSystem {
         return new State(0, new Particle(0, initialPosition, initialVelocity, this.mass));
     }
 
-    private List<Double> getParams(double k,double mass,double b,double initialPosition,double initialVelocity){
-        List<Double> params = new ArrayList<>();
-        params.add(0, initialPosition);
-        params.add(1, initialVelocity);
-        params.add(2, ((-b/mass)*params.get(1)) - (k/mass)*params.get(0));
-        params.add(3, ((-b/mass)*params.get(2)) - (k/mass)*params.get(1));
-        params.add(4, ((-b/mass)*params.get(3)) - (k/mass)*params.get(2));
-        params.add(5, ((-b/mass)*params.get(4)) - (k/mass)*params.get(3));
-        return params;
-    }
-
     private double getInitialVelocity() {
         //FIXME: Chequearlo.
         return -this.initialAmplitud * b / (2 * mass);
@@ -85,7 +74,7 @@ public class OscillatorSystem {
     }
 
     public void gearPredictorCorrectorOrder5Solution(double timestep) {
-       Iterator<State> solutionable = new GearPredictorCorrector5Solution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()), getParams(k,mass,b,initialPosition,getInitialVelocity()));
+       Iterator<State> solutionable = new GearPredictorCorrector5Solution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
 
         String directory = String.format(Locale.US, "gear_%.6f", timestep);
         Path filepath = getFilePath(directory, "particle.csv");

@@ -18,11 +18,11 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
 
     private final LinkedList<State> stateList;
 
-    private final LinkedList<List<Double>> paramsList = new LinkedList<>();
+    private final LinkedList<Map<String, Double>> paramsList = new LinkedList<>();
 
     private final double[] alphas = new double[]{3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
 
-    public GearPredictorCorrector5Solution(double b, double k, double mass, double maxTime, double timestep, double initialAmplitud, State initialState, List<Double> params) {
+    public GearPredictorCorrector5Solution(double b, double k, double mass, double maxTime, double timestep, double initialAmplitud, State initialState) {
         this.b = b;
         this.k = k;
         this.mass = mass;
@@ -32,7 +32,7 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
 
         this.stateList = new LinkedList<>();
         stateList.add(initialState);
-        paramsList.add(params);
+        paramsList.add(getParams(initialState));
     }
 
     @Override
@@ -42,28 +42,34 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
 
     @Override
     public State next() {
-     State previousState =stateList.peekLast(); // Estado anterior
-     double previousTime = previousState.getTime(); // Tiempo anterior
-     Particle previousParticle = previousState.getParticle(); // Partícula anterior
+        State currentState = stateList.peekLast(); // Estado anterior
 
-     List<Double> previousParams = paramsList.peekLast(); // Parámetros anteriores
+        double currentTime = currentState.getTime(); // Tiempo anterior
+        double nextTime = currentTime + timestep;
 
-     List<Double> predictedValues = predict(previousParams,timestep); // Predicción de los valores
+        Map<String, Double> currentParams = paramsList.peekLast();
+        Map<String, Double> predictedValues = predict(currentParams); // Predicción de los valores
 
-     double getDeltaR2 = getDeltaR2(b, k, mass, predictedValues.get(0),predictedValues.get(1),predictedValues.get(2),timestep); // Cálculo de deltaR2
+        double getDeltaR2 = getDeltaR2(predictedValues);
+        Map<String, Double> correctedValues = correct(predictedValues, getDeltaR2);
 
-     List<Double> correctedValues = correct(predictedValues,timestep, getDeltaR2); // Corrección de los valores
+        paramsList.add(correctedValues); // Añadimos los valores corregidos a la lista de parámetros
 
-     paramsList.add(correctedValues); // Añadimos los valores corregidos a la lista de parámetros
+        // Nueva particula y estado.
+        Particle newParticle = currentState.getParticle().clone();
+        newParticle.setPosition(correctedValues.get("r0"));
+        newParticle.setVelocity(correctedValues.get("r1"));
 
-     State newState = new State(previousTime + timestep, new Particle(previousParticle.getId(),correctedValues.get(0), correctedValues.get(1), mass));
-     stateList.add(newState);
-     return newState;
+        State newState = new State(nextTime, newParticle);
+        stateList.add(newState);
+
+        return newState;
     }
 
-    private double getDeltaR2(double b, double k, double mass, double predictedPos , double predictedVel, double predictedAc, double timestep) {
-        double a = (-k/mass) * predictedPos - (b/mass) * predictedVel;
-        return (a - predictedAc) * Math.pow(timestep,2)/2;
+    private double getDeltaR2(Map<String, Double> predictedValues) {
+        double predictedForce = -k * predictedValues.get("r0") - b * predictedValues.get("r1");
+        double predictedAcceleration = predictedForce / mass;
+        return (predictedAcceleration - predictedValues.get("r2")) * (Math.pow(timestep, 2) / 2);
     }
 
     private double getForce(Particle p) {
@@ -77,22 +83,53 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
         return elasticForce + dampingForce;
     }
 
-    private List<Double> predict (List<Double> params,double time){
-        List<Double> predictedValues = new ArrayList<>();
-        predictedValues.add(0, params.get(0) + params.get(1)*time + params.get(2)*Math.pow(time,2)/2 + params.get(3)*Math.pow(time,3)/6 + params.get(4)*Math.pow(time,4)/24 + params.get(5)*Math.pow(time,5)/120);
-        predictedValues.add(1, params.get(1) + params.get(2)*time + params.get(3)*Math.pow(time,2)/2 + params.get(4)*Math.pow(time,3)/6 + params.get(5)*Math.pow(time,4)/24);
-        predictedValues.add(2, params.get(2) + params.get(3)*time + params.get(4)*Math.pow(time,2)/2 + params.get(5)*Math.pow(time,3)/6);
-        predictedValues.add(3, params.get(3) + params.get(4)*time + params.get(5)*Math.pow(time,2)/2);
-        predictedValues.add(4, params.get(4) + params.get(5)*time);
-        predictedValues.add(5, params.get(5));
+    private Map<String, Double> predict (Map<String, Double> params){
+        Map<String, Double> predictedValues = new HashMap<>();
+        predictedValues.put("r0", params.get("r0") + params.get("r1")*timestep + params.get("r2")*Math.pow(timestep,2)/2 + params.get("r3")*Math.pow(timestep,3)/6 + params.get("r4")*Math.pow(timestep,4)/24 + params.get("r5")*Math.pow(timestep,5)/120);
+        predictedValues.put("r1", params.get("r1") + params.get("r2")*timestep + params.get("r3")*Math.pow(timestep,2)/2 + params.get("r4")*Math.pow(timestep,3)/6 + params.get("r5")*Math.pow(timestep,4)/24);
+        predictedValues.put("r2", params.get("r2") + params.get("r3")*timestep + params.get("r4")*Math.pow(timestep,2)/2 + params.get("r5")*Math.pow(timestep,3)/6);
+        predictedValues.put("r3", params.get("r3") + params.get("r4")*timestep + params.get("r5")*Math.pow(timestep,2)/2);
+        predictedValues.put("r4", params.get("r4") + params.get("r5")*timestep);
+        predictedValues.put("r5", params.get("r5"));
         return predictedValues;
     }
 
-    private List<Double> correct (List<Double> predictedValues, double timestep, double deltaR2){
-        List<Double> correctedValues = new ArrayList<>();
+    private Map<String, Double> correct (Map<String, Double> predictedValues, double deltaR2){
+        Map<String, Double> correctedValues = new HashMap<>();
         for (int i=0; i<6; i++){
-            correctedValues.add(i, predictedValues.get(i) + alphas[i]*deltaR2/Math.pow(timestep,i));
+            double corrected = predictedValues.get("r" + i) + alphas[i] * deltaR2 * (factorial(i) / Math.pow(timestep, i));
+            correctedValues.put("r" + i, corrected);
         }
         return correctedValues;
     }
+    /*
+    for (int i = 0; i < 6; i++) {
+        double value = 0;
+        for (int j = i; j < 6; j++) {
+            value += params.get("r" + j) * Math.pow(timestep, j-i) / factorial(j-i);
+        }
+        predictedValues.put("r" + i, value);
+    }
+     */
+
+    private Map<String, Double> getParams(State initial){
+        Map<String, Double> params = new HashMap<>();
+        params.put("r0", initial.getParticle().getPosition());
+        params.put("r1", initial.getParticle().getVelocity());
+        // params.put("r2", ((-k/mass)*params.get("r0")));
+        params.put("r2", (-k/mass)*params.get("r0") - (b/mass)*params.get("r1"));
+        params.put("r3", (-(k/mass)*params.get("r1")));
+        params.put("r4", ((-k/mass)*params.get("r2")));
+        params.put("r5", ((-k/mass)*params.get("r3")));
+        return params;
+    }
+
+    private int factorial(int n) {
+        int factorial = 1;
+        for (int i = 2; i <= n; ++i) {
+            factorial *= i;
+        }
+        return factorial;
+    }
+
 }

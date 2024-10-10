@@ -67,7 +67,7 @@ public class CoupledOscillatorSystem {
         int saves = 0;
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
-            if (saves % 1e4 == 0) {
+            if (saves % 1e5 == 0) {
                 currentState.save(filepath);
                 saves = -1;
             }
