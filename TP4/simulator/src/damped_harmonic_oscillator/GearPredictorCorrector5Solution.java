@@ -42,6 +42,13 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
 
     @Override
     public State next() {
+        if (stateList.size() == 3) {
+            stateList.removeFirst();
+        }
+        if (paramsList.size() == 3) {
+            paramsList.removeFirst();
+        }
+
         State currentState = stateList.peekLast(); // Estado anterior
 
         double currentTime = currentState.getTime(); // Tiempo anterior

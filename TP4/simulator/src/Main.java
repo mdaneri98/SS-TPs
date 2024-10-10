@@ -7,16 +7,16 @@ import java.util.LinkedList;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-
+        double t2 = 5;
 
         OscillatorSystem os = new OscillatorSystem(100, 1e4, 70, 5,  1);
 
         double[] timesteps = new double[]{1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1};
         for (Double timestep : timesteps) {
-            os.analiticSolution(timestep);
-            os.verletSolution(timestep);
-            os.beemanSolution(timestep);
-            os.gearPredictorCorrectorOrder5Solution(timestep);
+            os.analiticSolution(timestep, t2);
+            os.verletSolution(timestep, t2);
+            os.beemanSolution(timestep, t2);
+            os.gearPredictorCorrectorOrder5Solution(timestep, t2);
         }
 
         double[] ks = new double[] { 10*10, 20*20, 30*30, 40*40, 50*50 };

@@ -20,22 +20,7 @@ public class State implements Comparator<State> {
     }
 
 
-    // Save method
-    public void save(Path filePath) {
-        boolean fileExists = Files.exists(filePath);
 
-        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            // Escribir encabezados solo si el archivo no existe
-            if (!fileExists) {
-                writer.write("time,id,position,velocity,mass\n"); // Encabezados de CSV
-            }
-            // Escribir los datos de la partícula
-            writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f\n", time, particle.getId(), particle.getPosition(), particle.getVelocity(), particle.getMass()));
-        } catch (IOException e) {
-            System.out.println("Error al escribir un estado: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     // Getters & Setters
 
