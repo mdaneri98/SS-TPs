@@ -28,6 +28,8 @@ public class CoupledOscillatorSystem {
     // --- Cond. iniciales ---
     private final double distance;
 
+    private final double eps = 1e-1;
+
     private final List<State> states;
 
     public CoupledOscillatorSystem(int n, double k, double mass, double maxTime, double distance, double amplitud) {
@@ -55,7 +57,7 @@ public class CoupledOscillatorSystem {
         return 0;
     }
 
-    public void verletSolution(double wf) {
+    public void verletSolution(double wf, double t2) {
         String directory = String.format(Locale.US, "verlet_%.6f", wf);
 
         Path staticPath = getFilePath(directory, "static.csv");
@@ -64,16 +66,40 @@ public class CoupledOscillatorSystem {
         CoupledVerletSolution solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
 
         Path filepath = getFilePath(directory, "particle.csv");
-        int saves = 0;
+
+        LinkedList<State> statesToSave = new LinkedList<>();
         while (solutionable.hasNext()) {
             State currentState = solutionable.next();
-            if (saves % 1e5 == 0) {
-                currentState.save(filepath);
-                saves = -1;
+            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
+                statesToSave.add(currentState);
+
+            if (statesToSave.size() >= 50) {
+                save(statesToSave, filepath);
+                statesToSave = new LinkedList<>();
             }
-            saves++;
         }
     }
+
+
+    // Save method
+    public void save(List<State> states, Path filePath) {
+        boolean fileExists = Files.exists(filePath);
+
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+            // Escribir encabezados solo si el archivo no existe
+            if (!fileExists) {
+                writer.write("time,id,position,velocity,mass\n"); // Encabezados de CSV
+            }
+            for (State state : states)
+                for (Particle p : state.getParticles())
+                    writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f\n", state.getTime(), p.getId(), p.getPosition(), p.getVelocity(), p.getMass()));
+
+        } catch (IOException e) {
+            System.out.println("Error al escribir un estado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     private void saveStatic(Path filePath, double wf) {
         boolean fileExists = Files.exists(filePath);

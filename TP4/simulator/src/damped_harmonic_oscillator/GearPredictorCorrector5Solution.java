@@ -109,15 +109,6 @@ public class GearPredictorCorrector5Solution implements Iterator<State> {
         }
         return correctedValues;
     }
-    /*
-    for (int i = 0; i < 6; i++) {
-        double value = 0;
-        for (int j = i; j < 6; j++) {
-            value += params.get("r" + j) * Math.pow(timestep, j-i) / factorial(j-i);
-        }
-        predictedValues.put("r" + i, value);
-    }
-     */
 
     private Map<String, Double> getParams(State initial){
         Map<String, Double> params = new HashMap<>();
