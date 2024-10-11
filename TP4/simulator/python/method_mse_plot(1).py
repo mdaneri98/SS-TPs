@@ -19,9 +19,8 @@ def calculate_cumulative_mse(reference, target):
 
 
 def generate_mse_errors_and_plot(base_dir):
-    timesteps = ['0.000001', '0.000010', '0.000100', '0.001000', '0.010000', '0.100000']
-    #timesteps = ['0.000100', '0.001000', '0.010000']
-    methods = ['verlet', 'beeman', 'gear']
+    timesteps = ['0.010000', '0.001000', '0.000100', '0.000010', '0.000001']
+    methods = ['gear', 'verlet', 'beeman']
 
     results = []
 

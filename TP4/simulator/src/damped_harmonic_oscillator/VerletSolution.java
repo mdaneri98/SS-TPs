@@ -31,7 +31,7 @@ public class VerletSolution implements Iterator<State> {
 
     @Override
     public boolean hasNext() {
-        return stateList.peekLast().getTime() < this.maxTime;
+        return stateList.peekLast().getTime() <= this.maxTime;
     }
 
     @Override

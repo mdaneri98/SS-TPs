@@ -44,78 +44,50 @@ public class OscillatorSystem {
     }
 
     public void analiticSolution(double timestep, double t2) {
-        Iterator<State> solutionable = new AnaliticSolution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
-
-        String directory = String.format(Locale.US,"analitic_%.6f", timestep);
+        String directory = String.format(Locale.US,"analitic_%.7f", timestep);
         Path filepath = getFilePath(directory, "particle.csv");
 
-        LinkedList<State> statesToSave = new LinkedList<>();
-        while (solutionable.hasNext()) {
-            State currentState = solutionable.next();
-            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
-                statesToSave.add(currentState);
-
-            if (statesToSave.size() >= 50) {
-                save(statesToSave, filepath);
-                statesToSave = new LinkedList<>();
-            }
-        }
+        Iterator<State> solutionable = new AnaliticSolution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
+        runSolution(solutionable, t2, filepath);
     }
 
     public void verletSolution(double timestep, double t2) {
-        Iterator<State> solutionable = new VerletSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
-
-        String directory = String.format(Locale.US,"verlet_%.6f", timestep);
+        String directory = String.format(Locale.US,"verlet_%.7f", timestep);
         Path filepath = getFilePath(directory, "particle.csv");
 
-        LinkedList<State> statesToSave = new LinkedList<>();
-        while (solutionable.hasNext()) {
-            State currentState = solutionable.next();
-            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
-                statesToSave.add(currentState);
-
-            if (statesToSave.size() >= 50) {
-                save(statesToSave, filepath);
-                statesToSave = new LinkedList<>();
-            }
-        }
+        Iterator<State> solutionable = new VerletSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
+        runSolution(solutionable, t2, filepath);
     }
 
     public void beemanSolution(double timestep, double t2) {
-        Iterator<State> solutionable = new BeemanSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
-
-        String directory = String.format(Locale.US, "beeman_%.6f", timestep);
+        String directory = String.format(Locale.US, "beeman_%.7f", timestep);
         Path filepath = getFilePath(directory, "particle.csv");
 
-        LinkedList<State> statesToSave = new LinkedList<>();
-        while (solutionable.hasNext()) {
-            State currentState = solutionable.next();
-            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
-                statesToSave.add(currentState);
-
-            if (statesToSave.size() >= 50) {
-                save(statesToSave, filepath);
-                statesToSave = new LinkedList<>();
-            }
-        }
+        Iterator<State> solutionable = new BeemanSolution(b, k, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
+        runSolution(solutionable, t2, filepath);
     }
 
     public void gearPredictorCorrectorOrder5Solution(double timestep, double t2) {
-       Iterator<State> solutionable = new GearPredictorCorrector5Solution(b, k, mass, maxTime, timestep, initialAmplitud, initialize(initialPosition, getInitialVelocity()));
-
-        String directory = String.format(Locale.US, "gear_%.6f", timestep);
+        String directory = String.format(Locale.US, "gear_%.7f", timestep);
         Path filepath = getFilePath(directory, "particle.csv");
-        LinkedList<State> statesToSave = new LinkedList<>();
-        while (solutionable.hasNext()) {
-            State currentState = solutionable.next();
-            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
-                statesToSave.add(currentState);
 
+        Iterator<State> solutionable = new GearPredictorCorrector5Solution(b, k, mass, maxTime, timestep, initialize(initialPosition, getInitialVelocity()));
+        runSolution(solutionable, t2, filepath);
+    }
+
+    private void runSolution(Iterator<State> iterator, double t2, Path filepath) {
+        LinkedList<State> statesToSave = new LinkedList<>();
+        while (iterator.hasNext()) {
+            State currentState = iterator.next();
+            //if (Math.abs(currentState.getTime() % t2) < eps) {
+                statesToSave.add(currentState);
+            //}
             if (statesToSave.size() >= 50) {
                 save(statesToSave, filepath);
                 statesToSave = new LinkedList<>();
             }
         }
+        save(statesToSave, filepath);
     }
 
     // Save method
@@ -128,7 +100,13 @@ public class OscillatorSystem {
                 writer.write("time,id,position,velocity,mass\n"); // Encabezados de CSV
             }
             for (State state : states) {
-                writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f\n", state.getTime(), state.getParticle().getId(), state.getParticle().getPosition(), state.getParticle().getVelocity(), state.getParticle().getMass()));
+                writer.write(String.format(Locale.US, "%.7f,%d,%.7e,%.7e,%.7f\n",
+                        state.getTime(),
+                        state.getParticle().getId(),
+                        state.getParticle().getPosition(),
+                        state.getParticle().getVelocity(),
+                        state.getParticle().getMass()));
+
             }
         } catch (IOException e) {
             System.out.println("Error al escribir un estado: " + e.getMessage());

@@ -2,6 +2,7 @@ package forced_oscillator;
 
 
 import damped_harmonic_oscillator.BeemanSolution;
+import damped_harmonic_oscillator.GearPredictorCorrector5Solution;
 import forced_oscillator.models.Particle;
 import forced_oscillator.models.State;
 
@@ -47,7 +48,7 @@ public class CoupledOscillatorSystem {
 
     private State initialize() {
         List<Particle> particles = new LinkedList<>();
-        for (int i = 0; i < n + 1; i++) {
+        for (int i = 0; i < n; i++) {
             particles.add(new Particle(i, 0, getInitialVelocity(), this.mass));
         }
         return new State(0, particles);
@@ -63,23 +64,26 @@ public class CoupledOscillatorSystem {
         Path staticPath = getFilePath(directory, "static.csv");
         saveStatic(staticPath, wf);
 
-        CoupledVerletSolution solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
-
         Path filepath = getFilePath(directory, "particle.csv");
 
-        LinkedList<State> statesToSave = new LinkedList<>();
-        while (solutionable.hasNext()) {
-            State currentState = solutionable.next();
-            if (currentState.getTime() / t2 - Math.round(currentState.getTime()) / t2 < eps)
-                statesToSave.add(currentState);
+        CoupledVerletSolution solutionable = new CoupledVerletSolution(k, mass, maxTime, amplitud, wf, initialize());
+        runSolution(solutionable, t2, filepath);
+    }
 
+    private void runSolution(Iterator<State> iterator, double t2, Path filepath) {
+        LinkedList<State> statesToSave = new LinkedList<>();
+        while (iterator.hasNext()) {
+            State currentState = iterator.next();
+            if (Math.abs(currentState.getTime() % t2) < eps) {
+                statesToSave.add(currentState);
+            }
             if (statesToSave.size() >= 50) {
                 save(statesToSave, filepath);
                 statesToSave = new LinkedList<>();
             }
         }
+        save(statesToSave, filepath);
     }
-
 
     // Save method
     public void save(List<State> states, Path filePath) {

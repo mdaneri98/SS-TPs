@@ -3,9 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+import numpy as np
+
+
 def calculate_mse(positions1, positions2):
     """Calcula el error cuadrático medio entre dos listas de posiciones."""
     return np.mean((positions1 - positions2) ** 2)
+
 
 def plot_solutions(time, analitic_positions, numeric_positions, method_name, timestep, save_path):
     """Grafica las posiciones analítica y numérica."""
@@ -21,8 +25,9 @@ def plot_solutions(time, analitic_positions, numeric_positions, method_name, tim
     plt.close()
     print(f'Gráfico guardado en: {save_path}')
 
+
 def process_files(base_dir):
-    methods = ['analitic', 'beeman', 'verlet','gear']
+    methods = ['analitic', 'beeman', 'verlet', 'gear']
 
     # Obtener todos los timesteps disponibles
     timesteps = set()
@@ -38,7 +43,7 @@ def process_files(base_dir):
             print(f'No se encontró el archivo analítico para timestep {timestep}')
             continue
 
-        analitic_df = pd.read_csv(analitic_file)
+        analitic_df = pd.read_csv(analitic_file, skip_blank_lines=True)
         analitic_positions = analitic_df.set_index(['time', 'id'])['position']
         analitic_time = analitic_df['time'].unique()
 
@@ -52,7 +57,7 @@ def process_files(base_dir):
                 print(f'No se encontró el archivo para el método {method} con timestep {timestep}')
                 continue
 
-            particles_df = pd.read_csv(method_file)
+            particles_df = pd.read_csv(method_file, skip_blank_lines=True)
             numeric_positions = particles_df.set_index(['time', 'id'])['position']
             numeric_time = particles_df['time'].unique()
 
@@ -73,9 +78,11 @@ def process_files(base_dir):
                 plot_dir = os.path.join(mse_dir, 'plots')
                 os.makedirs(plot_dir, exist_ok=True)
                 plot_path = os.path.join(plot_dir, f'{method}_{timestep}_plot.png')
-                plot_solutions(analitic_time, analitic_positions.loc[common_index], numeric_positions.loc[common_index], method, timestep, plot_path)
+                plot_solutions(analitic_time, analitic_positions.loc[common_index], numeric_positions.loc[common_index],
+                               method, timestep, plot_path)
             else:
                 print(f'No hay partículas comunes en {method}_{timestep} y el archivo analítico.')
+
 
 if __name__ == '__main__':
     base_dir = 'outputs/individuals'  # Directorio base

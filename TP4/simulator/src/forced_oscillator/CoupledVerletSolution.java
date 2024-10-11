@@ -3,6 +3,7 @@ package forced_oscillator;
 import forced_oscillator.models.Particle;
 import forced_oscillator.models.State;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,18 +54,18 @@ public class CoupledVerletSolution implements Iterator<State> {
         System.out.println("frec. angular de la fuerza: " + this.wf);
         System.out.println("amplitud de la fuerza: " + amplitud);
         System.out.println("initialState: " + initialState);
-        System.out.println("w0 ideal: " + Math.sin(Math.PI/n) * Math.sqrt(this.k/this.mass)); //debería dar ~10
+        System.out.println("w ideal: " + Math.sin(Math.PI/n) * Math.sqrt(this.k/this.mass)); //debería dar ~10
     }
 
-    private double getForce(State state, Particle p) {
+    private double getForce(State currentState, Particle p, Particle rightParticle) {
         int particleIndex = p.getId();
         if (particleIndex <= 0 || particleIndex >= n - 1) {
             return 0; // Manejo para partículas límite
         }
 
-        List<Particle> particles = state.getParticles();
+        List<Particle> particles = currentState.getParticles();
         return -this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex - 1).getPosition()) -
-                this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex + 1).getPosition());
+                this.k * (particles.get(particleIndex).getPosition() - rightParticle.getPosition());
     }
 
     @Override
@@ -84,36 +85,45 @@ public class CoupledVerletSolution implements Iterator<State> {
 
         // Obtener el estado anterior
         State previousState = stateList.get(stateList.size() - 2); // Estado anterior al actual
-        State currentState = stateList.get(stateList.size() - 1);  // Estado actual
-
+        State currentState = stateList.peekLast();
         double nextTime = currentState.getTime() + timestep;
 
-        List<Particle> newParticles = new LinkedList<>();
-        for (int i = 0; i < currentState.getParticles().size(); i++) {
-            Particle cp = currentState.getParticles().get(i);
-            Particle pp = previousState.getParticles().get(i);
+        LinkedList<Particle> newParticles = new LinkedList<>();
 
-            double newPosition = Double.POSITIVE_INFINITY;
-            if (i > 0 && i < n - 1) {
-                // Actualizar la posición usando Verlet: r(t + Δt) = 2r(t) - r(t - Δt) + F(t) * Δt^2 / m
-                newPosition = 2 * cp.getPosition() - pp.getPosition() +
-                        (Math.pow(timestep, 2) / cp.getMass()) * getForce(currentState, cp);
-            } else if (i == 0) {
-                newPosition = 0;  // Condición de frontera
-            } else if (i == n - 1) {
-                newPosition = this.amplitud * Math.sin(this.wf * nextTime);  // Oscilador forzado
-            }
+
+        // Última particula
+        Particle lastParticle = currentState.getParticles().getLast().clone();
+        lastParticle.setPosition(this.amplitud * Math.sin(this.wf * nextTime));
+        //lastParticle.setVelocity((newPosition - pp.getPosition()) / (2 * timestep));
+        newParticles.push(lastParticle);
+
+        // Particulas intermedias
+        for (int i = n - 2; i >= 1; i--) {
+            Particle previousStateCenterParticle = previousState.getParticles().get(i);
+
+            Particle centerParticle = currentState.getParticles().get(i);
+            Particle leftParticle = currentState.getParticles().get(i-1);
+            Particle rightParticle = newParticles.peekFirst();
+
+            // Actualizar la posición usando Verlet: r(t + Δt) = 2r(t) - r(t - Δt) + F(t) * Δt^2 / m
+            double newPosition = 2 * centerParticle.getPosition() - previousStateCenterParticle.getPosition() +
+                        (Math.pow(timestep, 2) / centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
 
             // Calcular la nueva velocidad usando Verlet: v(t) = (r(t + Δt) - r(t)) / (2 * Δt)
-            double newVelocity = (newPosition - pp.getPosition()) / (2 * timestep);
+            double newVelocity = (newPosition - leftParticle.getPosition()) / (2 * timestep);
 
             // Clonar la partícula y actualizar posición y velocidad
-            Particle np = cp.clone();
+            Particle np = centerParticle.clone();
             np.setPosition(newPosition);
             np.setVelocity(newVelocity);
 
-            newParticles.add(np);
+            newParticles.push(np);
         }
+
+        Particle firstParticle = currentState.getParticles().getFirst().clone();
+        newParticles.push(firstParticle);
+
+
 
         // Crear y agregar el nuevo estado
         State newState = new State(nextTime, newParticles);
@@ -123,26 +133,45 @@ public class CoupledVerletSolution implements Iterator<State> {
     }
     private State eulersMethod() {
         // Obtener el estado anterior
-        State actualState = stateList.peekLast();
-        double ct = actualState.getTime();
-        List<Particle> currentParticles = actualState.getParticles();
+        State currentState = stateList.peekLast();
+        double ct = currentState.getTime();
+        double nextTime = ct + timestep;
 
-        List<Particle> newParticles = new LinkedList<>();
-        for (Particle cp : currentParticles) {
-            // Usar Euler para el primer paso
-            double newVel = cp.getVelocity() + (timestep / cp.getMass()) * getForce(actualState, cp);
-            double newPos = cp.getPosition() + timestep * cp.getVelocity() + (Math.pow(timestep, 2) / 2 * cp.getMass()) * getForce(actualState, cp);
 
-            // Actualizar la partícula con la nueva posición y velocidad
-            Particle newParticle = cp.clone();
-            newParticle.setPosition(newPos);
-            newParticle.setVelocity(newVel);
+        LinkedList<Particle> newParticles = new LinkedList<>();
 
-            newParticles.add(newParticle);
+
+        // Última particula
+        Particle lastParticle = currentState.getParticles().getLast().clone();
+        lastParticle.setPosition(this.amplitud * Math.sin(this.wf * nextTime));
+        //lastParticle.setVelocity((newPosition - pp.getPosition()) / (2 * timestep));
+        newParticles.push(lastParticle);
+
+        // Particulas intermedias
+        for (int i = n - 2; i >= 1; i--) {
+            Particle centerParticle = currentState.getParticles().get(i);
+            Particle leftParticle = currentState.getParticles().get(i-1);
+            Particle rightParticle = newParticles.peekFirst();
+
+            double newVel = centerParticle.getVelocity() + (timestep / centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
+            double newPos = centerParticle.getPosition() + timestep * centerParticle.getVelocity() + (Math.pow(timestep, 2) / 2 * centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
+
+            // Clonar la partícula y actualizar posición y velocidad
+            Particle np = centerParticle.clone();
+            np.setPosition(newPos);
+            np.setVelocity(newVel);
+
+            newParticles.push(np);
         }
 
-        stateList.add(new State(ct + timestep, newParticles));
-        return stateList.peekLast();
+        Particle firstParticle = currentState.getParticles().getFirst().clone();
+        newParticles.push(firstParticle);
+
+        // Crear y agregar el nuevo estado
+        State newState = new State(nextTime, newParticles);
+        stateList.add(newState);
+
+        return newState;
     }
 
     public double getTimestep() {
