@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-import numpy as np
-
 
 def calculate_mse(positions1, positions2):
     """Calcula el error cuadrático medio entre dos listas de posiciones."""
@@ -12,15 +10,24 @@ def calculate_mse(positions1, positions2):
 
 
 def plot_solutions(time, analitic_positions, numeric_positions, method_name, timestep, save_path):
-    """Grafica las posiciones analítica y numérica."""
+    """Grafica las posiciones analítica y numérica, y agrega el timestep a la leyenda en formato 10^x."""
+    # Convertir el timestep en notación 10^x
+    timestep = float(timestep)
+    exponent = int(f"{timestep:.1e}".split('e')[1])  # Obtiene el exponente de la notación científica
+    timestep_str = f"10^{exponent}"  # Construye la cadena en el formato 10^x
+
     plt.figure(figsize=(10, 6))
-    plt.plot(time, analitic_positions, label='Solución Analítica', color='blue', linestyle='--')
+
+    # Incluir el timestep en los labels para que aparezca en la leyenda
+    plt.plot(time, analitic_positions, label=f'Solución Analítica (Δt: {timestep_str})', color='blue', linestyle='--')
     plt.plot(time, numeric_positions, label=f'Solución Numérica ({method_name})', color='red')
-    plt.xlabel('Tiempo')
-    plt.ylabel('Posición')
-    plt.title(f'Soluciones Analítica y Numérica - Método: {method_name}, Timestep: {timestep}')
+
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Posición (m)')
+    plt.title(f'')
     plt.legend()
     plt.grid(True)
+
     plt.savefig(save_path)
     plt.close()
     print(f'Gráfico guardado en: {save_path}')

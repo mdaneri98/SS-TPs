@@ -19,7 +19,7 @@ def calculate_cumulative_mse(reference, target):
 
 
 def generate_mse_errors_and_plot(base_dir):
-    timesteps = ['0.010000', '0.001000', '0.000100', '0.000010', '0.000001']
+    timesteps = ['0.0100000', '0.0010000', '0.0001000', '0.0000100', '0.0000010']
     methods = ['gear', 'verlet', 'beeman']
 
     results = []
@@ -80,9 +80,9 @@ def generate_mse_errors_and_plot(base_dir):
 
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlabel('Paso de tiempo (s)')
+    plt.xlabel('Δt (s)')
     plt.ylabel('MSE (m^2)')
-    plt.title('Comparación del MSE según el paso temporal')
+    plt.title('')
     plt.legend()
     plt.grid(True)
 

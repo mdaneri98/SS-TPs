@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Función para buscar las carpetas con la estructura verlet_{numero_de_w_usado}
-def get_verlet_folders(base_path='outputs/multiple/k_1600.000000'):
+def get_verlet_folders(base_path='outputs/multiple/k_100.000000'):
     folders = [f for f in os.listdir(base_path) if f.startswith('verlet_')]
     return folders
 
@@ -15,8 +15,8 @@ max_amplitudes = []
 # Recorrer cada carpeta verlet_{numero_de_w_usado}
 for folder in get_verlet_folders():
     # Leer los archivos CSV
-    static_df = pd.read_csv(f'outputs/multiple/k_1600.000000/{folder}/static.csv', header=None, skiprows=1)
-    df = pd.read_csv(f'outputs/multiple/k_1600.000000/{folder}/particle.csv')
+    static_df = pd.read_csv(f'outputs/multiple/k_100.000000/{folder}/static.csv', header=None, skiprows=1)
+    df = pd.read_csv(f'outputs/multiple/k_100.000000/{folder}/particle.csv')
 
     # Asignar nombres de columnas
     static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
@@ -43,9 +43,14 @@ max_amplitudes = max_amplitudes[sorted_indices]
 # Graficar la amplitud máxima en función de w
 plt.figure(figsize=(8, 6))
 plt.plot(w_values, max_amplitudes, marker='o', linestyle='-', color='blue')
-plt.title('Amplitud máxima en función de la frecuencia angular externa')
-plt.xlabel('')
-plt.ylabel('')
+plt.text(0.05, 0.95, f'k: {100}', transform=plt.gca().transAxes, fontsize=12,
+         verticalalignment='top', bbox=dict(facecolor='white', alpha=0.5))
+# Configurar los límites del eje y para mostrar el valor máximo
+plt.ylim(0, max(max_amplitudes) * 1.1)  # Aumentar el límite superior en un 10% del valor máximo
+
+plt.title('')
+plt.xlabel('frecuencia angular (1/s)')
+plt.ylabel('Amplitud máxima (m)')
 plt.grid(True)
 
 # Guardar la gráfica en outputs/multiple/amplitud_vs_w.jpg
