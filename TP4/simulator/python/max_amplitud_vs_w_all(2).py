@@ -43,36 +43,34 @@ def analyze_data(base_path='outputs/multiple'):
     return all_data
 
 def plot_results(all_data):
-    num_k = len(all_data)
-    fig, axs = plt.subplots(num_k, 1, figsize=(12, 6*num_k), sharex=True)
-    if num_k == 1:
-        axs = [axs]
-
-    colors = plt.cm.viridis(np.linspace(0, 1, num_k))
+    colors = plt.cm.viridis(np.linspace(0, 1, len(all_data)))
 
     for i, (k, data) in enumerate(all_data.items()):
         sorted_indices = np.argsort(data['w'])
         w_sorted = data['w'][sorted_indices]
         amp_sorted = data['amp'][sorted_indices]
 
-        axs[i].plot(w_sorted, amp_sorted, marker='o', linestyle='-', color=colors[i], label=f'k = {k:.2f}')
-        axs[i].set_title(f'k = {k:.2f}')
-        axs[i].set_ylabel('Amplitud máxima')
-        axs[i].set_xlabel('Frecuencia angular externa (w)')
-        axs[i].grid(True)
-        axs[i].legend()
+        # Crear un gráfico separado para cada valor de k
+        plt.figure(figsize=(8, 6))
+        plt.plot(w_sorted, amp_sorted, marker='o', linestyle='-', color=colors[i], label=f'k = {k:.2f}')
+        plt.title(f'k = {k:.2f}')
+        plt.ylabel('Amplitud máxima')
+        plt.xlabel('Frecuencia angular externa (w)')
+        plt.grid(True)
+        plt.legend()
 
-        # Añadir texto con el valor máximo de amplitud
+        # Añadir anotación con el valor máximo de amplitud
         max_amp_index = np.argmax(amp_sorted)
-        axs[i].annotate(f'Max: {amp_sorted[max_amp_index]:.2f} at w={w_sorted[max_amp_index]:.2f}',
-                        xy=(w_sorted[max_amp_index], amp_sorted[max_amp_index]),
-                        xytext=(5, 5), textcoords='offset points')
+        plt.annotate(f'Max: {amp_sorted[max_amp_index]:.2f} at w={w_sorted[max_amp_index]:.2f}',
+                     xy=(w_sorted[max_amp_index], amp_sorted[max_amp_index]),
+                     xytext=(5, 5), textcoords='offset points')
 
-    plt.tight_layout()
-    plt.savefig('outputs/multiple/amplitud_vs_w_all_k.jpg', format='jpg', dpi=300)
-    plt.close()
+        # Guardar cada gráfico en un archivo separado
+        plt.tight_layout()
+        plt.savefig(f'outputs/multiple/amplitud_vs_w_k_{k:.2f}.jpg', format='jpg', dpi=300)
+        plt.close()
 
 if __name__ == "__main__":
     all_data = analyze_data()
     plot_results(all_data)
-    print("Análisis completado. Gráfico guardado en outputs/multiple/amplitud_vs_w_all_k.jpg")
+    print("Análisis completado. Gráficos guardados en archivos separados.")
