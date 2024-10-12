@@ -26,8 +26,8 @@ public class Main {
         for (Double k : ks) {
             CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, k, 0.001, 30, 1e-3, 1e-2);
             for (int center : wfs) {
-                for (int j = center - 10; j < center + 10; j++) {
-                    cos.verletSolution(center, t2);
+                for (int j = center - 5; j < center + 5; j++) {
+                    cos.verletSolution(j, t2);
                 }
             }
         }

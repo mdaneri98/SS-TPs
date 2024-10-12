@@ -35,7 +35,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         this.wf = wf;
 
         this.w = Math.sqrt(k / mass);
-        this.timestep = Math.max(1 / (100 * w), 1e-3);
+        this.timestep = (1 / (100 * w));
 
         this.firstTime = true;
         this.n = initialState.getParticles().size();
@@ -44,7 +44,7 @@ public class CoupledVerletSolution implements Iterator<State> {
         stateList.add(initialState);
 
 
-        // Mensaje en salida estándar con todos los datos iniciales y parámetros
+/*        // Mensaje en salida estándar con todos los datos iniciales y parámetros
         System.out.println("Inicializando CoupledVerlet con los siguientes parámetros:");
         System.out.println("k: " + k);
         System.out.println("mass: " + mass);
@@ -54,18 +54,16 @@ public class CoupledVerletSolution implements Iterator<State> {
         System.out.println("frec. angular de la fuerza: " + this.wf);
         System.out.println("amplitud de la fuerza: " + amplitud);
         System.out.println("initialState: " + initialState);
-        System.out.println("w ideal: " + Math.sin(Math.PI/n) * Math.sqrt(this.k/this.mass)); //debería dar ~10
+        System.out.println("w ideal: " + Math.sin(Math.PI/n) * Math.sqrt(this.k/this.mass)); //debería dar ~10*/
     }
 
-    private double getForce(State currentState, Particle p, Particle rightParticle) {
+    private double getForce(Particle rightParticle, Particle p, Particle leftParticle) {
         int particleIndex = p.getId();
         if (particleIndex <= 0 || particleIndex >= n - 1) {
             return 0; // Manejo para partículas límite
         }
 
-        List<Particle> particles = currentState.getParticles();
-        return -this.k * (particles.get(particleIndex).getPosition() - particles.get(particleIndex - 1).getPosition()) -
-                this.k * (particles.get(particleIndex).getPosition() - rightParticle.getPosition());
+        return -k * (2 * p.getPosition() - rightParticle.getPosition() - leftParticle.getPosition());
     }
 
     @Override
@@ -92,7 +90,7 @@ public class CoupledVerletSolution implements Iterator<State> {
 
 
         // Última particula
-        Particle lastParticle = currentState.getParticles().getLast().clone();
+        Particle lastParticle = currentState.getParticles().get(n-1).clone();
         lastParticle.setPosition(this.amplitud * Math.sin(this.wf * nextTime));
         //lastParticle.setVelocity((newPosition - pp.getPosition()) / (2 * timestep));
         newParticles.push(lastParticle);
@@ -102,15 +100,16 @@ public class CoupledVerletSolution implements Iterator<State> {
             Particle previousStateCenterParticle = previousState.getParticles().get(i);
 
             Particle centerParticle = currentState.getParticles().get(i);
-            Particle leftParticle = currentState.getParticles().get(i-1);
-            Particle rightParticle = newParticles.peekFirst();
+            Particle leftParticle = currentState.getParticles().get(i+1);
+            Particle rightParticle = currentState.getParticles().get(i-1);
 
             // Actualizar la posición usando Verlet: r(t + Δt) = 2r(t) - r(t - Δt) + F(t) * Δt^2 / m
-            double newPosition = 2 * centerParticle.getPosition() - previousStateCenterParticle.getPosition() +
-                        (Math.pow(timestep, 2) / centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
-
+            double rt = centerParticle.getPosition();
+            double rtp = previousStateCenterParticle.getPosition();
+            double force = getForce(rightParticle, centerParticle, leftParticle);
+            double newPosition = 2 * rt - rtp + (Math.pow(timestep,2) / centerParticle.getMass()) * force;
             // Calcular la nueva velocidad usando Verlet: v(t) = (r(t + Δt) - r(t)) / (2 * Δt)
-            double newVelocity = (newPosition - leftParticle.getPosition()) / (2 * timestep);
+            double newVelocity = (newPosition - centerParticle.getPosition()) / (2 * timestep);
 
             // Clonar la partícula y actualizar posición y velocidad
             Particle np = centerParticle.clone();
@@ -120,10 +119,8 @@ public class CoupledVerletSolution implements Iterator<State> {
             newParticles.push(np);
         }
 
-        Particle firstParticle = currentState.getParticles().getFirst().clone();
+        Particle firstParticle = currentState.getParticles().get(0).clone();
         newParticles.push(firstParticle);
-
-
 
         // Crear y agregar el nuevo estado
         State newState = new State(nextTime, newParticles);
@@ -131,6 +128,7 @@ public class CoupledVerletSolution implements Iterator<State> {
 
         return newState;
     }
+
     private State eulersMethod() {
         // Obtener el estado anterior
         State currentState = stateList.peekLast();
@@ -142,7 +140,7 @@ public class CoupledVerletSolution implements Iterator<State> {
 
 
         // Última particula
-        Particle lastParticle = currentState.getParticles().getLast().clone();
+        Particle lastParticle = currentState.getParticles().get(n - 1).clone();
         lastParticle.setPosition(this.amplitud * Math.sin(this.wf * nextTime));
         //lastParticle.setVelocity((newPosition - pp.getPosition()) / (2 * timestep));
         newParticles.push(lastParticle);
@@ -150,11 +148,11 @@ public class CoupledVerletSolution implements Iterator<State> {
         // Particulas intermedias
         for (int i = n - 2; i >= 1; i--) {
             Particle centerParticle = currentState.getParticles().get(i);
-            Particle leftParticle = currentState.getParticles().get(i-1);
-            Particle rightParticle = newParticles.peekFirst();
+            Particle leftParticle = currentState.getParticles().get(i+1);
+            Particle rightParticle = currentState.getParticles().get(i-1);
 
-            double newVel = centerParticle.getVelocity() + (timestep / centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
-            double newPos = centerParticle.getPosition() + timestep * centerParticle.getVelocity() + (Math.pow(timestep, 2) / 2 * centerParticle.getMass()) * getForce(currentState, centerParticle, rightParticle);
+            double newVel = centerParticle.getVelocity() + (timestep / centerParticle.getMass()) * getForce(leftParticle, centerParticle, rightParticle);
+            double newPos = centerParticle.getPosition() + timestep * centerParticle.getVelocity() + (Math.pow(timestep, 2) / 2 * centerParticle.getMass()) * getForce(leftParticle, centerParticle, rightParticle);
 
             // Clonar la partícula y actualizar posición y velocidad
             Particle np = centerParticle.clone();
@@ -164,7 +162,7 @@ public class CoupledVerletSolution implements Iterator<State> {
             newParticles.push(np);
         }
 
-        Particle firstParticle = currentState.getParticles().getFirst().clone();
+        Particle firstParticle = currentState.getParticles().get(0).clone();
         newParticles.push(firstParticle);
 
         // Crear y agregar el nuevo estado
