@@ -34,7 +34,7 @@ def create_animation_for_folder(k_folder, verlet_folder):
     wf = float(static_df['wf'].values[0])
 
     # Definir el nuevo timestep
-    new_timestep = 0.1  # Por ejemplo, 0.05 segundos
+    new_timestep = 0.01  # Por ejemplo, 0.05 segundos
 
     # Filtrar los tiempos únicos
     times = df['time'].unique()

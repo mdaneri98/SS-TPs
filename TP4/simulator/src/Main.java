@@ -19,16 +19,14 @@ public class Main {
             //os.gearPredictorCorrectorOrder5Solution(timestep, t2);
         }
 
-        //double[] ks = new double[] { 10*10, 20*20, 30*30, 40*40, 50*50 };
-        //int[] wfs = new int[] { 10, 20, 30, 40, 50 };
-        double[] ks = new double[] { 50*50 };
-        int[] wfs = new int[] { 50 };
-        for (Double k : ks) {
-            CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, k, 0.001, 30, 1e-3, 1e-2);
-            for (int center : wfs) {
-                for (int j = center - 5; j < center + 5; j++) {
-                    cos.verletSolution(j, t2);
-                }
+        double[] ks = new double[] { 10*10, 20*20, 30*30, 40*40, 50*50 };
+        int[] wfs = new int[] { 10, 20, 30, 40, 50 };
+        //double[] ks = new double[] { 50*50 };
+        //int[] wfs = new int[] { 50 };
+        for (int i = 0; i < ks.length; i++) {
+            CoupledOscillatorSystem cos = new CoupledOscillatorSystem(101, ks[i], 0.001, 15, 1e-3, 1e-2);
+            for (int j = -10; j <= 10; j++) {
+                cos.verletSolution(wfs[i] + j, t2);
             }
         }
     }

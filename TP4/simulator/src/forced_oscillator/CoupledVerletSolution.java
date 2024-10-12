@@ -35,7 +35,9 @@ public class CoupledVerletSolution implements Iterator<State> {
         this.wf = wf;
 
         this.w = Math.sqrt(k / mass);
-        this.timestep = (1 / (100 * w));
+
+        this.timestep = 1 / (100 * w);
+        //this.timestep = Math.max(idealTimestep, 0.001); // Limitar el timestep a un máximo de 0.001
 
         this.firstTime = true;
         this.n = initialState.getParticles().size();

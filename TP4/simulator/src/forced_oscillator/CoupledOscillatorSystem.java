@@ -29,7 +29,7 @@ public class CoupledOscillatorSystem {
     // --- Cond. iniciales ---
     private final double distance;
 
-    private final double eps = 1e-1;
+    private final double eps = 1e-10;
 
     private final List<State> states;
 
@@ -72,17 +72,28 @@ public class CoupledOscillatorSystem {
 
     private void runSolution(Iterator<State> iterator, double t2, Path filepath) {
         LinkedList<State> statesToSave = new LinkedList<>();
+
+        int stateCounter = 0;
+        int saveFrequency = 100; // Guarda cada 100 estados
+        int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
+
         while (iterator.hasNext()) {
             State currentState = iterator.next();
-            if (Math.abs(currentState.getTime() % t2) < eps) {
+            stateCounter++;
+
+            if (stateCounter % saveFrequency == 0) {
                 statesToSave.add(currentState);
             }
-            if (statesToSave.size() >= 50) {
+
+            if (statesToSave.size() >= maxStatesToSave) {
                 save(statesToSave, filepath);
-                statesToSave = new LinkedList<>();
+                statesToSave.clear();
             }
         }
-        save(statesToSave, filepath);
+
+        if (!statesToSave.isEmpty()) {
+            save(statesToSave, filepath);
+        }
     }
 
     // Save method

@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Función para buscar las carpetas con la estructura verlet_{numero_de_w_usado}
-def get_verlet_folders(base_path='outputs/multiple/k_100.000000'):
+def get_verlet_folders(base_path='outputs/multiple/k_1600.000000'):
     folders = [f for f in os.listdir(base_path) if f.startswith('verlet_')]
     return folders
 
@@ -15,8 +15,8 @@ max_amplitudes = []
 # Recorrer cada carpeta verlet_{numero_de_w_usado}
 for folder in get_verlet_folders():
     # Leer los archivos CSV
-    static_df = pd.read_csv(f'outputs/multiple/k_100.000000/{folder}/static.csv', header=None, skiprows=1)
-    df = pd.read_csv(f'outputs/multiple/k_100.000000/{folder}/particle.csv')
+    static_df = pd.read_csv(f'outputs/multiple/k_1600.000000/{folder}/static.csv', header=None, skiprows=1)
+    df = pd.read_csv(f'outputs/multiple/k_1600.000000/{folder}/particle.csv')
 
     # Asignar nombres de columnas
     static_df.columns = ['n', 'k', 'mass', 'distance', 'amplitud', 'w0', 'wf']
