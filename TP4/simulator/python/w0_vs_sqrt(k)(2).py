@@ -63,11 +63,12 @@ plt.title('w_0 en función de k^(1/2)')
 z = np.polyfit(sqrt_k_values, w0_values, 1)
 p = np.poly1d(z)
 plt.plot(sqrt_k_values, p(sqrt_k_values), "r--", alpha=0.8)
+plt.show()
 
 # Guardar el gráfico
 output_path = os.path.join(base_directory, 'w0_vs_sqrt_k.png')
-plt.savefig(output_path)
-plt.close()
+#plt.savefig(output_path)
+#plt.close()
 
 print(f"Gráfico guardado en: {output_path}")
 print("Proceso completado.")
