@@ -81,7 +81,7 @@ def generate_mse_errors_and_plot(base_dir):
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('Δt (s)')
-    plt.ylabel('MSE (m^2)')
+    plt.ylabel(r'MSE ($m^{2}$)')
     plt.title('')
     plt.legend()
     plt.grid(True)
