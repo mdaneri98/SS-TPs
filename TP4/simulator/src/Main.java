@@ -13,10 +13,10 @@ public class Main {
 
         double[] timesteps = new double[]{0.010000, 0.001000, 0.000100, 0.000010, 0.000001};
         for (Double timestep : timesteps) {
-            os.analiticSolution(timestep, t2);
-            os.verletSolution(timestep, t2);
-            os.beemanSolution(timestep, t2);
-            os.gearPredictorCorrectorOrder5Solution(timestep, t2);
+            //os.analiticSolution(timestep, t2);
+            //os.verletSolution(timestep, t2);
+            //os.beemanSolution(timestep, t2);
+            //os.gearPredictorCorrectorOrder5Solution(timestep, t2);
         }
 
         double[] ks = new double[] { 100, 400 , 2500, 6400, 10000 };
