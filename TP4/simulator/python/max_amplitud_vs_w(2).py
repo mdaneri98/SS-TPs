@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+
 # Función para buscar las carpetas con la estructura verlet_{numero_de_w_usado}
 def get_verlet_folders(base_path='outputs/multiple/k_100.000000'):
     folders = [f for f in os.listdir(base_path) if f.startswith('verlet_')]
     return folders
+
 
 # Listas para almacenar los valores de w y las amplitudes máximas
 w_values = []
@@ -40,18 +42,26 @@ sorted_indices = np.argsort(w_values)
 w_values = w_values[sorted_indices]
 max_amplitudes = max_amplitudes[sorted_indices]
 
-# Graficar la amplitud máxima en función de w
 plt.figure(figsize=(8, 6))
-plt.plot(w_values, max_amplitudes, marker='o', linestyle='-', color='blue')
-plt.text(0.05, 0.95, f'k: {100}', transform=plt.gca().transAxes, fontsize=12,
-         verticalalignment='top', bbox=dict(facecolor='white', alpha=0.5))
+
+# Graficar max_amplitudes en función de w_values y añadir el valor de k a la etiqueta
+plt.plot(w_values, max_amplitudes, marker='o', linestyle='-', color='blue', label=f'(k: {100})')
+
 # Configurar los límites del eje y para mostrar el valor máximo
 plt.ylim(0, max(max_amplitudes) * 1.1)  # Aumentar el límite superior en un 10% del valor máximo
 
-plt.title('')
-plt.xlabel('frecuencia angular (1/s)')
+# Añadir título y etiquetas
+plt.title('')  # Puedes añadir un título si lo deseas
+plt.xlabel('Frecuencia angular $\omega$ (rad/s)')
 plt.ylabel('Amplitud máxima (m)')
 plt.grid(True)
+
+# Mostrar la leyenda para incluir la etiqueta del valor de k
+plt.legend()
+
+# Mostrar el gráfico
+plt.show()
+
 
 # Guardar la gráfica en outputs/multiple/amplitud_vs_w.jpg
 output_path = 'outputs/multiple/amplitud_vs_w.jpg'

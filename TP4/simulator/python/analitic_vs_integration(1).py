@@ -9,17 +9,19 @@ def calculate_mse(positions1, positions2):
     return np.mean((positions1 - positions2) ** 2)
 
 
+import matplotlib.pyplot as plt
+
 def plot_solutions(time, analitic_positions, numeric_positions, method_name, timestep, save_path):
     """Grafica las posiciones analítica y numérica, y agrega el timestep a la leyenda en formato 10^x."""
     # Convertir el timestep en notación 10^x
     timestep = float(timestep)
     exponent = int(f"{timestep:.1e}".split('e')[1])  # Obtiene el exponente de la notación científica
-    timestep_str = f"10^{exponent}"  # Construye la cadena en el formato 10^x
+    timestep_str = f"10^{{{exponent}}}"  # Construye la cadena en el formato 10^x para LaTeX
 
     plt.figure(figsize=(10, 6))
 
     # Incluir el timestep en los labels para que aparezca en la leyenda
-    plt.plot(time, analitic_positions, label=f'Solución Analítica (Δt: {timestep_str})', color='blue', linestyle='--')
+    plt.plot(time, analitic_positions, label=f'Solución Analítica ($\Delta t: {timestep_str}$)', color='blue', linestyle='--')
     plt.plot(time, numeric_positions, label=f'Solución Numérica ({method_name})', color='red')
 
     plt.xlabel('Tiempo (s)')
