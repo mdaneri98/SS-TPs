@@ -34,7 +34,7 @@ def create_animation_for_folder(k_folder, verlet_folder):
     wf = float(static_df['wf'].values[0])
 
     # Definir el nuevo timestep
-    new_timestep = 0.001  # Por ejemplo, 0.05 segundos
+    new_timestep = 0.005  # Por ejemplo, 0.05 segundos
 
     # Filtrar los tiempos únicos
     times = df['time'].unique()
@@ -46,8 +46,8 @@ def create_animation_for_folder(k_folder, verlet_folder):
     fig, ax = plt.subplots()
     ax.set_xlim(0, distance * n)
     ax.set_ylim(-(1.1 * df['position'].max()), df['position'].max() * 1.1)
-    ax.set_xlabel('Distance (Index * distance)')
-    ax.set_ylabel('Position (Vertical)')
+    ax.set_xlabel('Posición horizontal (m)')
+    ax.set_ylabel('Posición vertical (m)')
 
     # Inicializar el scatter plot y la línea
     scatter = ax.scatter([], [], s=50, c='blue')

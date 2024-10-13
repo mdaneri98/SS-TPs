@@ -52,10 +52,11 @@ def plot_results(all_data):
 
         # Crear un gráfico separado para cada valor de k
         plt.figure(figsize=(8, 6))
-        plt.plot(w_sorted, amp_sorted, marker='o', linestyle='-', color=colors[i], label=f'k = {k:.2f}')
-        plt.title(f'k = {k:.2f}')
-        plt.ylabel('Amplitud máxima')
-        plt.xlabel('Frecuencia angular externa (w)')
+        plt.plot(w_sorted, amp_sorted, marker='o', linestyle='-', color=colors[i])
+        #plt.title(f'k = {k:.2f}')
+        plt.ylabel('Amplitud máxima (m)')
+        #plt.xlabel('Frecuencia angular externa ()')
+        plt.xlabel('frecuencia angular externa' + ' (rad/s)')
         plt.grid(True)
         plt.legend()
 
