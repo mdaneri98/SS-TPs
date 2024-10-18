@@ -1,11 +1,9 @@
 package models;
 
-import com.sun.source.tree.Tree;
+import models.particles.Particle;
+import models.walls.Wall;
+import models.walls.WallType;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class State {
@@ -19,7 +17,7 @@ public class State {
     private Set<Particle> particleSet;
 
     // <Tiempo de choque, Particulas>
-    private List<Collision> collisionList;
+    private List<FutureCollision> collisionList;
 
     public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
         this.time = time;
@@ -31,141 +29,80 @@ public class State {
         updateCollisionsTimes();
     }
 
-    public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet, List<Collision> collisionList, Set<Particle> collidedParticles) {
-        this.time = time;
-        this.walls = walls;
-        this.particleSet = particleSet;
+    private void updateCollisionsTimesWith(Set<Particle> particles) {
 
-        this.collisionList = collisionList;
+    }
 
-        updateCollisionsTimesWith(collidedParticles);
+    private void updateCollisionsTimes() {
+        collisionList.clear(); // Limpiamos la lista antes de actualizarla
+        for (Particle current : particleSet) {
+            Pair<Double, Wall> wallCollision = timeUntilCollisionWithWall(current);
+            double timeUntilWallCollision = wallCollision.getLeft();
+            Wall collisionWall = wallCollision.getRight();
+
+            Pair<Double, Particle> particleCollision = findNextParticleCollision(current);
+
+            if (particleCollision == null || (timeUntilWallCollision > 0 && timeUntilWallCollision < particleCollision.getLeft())) {
+                // La colisión con la pared ocurre primero (o no hay colisión con partícula)
+                collisionList.add(new FutureCollision(timeUntilWallCollision, current, collisionWall));
+            } else {
+                // La colisión con otra partícula ocurre primero
+                collisionList.add(new FutureCollision(particleCollision.getLeft(), current, particleCollision.getRight()));
+            }
+        }
+    }
+
+    private Pair<Double, Particle> findNextParticleCollision(Particle current) {
+        Pair<Double, Particle> nextCollision = null;
+        for (Particle other : particleSet) {
+            if (current.equals(other)) continue;
+
+            double tc = current.timeToCollide(other);
+            if (tc > 0 && tc < Double.POSITIVE_INFINITY) {
+                if (nextCollision == null || tc < nextCollision.getLeft()) {
+                    nextCollision = new Pair<>(tc, other);
+                }
+            }
+        }
+        return nextCollision;
+    }
+
+    private Pair<Double, Wall> timeUntilCollisionWithWall(Particle p) {
+        double t1 = walls.get(WallType.BOTTOM).timeToCollide(p);
+        double t2 = walls.get(WallType.RIGHT).timeToCollide(p);
+        double t3 = walls.get(WallType.TOP).timeToCollide(p);
+        double t4 = walls.get(WallType.LEFT).timeToCollide(p);
+
+        // Mapear tiempos de colisión a las paredes correspondientes
+        Map<Wall, Double> timeToWallMap = new HashMap<>();
+        timeToWallMap.put(walls.get(WallType.BOTTOM), t1);
+        timeToWallMap.put(walls.get(WallType.RIGHT), t2);
+        timeToWallMap.put(walls.get(WallType.TOP), t3);
+        timeToWallMap.put(walls.get(WallType.LEFT), t4);
+
+        // Encontrar la pared con el menor tiempo de colisión
+        Map.Entry<Wall, Double> minEntry = timeToWallMap.entrySet()
+                .stream()
+                .min(Comparator.comparing(Map.Entry::getValue))
+                .get();  // Puedes manejar la excepción en caso de que el mapa esté vacío
+
+        Wall collidingWall = minEntry.getKey();
+        double minTime = minEntry.getValue();
+
+        return new Pair<>(minTime, collidingWall);  // Devolver <minTime, collidingWall>
+    }
+
+    public List<FutureCollision> getOrderedCollisionList() {
+        Collections.sort(collisionList);
+        return collisionList;
     }
 
     public Set<Particle> getParticles() {
         return particleSet;
     }
 
-
-    private void updateCollisionsTimesWith(Set<Particle> particles) {
-        Iterator<Collision> collisionIterator = collisionList.iterator();
-        while (collisionIterator.hasNext()) {
-            Collision collision = collisionIterator.next();
-            for (Particle p : particles) {
-                if (collision.getParticle().equals(p)) {
-                    // Eliminar la colisión de forma segura
-                    collisionIterator.remove();
-                    break; // Salir del bucle si se eliminó la colisión
-                }
-            }
-        }
-
-        for (Particle current : particles) {
-            Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
-            List<Double> timeUntilCollisionWithParticle = new ArrayList<>();
-            for (Particle other : particleSet) {
-                if (current.equals(other))
-                    continue;
-
-                double tc = current.timeToCollide(other);
-                if (tc > 0 && tc < Double.POSITIVE_INFINITY)
-                    timeUntilCollisionWithParticle.add(tc);
-            }
-
-            if (timeUntilCollisionWithParticle.isEmpty()){
-                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
-                continue;
-            }
-            double min = Collections.min(timeUntilCollisionWithParticle);
-            if (min < timeUntilCollisionWithWall.getRight()) {
-                //collisionList.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
-                Particle collideWith = null;
-                for (Particle p : particleSet) {
-                    if (current.timeToCollide(p) == min) {
-                        collideWith = p;
-                    }
-                }
-                collisionList.add(new Collision(min, current, collideWith));
-            } else if (timeUntilCollisionWithWall.getRight() > 0) {
-                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
-            }
-        }
-    }
-
-    private void updateCollisionsTimes() {
-        Set<Obstacle> visited = new HashSet<>();
-        for (Particle current : particleSet) {
-            if (visited.contains(current) || current.getId() == 0)
-                continue;
-
-            Pair<Wall, Double> timeUntilCollisionWithWall = timeUntilCollisionWithWall(current);
-            List<Double> timeUntilCollisionWithParticle = new ArrayList<>();
-            for (Particle other : particleSet) {
-                if (current.equals(other) || visited.contains(other))
-                    continue;
-
-                double tc = current.timeToCollide(other);
-                if (tc > 0 && tc < Double.POSITIVE_INFINITY)
-                    timeUntilCollisionWithParticle.add(tc);
-            }
-
-            if (timeUntilCollisionWithParticle.isEmpty()){
-                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
-                visited.add(current);
-                continue;
-            }
-            double min = Collections.min(timeUntilCollisionWithParticle);
-            if (min < timeUntilCollisionWithWall.getRight()) {
-                //collisionList.add(new Collision(min,current, particleSet.stream().filter(p -> current.timeToCollide(p) == min).findFirst().get()));
-                Particle collideWith = null;
-                for (Particle p : particleSet) {
-                    if (current.timeToCollide(p) == min) {
-                        collideWith = p;
-                    }
-                }
-                collisionList.add(new Collision(min, current, collideWith));
-            } else if (timeUntilCollisionWithWall.getRight() > 0) {
-                collisionList.add(new Collision(timeUntilCollisionWithWall.getRight(),current, timeUntilCollisionWithWall.getLeft()));
-            }
-            visited.add(current);
-        }
-    }
-
-    /*
-        p1 ---> |
-
-
-     */
-
-    private Pair<Wall, Double> timeUntilCollisionWithWall(Particle p) {
-        Wall horizontalWall = this.walls.get(WallType.HORIZONTAL);
-        Wall verticalWall = this.walls.get(WallType.VERTICAL);
-
-        double timeToHorizontalWall = horizontalWall.timeToCollide(p);
-        double timeToVerticalWall = verticalWall.timeToCollide(p);
-
-        // Comparar los tiempos de colisión y devolver el menor
-        Map<Wall, Double> timeToWallMap = new HashMap<>();
-        timeToWallMap.put(horizontalWall, timeToHorizontalWall);
-        timeToWallMap.put(verticalWall, timeToVerticalWall);
-
-        // Encontrar el mínimo tiempo
-        Wall collidingWall = timeToWallMap.entrySet()
-                .stream()
-                .min(Comparator.comparing(Map.Entry::getValue))
-                .get()
-                .getKey();
-
-        double minTime = timeToWallMap.get(collidingWall);
-
-        return new Pair<>(collidingWall, minTime);
-    }
-
-    public List<Collision> getCollisionList() {
-        return collisionList;
-    }
-
-    public Set<Particle> getParticleSet() {
-        return particleSet;
+    public Map<WallType, Wall> getWalls() {
+        return walls;
     }
 
     public double getTime() {

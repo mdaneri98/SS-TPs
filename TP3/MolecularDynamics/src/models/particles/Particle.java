@@ -1,78 +1,45 @@
-package models;
+package models.particles;
+
+import models.Obstacle;
+import models.Pair;
 
 import java.util.Objects;
 
 public class Particle implements Obstacle {
 
     private int id;
-    private double posX;
-    private double posY;
-    private double velX;
-    private double velY;
+    private Velocity velocity;
+    private Position position;
     private double radius;
     private double mass;
 
-    public Particle(int id, double posX, double posY, double velX, double velY, double radius, double mass) {
+    public Particle(int id, Position position, Velocity velocity, double radius, double mass) {
         this.id = id;
-        this.posX = posX;
-        this.posY = posY;
-        this.velX = velX;
-        this.velY = velY;
+        this.velocity = velocity;
+        this.position = position;
         this.radius = radius;
         this.mass = mass;
     }
 
     public boolean collide(Particle other) {
         // Calcular la distancia entre los centros de las partículas
-        double distance = Math.sqrt(Math.pow(other.posX - this.posX, 2) + Math.pow(other.posY - this.posY, 2));
+        double distance = Math.sqrt(Math.pow(other.getPosition().getX() - this.getPosition().getX(), 2) + Math.pow(other.getPosition().getY() - this.getPosition().getY(), 2));
 
         return distance <= this.radius + other.radius;
     }
 
     public boolean isInside(Particle other) {
         // Calcular la distancia entre los centros de las partículas
-        double distance = Math.sqrt(Math.pow(other.posX - this.posX, 2) + Math.pow(other.posY - this.posY, 2));
+        double distance = Math.sqrt(Math.pow(other.getPosition().getX() - this.getPosition().getX(), 2) + Math.pow(other.getPosition().getY() - this.getPosition().getY(), 2));
 
         // Verificar si la partícula actual está completamente dentro de la otra
         return distance < this.radius + other.radius;
     }
 
     public void move(double tc) {
-        double newX = this.getPosX() + this.getVelX() * tc;
-        double newY = this.getPosY() + this.getVelY() * tc;
-        this.setPosX(newX);
-        this.setPosY(newY);
-    }
-
-    @Override
-    public Particle applyCollision(final Particle p) {
-        double deltaX = p.getPosX() - this.getPosX();
-        double deltaY = p.getPosY() - this.getPosY();
-        double sigma = p.getRadius() + p.getRadius();
-        double deltaVX = p.getVelX() - this.getVelX();
-        double deltaVY = p.getVelY() - this.getVelY();
-
-        double deltas = deltaVX * deltaX + deltaVY * deltaY;;
-        double m1 = this.getMass();
-        double m2 = p.getMass();
-
-        double J = (2 * m1 * m2 * deltas) / (sigma * (m1 + m2));
-
-        double Jx = (J * deltaX) / sigma;
-        double Jy = (J * deltaY) / sigma;
-
-        // Velocidades de la partícula actual (this)
-        double newVxThis = this.getVelX() + Jx / this.getMass();
-        double newVyThis = this.getVelY() + Jy / this.getMass();
-
-        // Crear nuevas partículas con las velocidades actualizadas
-        Particle updatedParticleP;
-        if (p.getId() == 0)
-            updatedParticleP = new StaticParticle(p.getId(), p.getPosX(), p.getPosY(), 0, 0, p.getRadius(), p.getMass());
-        else
-            updatedParticleP = new Particle(p.getId(), p.getPosX(), p.getPosY(), newVxThis, newVyThis, p.getRadius(), p.getMass());
-
-        return updatedParticleP;
+        double newX = this.getPosition().getX() + this.getVelocity().getX() * tc;
+        double newY = this.getPosition().getY() + this.getVelocity().getY() * tc;
+        this.setPosition(new Position(newX, newY));
     }
 
     @Override
@@ -80,8 +47,8 @@ public class Particle implements Obstacle {
         /* Tiempo en colisionar la particula 'particle' con esta instancia. */
 
         // Calculamos las diferencias de posición (deltaR) y velocidad (deltaV)
-        Pair<Double, Double> deltaR = new Pair<>(this.getPosX() - particle.getPosX(), this.getPosY() - particle.getPosY());
-        Pair<Double, Double> deltaV = new Pair<>(this.getVelX() - particle.getVelX(), this.getVelY() - particle.getVelY());
+        Pair<Double, Double> deltaR = new Pair<>(this.getPosition().getX() - particle.getPosition().getX(), this.getPosition().getY() - particle.getPosition().getY());
+        Pair<Double, Double> deltaV = new Pair<>(this.getVelocity().getX() - particle.getVelocity().getX(), this.getVelocity().getY() - particle.getVelocity().getY());
 
         // Magnitudes al cuadrado
         double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2); // deltaR^2
@@ -126,13 +93,20 @@ public class Particle implements Obstacle {
     public String toString() {
         return "Particle{" +
                 "id=" + id +
-                ", posX=" + posX +
-                ", posY=" + posY +
-                ", velX=" + velX +
-                ", velY=" + velY +
+                ", x=" + position.getX() +
+                ", y=" + position.getY() +
+                ", vx=" + velocity.getX() +
+                ", vy=" + velocity.getY() +
                 ", radius=" + radius +
                 ", mass=" + mass +
                 '}';
+    }
+
+    @Override
+    public Particle clone() {
+        Velocity newVelocity = new Velocity(this.getVelocity().getX(), this.getVelocity().getY());
+        Position newPosition = new Position(this.getPosition().getX(), this.getPosition().getY());
+        return new Particle(getId(), position, velocity, getRadius(), getMass());
     }
 
     @Override
@@ -149,36 +123,20 @@ public class Particle implements Obstacle {
         this.id = id;
     }
 
-    public double getPosX() {
-        return posX;
+    public Velocity getVelocity() {
+        return velocity;
     }
 
-    public void setPosX(double posX) {
-        this.posX = posX;
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
     }
 
-    public double getPosY() {
-        return posY;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setPosY(double posY) {
-        this.posY = posY;
-    }
-
-    public double getVelX() {
-        return velX;
-    }
-
-    public void setVelX(double velX) {
-        this.velX = velX;
-    }
-
-    public double getVelY() {
-        return velY;
-    }
-
-    public void setVelY(double velY) {
-        this.velY = velY;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public double getRadius() {

@@ -9,7 +9,7 @@ TP2/self-propelled-agents/!**/src/main/**/out/
 TP2/self-propelled-agents/!**/src/test/**/out/
 
 # Ignorar el directorio output
-/TP3/MolecularDynamics/test/output/
+TP3/MolecularDynamics/!**/src/main/**/out/
 
 # TP4 
 TP4/simulator/out/

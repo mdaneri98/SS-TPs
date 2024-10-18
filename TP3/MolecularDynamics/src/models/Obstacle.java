@@ -1,10 +1,9 @@
 package models;
 
-import java.util.List;
+import models.particles.Particle;
 
 public interface Obstacle {
 
     double timeToCollide(Particle particle);
-    Particle applyCollision(Particle particle);
 
 }
