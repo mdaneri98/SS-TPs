@@ -57,6 +57,7 @@ public class State {
         for (Particle other : particleSet) {
             if (current.equals(other)) continue;
 
+            /* Si current es la estática => tc < 0 */
             double tc = current.timeToCollide(other);
             if (tc > 0 && tc < Double.POSITIVE_INFINITY) {
                 if (nextCollision == null || tc < nextCollision.getLeft()) {

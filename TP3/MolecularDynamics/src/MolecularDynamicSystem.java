@@ -17,7 +17,7 @@ import java.util.List;
 
 public class MolecularDynamicSystem {
 
-    private double l;
+    private final double l;
 
     private final double velocity;
     private final double radius;
@@ -43,7 +43,7 @@ public class MolecularDynamicSystem {
         this.n = n;
 
         createWalls(l);
-        initial = testWallInitial();
+        initial = testStaticInitial();
     }
 
     private void createWalls(double L) {
@@ -73,7 +73,7 @@ public class MolecularDynamicSystem {
         particleSet.add(staticParticle);
 
         // Choca contra particula estatica => Luego izquierda => Luego particula estatica => ...
-        Particle p1 = new Particle(1, new Position(0.005, l/2.0), new Velocity(1, 0), radius, mass);
+        Particle p1 = new Particle(1, new Position(0.01, l/2.0), new Velocity(1, 0), radius, mass);
         particleSet.add(p1);
 
         return new State(0, walls, particleSet);
@@ -141,8 +141,8 @@ public class MolecularDynamicSystem {
         LinkedList<State> statesToSave = new LinkedList<>();
 
         int stateCounter = 0;
-        int saveFrequency = 100; // Guarda cada 100 estados
-        int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
+        int saveFrequency = 1; // Guarda cada 100 estados
+        int maxStatesToSave = 1; // Máximo número de estados a guardar antes de escribir en archivo
 
         long startTime = System.nanoTime();
         long endTime = startTime + (runSeconds * 1_000_000_000L); // Convertir segundos a nanosegundos
@@ -222,7 +222,8 @@ public class MolecularDynamicSystem {
             }
             for (State state : states)
                 for (Particle p : state.getParticles())
-                    writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f,%.6f\n", state.getTime(), p.getId(), p.getPosition().getX(), p.getPosition().getY(), p.getVelocity().getX(), p.getVelocity().getY()));
+                    if (p.getId() == 1 || true)
+                        writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f,%.6f\n", state.getTime(), p.getId(), p.getPosition().getX(), p.getPosition().getY(), p.getVelocity().getX(), p.getVelocity().getY()));
         } catch (IOException e) {
             System.out.println("Error al escribir un estado: " + e.getMessage());
             e.printStackTrace();

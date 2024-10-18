@@ -14,7 +14,7 @@ import java.util.*;
 public class Main {
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         double L = 0.1;
         double staticRadius = 0.005;
         int N = 2;
@@ -24,8 +24,8 @@ public class Main {
         double staticMass = 1;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, velocity, mass, radius, staticRadius, staticMass);
-        molecularDynamic.fixedSolution(5);
-
+        molecularDynamic.fixedSolution(999999);
 
     }
+
 }
