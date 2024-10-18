@@ -140,14 +140,14 @@ if __name__ == "__main__":
     static_file = 'outputs/fixed_solution/static.csv'
     dynamic_file = 'outputs/fixed_solution/particles.csv'
 
-    #animate_particles(static_file, dynamic_file)
+    animate_particles(static_file, dynamic_file)
 
     # Uncomment the following lines to plot specific frames
-    plot_specific_frame(static_file, dynamic_file, 0)
-    plot_specific_frame(static_file, dynamic_file, 1)
-    plot_specific_frame(static_file, dynamic_file, 2)
-    plot_specific_frame(static_file, dynamic_file, 3)
-    plot_specific_frame(static_file, dynamic_file, 4)
-    plot_specific_frame(static_file, dynamic_file, 5)
-    plot_specific_frame(static_file, dynamic_file, 6)
-    plot_specific_frame(static_file, dynamic_file, 7)
+    #plot_specific_frame(static_file, dynamic_file, 0)
+    #plot_specific_frame(static_file, dynamic_file, 1)
+    #plot_specific_frame(static_file, dynamic_file, 2)
+    #plot_specific_frame(static_file, dynamic_file, 3)
+    #plot_specific_frame(static_file, dynamic_file, 4)
+    #plot_specific_frame(static_file, dynamic_file, 5)
+    #plot_specific_frame(static_file, dynamic_file, 6)
+    #plot_specific_frame(static_file, dynamic_file, 7)
