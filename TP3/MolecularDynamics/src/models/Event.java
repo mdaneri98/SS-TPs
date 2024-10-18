@@ -34,8 +34,12 @@ public class Event {
         double Jy = (J * deltaY) / sigma;
 
         // Velocidades de la partícula actual (p2)
-        p1.setVelocity(new Velocity(p1.getVelocity().getX() + Jx / p2.getMass(), p1.getVelocity().getY() + Jy / p1.getMass()));
-        p2.setVelocity(new Velocity(p2.getVelocity().getX() - Jx / p2.getMass(), p2.getVelocity().getY() - Jy / p2.getMass()));
+        p1.setVelocity(new Velocity(
+                p1.getVelocity().getX() + Jx / m1,
+                p1.getVelocity().getY() + Jy / m1));
+        p2.setVelocity(new Velocity(
+                p2.getVelocity().getX() - Jx / m2,
+                p2.getVelocity().getY() - Jy / m2));
     }
 
     public static void applyCollision(Particle p1, StaticParticle p2) {
@@ -54,8 +58,10 @@ public class Event {
         double Jx = (J * deltaX) / sigma;
         double Jy = (J * deltaY) / sigma;
 
-        // Nueva velocidad de la partícula
-        p1.setVelocity(new Velocity(p1.getVelocity().getX() + Jx / p1.getMass(), p1.getVelocity().getX() + Jx / p1.getMass()));
+        p1.setVelocity(new Velocity(
+                p1.getVelocity().getX() - Jx / m1,
+                p1.getVelocity().getY() - Jy / m1
+        ));
     }
 
     public static void applyCollision(Particle p1, WallType type) {
