@@ -7,6 +7,7 @@ from matplotlib.animation import FuncAnimation
 N = 0  # Number of particles
 L = 0  # Graph size
 
+
 class Particle:
     def __init__(self, id, mass, radius, x, y, vx, vy):
         self.id = id
@@ -17,10 +18,12 @@ class Particle:
         self.vx = vx
         self.vy = vy
 
+
 class State:
     def __init__(self, time, particles):
         self.time = time
         self.particles = particles
+
 
 def read_static_file(filename):
     global N, L
@@ -35,6 +38,7 @@ def read_static_file(filename):
             particles_info[idx] = (mass, radius)
     return N, L, particles_info
 
+
 def read_dynamic_file(filename, particles_info):
     states = []
     current_time = None
@@ -44,7 +48,8 @@ def read_dynamic_file(filename, particles_info):
         csv_reader = csv.reader(file)
         next(csv_reader)  # Skip header
         for row in csv_reader:
-            time, idx, x, y, vx, vy = float(row[0]), int(row[1]), float(row[2]), float(row[3]), float(row[4]), float(row[5])
+            time, idx, x, y, vx, vy = float(row[0]), int(row[1]), float(row[2]), float(row[3]), float(row[4]), float(
+                row[5])
 
             if current_time is not None and time != current_time:
                 states.append(State(current_time, current_particles))
@@ -61,12 +66,14 @@ def read_dynamic_file(filename, particles_info):
 
     return states
 
+
 def update(frame, circles, states):
     state = states[frame]
     for particle in state.particles:
         circle = circles[particle.id]
         circle.center = (particle.x, particle.y)
     return circles.values()
+
 
 def animate_particles(static_file, dynamic_file):
     global N, L
@@ -84,9 +91,24 @@ def animate_particles(static_file, dynamic_file):
         ax.add_patch(circle)
         circles[idx] = circle
 
-    ani = FuncAnimation(fig, update, frames=len(states), fargs=(circles, states),
+    # Add a text object to display the current time
+    time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+
+    def update(frame):
+        state = states[frame]
+        for particle in state.particles:
+            circle = circles[particle.id]
+            circle.center = (particle.x, particle.y)
+
+        # Update the time text
+        time_text.set_text(f'Time: {state.time:.4f}')
+
+        return list(circles.values()) + [time_text]
+
+    ani = FuncAnimation(fig, update, frames=len(states),
                         repeat=False, blit=True)
     plt.show()
+
 
 def plot_specific_frame(static_file, dynamic_file, frame_number):
     global N, L
@@ -112,6 +134,7 @@ def plot_specific_frame(static_file, dynamic_file, frame_number):
     plt.title(f"Frame {frame_number}, Time: {state.time:.6f}")
     plt.show()
 
+
 # Main execution
 if __name__ == "__main__":
     static_file = 'outputs/fixed_solution/static.csv'
@@ -119,7 +142,12 @@ if __name__ == "__main__":
 
     #animate_particles(static_file, dynamic_file)
 
-    #Uncomment the following lines to plot specific frames
+    # Uncomment the following lines to plot specific frames
+    plot_specific_frame(static_file, dynamic_file, 0)
     plot_specific_frame(static_file, dynamic_file, 1)
     plot_specific_frame(static_file, dynamic_file, 2)
     plot_specific_frame(static_file, dynamic_file, 3)
+    plot_specific_frame(static_file, dynamic_file, 4)
+    plot_specific_frame(static_file, dynamic_file, 5)
+    plot_specific_frame(static_file, dynamic_file, 6)
+    plot_specific_frame(static_file, dynamic_file, 7)
