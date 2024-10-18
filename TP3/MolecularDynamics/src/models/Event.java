@@ -42,21 +42,73 @@ public class Event {
                 p2.getVelocity().getY() - Jy / m2));
     }
 
-    public static void applyCollision_(Particle p1, StaticParticle p2) {
+    public static void applyCollision(Particle p1, StaticParticle p2) {
         double deltaX = p1.getPosition().getX() - p2.getPosition().getX();
         double deltaY = p1.getPosition().getY() - p2.getPosition().getY();
         double sigma = p1.getRadius() + p2.getRadius();
         double deltaVX = p1.getVelocity().getX() - p2.getVelocity().getX();
         double deltaVY = p1.getVelocity().getY() - p2.getVelocity().getY();
 
-        double dvdr = deltaX * deltaVX + deltaY * deltaVY;
-        double J = (2 * dvdr) / (sigma);
+        double deltas = deltaVX * deltaX + deltaVY * deltaY;
+        double m1 = p1.getMass();
+        double m2 = p2.getMass();
+
+        double J = (2 * m1 * m2 * deltas) / (sigma * (m1 + m2));
+
         double Jx = (J * deltaX) / sigma;
         double Jy = (J * deltaY) / sigma;
 
         p1.setVelocity(new Velocity(
-                p1.getVelocity().getX() - Jx,
-                p1.getVelocity().getY() - Jy));
+                p1.getVelocity().getX() - Jx / m1,
+                p1.getVelocity().getY() - Jy / m1
+        ));
+    }
+
+    public static void applyCollision_(Particle p1, StaticParticle p2) {
+        double DeltaX = p1.getPosition().getX() - p2.getPosition().getX();
+        double DeltaY = p1.getPosition().getY() - p2.getPosition().getY();
+
+        double sigma = p1.getRadius() + p2.getRadius();
+        double sin = DeltaY/sigma;
+        double cos = DeltaX/sigma;
+
+        double cn = 1;
+        double ct = 1;
+/*
+       double [][] colisionMatrix = {
+              {-cn, 0 },
+              { 0 , ct}
+       };
+
+       double [][] rotationMatrix = {
+              {cos, sin},
+              {-sin, cos}
+       };
+
+       double [][] inverseRotationMatrix = {
+              {cos, -sin},
+              {sin, cos}
+       };*/
+
+        double [] velocity = {
+                p1.getVelocity().getX(),
+                p1.getVelocity().getY()
+        };
+
+        double [] VelocityCoef = new double[4];
+
+        VelocityCoef[0] = -cn * Math.pow(cos,2) + ct * Math.pow(sin,2);
+        VelocityCoef[1] = -cn * cos * sin + ct * cos * sin;
+        VelocityCoef[2] = -cn * cos * sin + ct * cos * sin;
+        VelocityCoef[3] = -cn * Math.pow(sin,2) + ct * Math.pow(cos,2);
+
+        double [] newVelocity = new double[2];
+
+        newVelocity[0] = VelocityCoef[0] * velocity[0] + VelocityCoef[1] * velocity[1];
+        newVelocity[1] = VelocityCoef[2] * velocity[0] + VelocityCoef[3] * velocity[1];
+
+        p1.setVelocity(new Velocity(newVelocity[0], newVelocity[1]));
+
     }
 
     public static void applyCollision(Particle p1, WallType type) {
