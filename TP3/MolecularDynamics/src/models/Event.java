@@ -74,21 +74,6 @@ public class Event {
 
         double cn = 1;
         double ct = 1;
-/*
-       double [][] colisionMatrix = {
-              {-cn, 0 },
-              { 0 , ct}
-       };
-
-       double [][] rotationMatrix = {
-              {cos, sin},
-              {-sin, cos}
-       };
-
-       double [][] inverseRotationMatrix = {
-              {cos, -sin},
-              {sin, cos}
-       };*/
 
         double [] velocity = {
                 p1.getVelocity().getX(),

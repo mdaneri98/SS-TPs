@@ -17,14 +17,14 @@ public class Main {
     public static void main(String[] args) {
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 2;
+        int N = 100;
         double radius = 0.001;
         double velocity = 1;
         double mass = 1;
         double staticMass = 1;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, velocity, mass, radius, staticRadius, staticMass);
-        molecularDynamic.fixedSolution(999999);
+        molecularDynamic.fixedSolution(120);
 
     }
 

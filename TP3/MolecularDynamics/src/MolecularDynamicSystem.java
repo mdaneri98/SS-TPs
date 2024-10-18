@@ -43,7 +43,7 @@ public class MolecularDynamicSystem {
         this.n = n;
 
         createWalls(l);
-        initial = testStaticInitial();
+        initial = initialState();
     }
 
     private void createWalls(double L) {

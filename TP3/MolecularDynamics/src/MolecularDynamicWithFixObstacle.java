@@ -74,8 +74,6 @@ public class MolecularDynamicWithFixObstacle implements Iterator<State> {
         State nextState = new State(currentState.getTime() + nextCollision.getTc(), currentState.getWalls(), nextParticles);
         states.add(nextState);
 
-        System.out.println(saveParticles);
-
         /* Este estado se utiliza para guardar (Punto 4 del algoritmo). */
         return new State(currentState.getTime() + nextCollision.getTc(), currentState.getWalls(), saveParticles);
     }
