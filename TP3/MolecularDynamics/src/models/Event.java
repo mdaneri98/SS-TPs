@@ -42,26 +42,21 @@ public class Event {
                 p2.getVelocity().getY() - Jy / m2));
     }
 
-    public static void applyCollision(Particle p1, StaticParticle p2) {
+    public static void applyCollision_(Particle p1, StaticParticle p2) {
         double deltaX = p1.getPosition().getX() - p2.getPosition().getX();
         double deltaY = p1.getPosition().getY() - p2.getPosition().getY();
         double sigma = p1.getRadius() + p2.getRadius();
         double deltaVX = p1.getVelocity().getX() - p2.getVelocity().getX();
         double deltaVY = p1.getVelocity().getY() - p2.getVelocity().getY();
 
-        double deltas = deltaVX * deltaX + deltaVY * deltaY;
-        double m1 = p1.getMass();
-        double m2 = p2.getMass();
-
-        double J = (2 * m1 * m2 * deltas) / (sigma * (m1 + m2));
-
+        double dvdr = deltaX * deltaVX + deltaY * deltaVY;
+        double J = (2 * dvdr) / (sigma);
         double Jx = (J * deltaX) / sigma;
         double Jy = (J * deltaY) / sigma;
 
         p1.setVelocity(new Velocity(
-                p1.getVelocity().getX() - Jx / m1,
-                p1.getVelocity().getY() - Jy / m1
-        ));
+                p1.getVelocity().getX() - Jx,
+                p1.getVelocity().getY() - Jy));
     }
 
     public static void applyCollision(Particle p1, WallType type) {
