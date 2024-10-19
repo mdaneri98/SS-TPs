@@ -17,14 +17,14 @@ public class State {
     private Set<Particle> particleSet;
 
     // <Tiempo de choque, Particulas>
-    private List<FutureCollision> collisionList;
+    private Set<FutureCollision> collisionSet;
 
     public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
         this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
 
-        collisionList = new LinkedList<>();
+        collisionSet = new TreeSet<>();
 
         updateCollisionsTimes();
     }
@@ -34,7 +34,7 @@ public class State {
     }
 
     private void updateCollisionsTimes() {
-        collisionList.clear(); // Limpiamos la lista antes de actualizarla
+        collisionSet.clear(); // Limpiamos la lista antes de actualizarla
         for (Particle current : particleSet) {
             Pair<Double, Wall> wallCollision = timeUntilCollisionWithWall(current);
             double timeUntilWallCollision = wallCollision.getLeft();
@@ -44,10 +44,10 @@ public class State {
 
             if (particleCollision == null || (timeUntilWallCollision > 0 && timeUntilWallCollision < particleCollision.getLeft())) {
                 // La colisión con la pared ocurre primero (o no hay colisión con partícula)
-                collisionList.add(new FutureCollision(timeUntilWallCollision, current, collisionWall));
+                collisionSet.add(new FutureCollision(timeUntilWallCollision, current, collisionWall));
             } else {
                 // La colisión con otra partícula ocurre primero
-                collisionList.add(new FutureCollision(particleCollision.getLeft(), current, particleCollision.getRight()));
+                collisionSet.add(new FutureCollision(particleCollision.getLeft(), current, particleCollision.getRight()));
             }
         }
     }
@@ -93,9 +93,8 @@ public class State {
         return new Pair<>(minTime, collidingWall);  // Devolver <minTime, collidingWall>
     }
 
-    public List<FutureCollision> getOrderedCollisionList() {
-        Collections.sort(collisionList);
-        return collisionList;
+    public Set<FutureCollision> getCollisionSet() {
+        return collisionSet;
     }
 
     public Set<Particle> getParticles() {

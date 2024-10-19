@@ -36,8 +36,8 @@ public class MolecularDynamicWithFixObstacle implements Iterator<State> {
 
         State currentState = states.getLast();
 
-        List<FutureCollision> collisionList = currentState.getOrderedCollisionList();
-        FutureCollision nextCollision = collisionList.getFirst();
+        Set<FutureCollision> collisionList = currentState.getCollisionSet();
+        FutureCollision nextCollision = collisionList.iterator().next();
 
         /* Clonamos las particulas y avanzamos hacia la colisión. */
         Set<Particle> saveParticles = new HashSet<>(); /* No se les aplica la colisión, se utilizan para el guardado del estado */
