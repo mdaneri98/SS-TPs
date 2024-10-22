@@ -1,4 +1,5 @@
 import models.Field;
+import models.Position;
 
 public class Main {
 
@@ -15,7 +16,7 @@ public class Main {
 		
 		int N = 15;
 		
-		Field field = new Field(100, 70);
+		Field field = new Field(100, 70, new Position(0, 70/2.0));
 		
 		TryMaradoniano tm = new TryMaradoniano(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, rMin, rMax);
 		

@@ -3,19 +3,20 @@ package models;
 import java.util.Objects;
 import java.util.Vector;
 
-public class Particle {
+public class Particle implements Target {
 
-    private int id;
-    private Position position;
-    private Velocity velocity;
-    private double maxVelocity;
-    private double minRadius;
-    private double maxRadius;
-    private double actualRadius;
+    private final int id;
+    private final Position position;
+    private final Velocity velocity;
+    private final double maxVelocity;
+    private final double minRadius;
+    private final double maxRadius;
+    private final double actualRadius;
+    private final double tau;
     
-    private final Position target;
+    private final Target target;
 
-    public Particle(int id, Position position, Position target, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius) {
+    public Particle(int id, Position position, Target target, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius, double tau) {
     	this.id = id;
         this.position = position;
         this.target = target;
@@ -24,6 +25,7 @@ public class Particle {
         this.minRadius = minRadius;
         this.maxRadius = maxRadius;
         this.actualRadius = actualRadius;
+        this.tau = tau;
     }
 
     public boolean isInside(Particle other) {
@@ -32,6 +34,22 @@ public class Particle {
 
         // Verificar si la partícula actual está completamente dentro de la otra
         return distance < this.actualRadius + other.actualRadius;
+    }
+    
+    public boolean isInsidePersonalSpace(Particle other) {
+    	// Según original ACM.
+    	return Math.abs(actualRadius - other.getActualRadius()) < actualRadius + other.getActualRadius();
+    }
+    
+    public boolean isInsidePersonalSpace(Field field) {
+    	// Según original ACM.
+    	double x = Math.max(0, Math.min(this.getPosition().getX(), field.getWidth()));
+    	double y = Math.max(0, Math.min(this.getPosition().getY(), field.getHeight()));
+    	
+        double deltaX = this.getPosition().getX() - x;
+        double deltaY = this.getPosition().getY() - y;
+    	
+        return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2)) < actualRadius; 
     }
     
     @Override
@@ -67,49 +85,37 @@ public class Particle {
     public int getId() {
         return id;
     }
-
-    public void setId(int id) {
-        this.id = id;
+    
+    public Target getTarget() {
+    	return target;
+    }
+    
+    public double getTau() {
+    	return tau;
     }
 
 	public Position getPosition() {
 		return position;
 	}
 
-	public void setPosition(Position position) {
-		this.position = position;
-	}
-
 	public Velocity getVelocity() {
 		return velocity;
 	}
-
-	public void setVelocity(Velocity velocity) {
-		this.velocity = velocity;
+	
+	public double getMaxVelocity() {
+		return maxVelocity;
 	}
 
 	public double getMinRadius() {
 		return minRadius;
 	}
 
-	public void setMinRadius(double minRadius) {
-		this.minRadius = minRadius;
-	}
-
 	public double getMaxRadius() {
 		return maxRadius;
 	}
 
-	public void setMaxRadius(double maxRadius) {
-		this.maxRadius = maxRadius;
-	}
-
 	public double getActualRadius() {
 		return actualRadius;
-	}
-
-	public void setActualRadius(double actualRadius) {
-		this.actualRadius = actualRadius;
 	}
 
 }
