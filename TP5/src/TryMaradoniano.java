@@ -40,7 +40,7 @@ public class TryMaradoniano {
             double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
             double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
             
-            Particle blue = new Particle(particles.size() + 1, new Position(x, y), new Velocity(new double[] {0,0}, blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius);
+            Particle blue = new Particle(particles.size() + 1, new Position(x, y), new Position(field.getWidth(), field.getHeight()/2.0), new Velocity(new double[] {0,0}, blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius);
             
             boolean match = false;
             for (Particle particle : particles) {
@@ -52,7 +52,7 @@ public class TryMaradoniano {
             	particles.add(blue);
 		}
 		
-		Particle player = new Particle(0, new Position(field.getWidth(), field.getHeight()/2.0), new Velocity(new double[] {0,0}, redVelocityMax), redVelocityMax, minRadius, maxRadius, maxRadius);
+		Particle player = new Particle(0, new Position(field.getWidth(), field.getHeight()/2.0), new Position(0, field.getHeight()/2.0), new Velocity(new double[] {0,0}, redVelocityMax), redVelocityMax, minRadius, maxRadius, maxRadius);
 		return new State(0.0, field, player, particles);
 	}
 	

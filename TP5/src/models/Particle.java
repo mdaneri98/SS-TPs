@@ -13,11 +13,12 @@ public class Particle {
     private double maxRadius;
     private double actualRadius;
     
-    //private final Position target;
+    private final Position target;
 
-    public Particle(int id, Position position, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius) {
+    public Particle(int id, Position position, Position target, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius) {
     	this.id = id;
         this.position = position;
+        this.target = target;
         this.velocity = velocity;
         this.maxVelocity = maxVelocity;
         this.minRadius = minRadius;
