@@ -45,7 +45,18 @@ public class TryMaradoniano {
 		Random random = new Random();
 		Set<Particle> particles = new HashSet<>();
 			
-		Particle player = new Particle(0, new Position(field.getWidth(), field.getHeight()/2.0), field, new Velocity(new double[] {0,0}, redVelocityMax), redVelocityMax, minRadius, maxRadius, maxRadius, redTau);
+		Particle player = new Particle(
+			    0, 
+			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
+			    field,
+			    new Velocity(new double[] {-1.0, 0}, redVelocityMax), // Vector dirección hacia la izquierda
+			    redVelocityMax,
+			    minRadius,
+			    maxRadius,
+			    maxRadius,
+			    redTau
+			);
+		
 		while (particles.size() < N) {
 			// Posición x aleatoria dentro del área L x L
             double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
@@ -78,13 +89,14 @@ public class TryMaradoniano {
 		TryMaradonianoSystem tms = new TryMaradonianoSystem(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, initialState());
 		runSolution(tms, filepath);
 		
+		System.out.println("Finished");
 	}
 	
 	private void runSolution(Iterator<State> iterator, Path filepath) {
         LinkedList<State> statesToSave = new LinkedList<>();
 
         int stateCounter = 0;
-        int saveFrequency = 1; // Guarda cada 100 estados
+        int saveFrequency = 20; // Guarda cada 100 estados
         int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
 
 

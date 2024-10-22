@@ -80,7 +80,7 @@ public class Particle implements Target {
     		return new Velocity(new double[] {0, 0}, 0);
     	return new Velocity(velocity.getDirection(), this.maxVelocity);
     }
-
+    
     // Getters and Setters
     public int getId() {
         return id;

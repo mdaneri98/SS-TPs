@@ -60,11 +60,12 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		Set<Particle> newParticles = new HashSet<>();
 		
 		Particle newPlayer = generate(state.getPlayer(), field);
+		System.out.println("[newPlayer[Target]]:" + newPlayer.getTarget());
 		for (Particle p : state.getParticles()) {
-			newParticles.add(generate(p, newPlayer));
+			Particle newParticle = generate(p, newPlayer);
+			newParticles.add(newParticle);
+			System.out.println("[newParticle[Target]]:" + newParticle.getTarget());
 		}
-		
-		
 		
 		state = new State(state.getTime() + dt, field, newPlayer, newParticles);
 		return state;
@@ -107,34 +108,49 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	}
 	
 	private Velocity updateVelocity(Particle p, Set<Particle> contacts) {
-		double[] newDirection = new double[2];
-		if (contacts.isEmpty()) {
-			// It should be the same as the direction on p.
-			double mod1 = Math.sqrt(
-					Math.pow((p.getVelocity().getDirection()[0] - p.getTarget().getPosition().getX()), 2) 
-					+ 
-					Math.pow((p.getVelocity().getDirection()[1] - p.getTarget().getPosition().getY()), 2));
-					
-			newDirection[0] = p.getVelocity().getDirection()[0] - p.getTarget().getPosition().getX() / mod1;
-			newDirection[1] = p.getVelocity().getDirection()[1] - p.getTarget().getPosition().getY() / mod1;
-			
-			double v_i = p.getMaxVelocity() * Math.pow(( (p.getActualRadius() - p.getMinRadius()) / p.getMaxRadius() - p.getMinRadius()), beta);
-			return new Velocity(newDirection, v_i);
-		} else {
-			// It should be a new direction.
-			Particle contact = contacts.iterator().next();
-			
-			double mod1 = Math.sqrt(
-					Math.pow((p.getVelocity().getDirection()[0] - contact.getPosition().getX()), 2) 
-					+ 
-					Math.pow((p.getVelocity().getDirection()[1] - contact.getPosition().getY()), 2));
-					
-			newDirection[0] = p.getVelocity().getDirection()[0] - contact.getPosition().getX() / mod1;
-			newDirection[1] = p.getVelocity().getDirection()[1] - contact.getPosition().getY() / mod1;
-		
-			double v_i = p.getMaxVelocity();
-			return new Velocity(newDirection, v_i);
-		}
+	    double[] newDirection = new double[2];
+	    
+	    if (contacts.isEmpty()) {
+	        // Cálculo de e_t = (r_i - T_i)/|r_i - T_i| según la descripción
+	        double dx = p.getTarget().getPosition().getX() - p.getPosition().getX();
+	        double dy = p.getTarget().getPosition().getY() - p.getPosition().getY();
+	        
+	        double magnitude = Math.sqrt(dx * dx + dy * dy);
+	        if (magnitude > 0) {
+	            newDirection[0] = - dx / magnitude;
+	            newDirection[1] = - dy / magnitude;
+	        } else {
+	            newDirection = p.getVelocity().getDirection();
+	        }
+	        
+	        // Cálculo de v_i
+	        double v_i = p.getMaxVelocity() * Math.pow(
+	            (p.getActualRadius() - p.getMinRadius()) / 
+	            (p.getMaxRadius() - p.getMinRadius()), 
+	            beta
+	        );
+	        
+	        return new Velocity(newDirection, v_i);
+	    } else {
+	        Particle contact = contacts.iterator().next();
+	        
+	        // Cálculo de e_ij = (r_i - r_j)/|r_i - r_j|
+	        double dx = p.getPosition().getX() - contact.getPosition().getX();
+	        double dy = p.getPosition().getY() - contact.getPosition().getY();
+	        
+	        double magnitude = Math.sqrt(dx * dx + dy * dy);
+	        if (magnitude > 0) {
+	            newDirection[0] = - dx / magnitude;
+	            newDirection[1] = - dy / magnitude;
+	        } else {
+	            // En caso de solapamiento exacto, elegir dirección aleatoria
+	            double angle = Math.random() * 2 * Math.PI;
+	            newDirection[0] = Math.cos(angle);
+	            newDirection[1] = Math.sin(angle);
+	        }
+	        
+	        return new Velocity(newDirection, p.getMaxVelocity());
+	    }
 	}
 	
 	private Position updatePosition(Particle p, double dt) {

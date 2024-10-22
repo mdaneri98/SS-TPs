@@ -4,5 +4,5 @@ blueTau: 0.500000
 redTau: 0.300000
 rMin: 0.150000
 rMax: 0.320000
-width: 100
-height: 70
+width: 10
+height: 7
