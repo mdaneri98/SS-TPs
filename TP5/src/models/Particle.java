@@ -37,10 +37,10 @@ public class Particle implements Target {
     }
     
     public boolean isInsidePersonalSpace(Particle other) {
-    	// Según original ACM.
-    	return Math.abs(actualRadius - other.getActualRadius()) < actualRadius + other.getActualRadius();
+        double distance = this.position.distanceTo(other.getPosition()); // Suponiendo que tienes una manera de obtener la posición
+        return distance < (this.actualRadius + other.getActualRadius());
     }
-    
+
     public boolean isInsidePersonalSpace(Field field) {
     	// Según original ACM.
     	double x = Math.max(0, Math.min(this.getPosition().getX(), field.getWidth()));

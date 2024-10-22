@@ -13,6 +13,8 @@ import models.Velocity;
 
 public class TryMaradonianoSystem implements Iterator<State> {
 	
+	static int i = 20;
+	
 	// ====== From paper ======
 	private final double beta = 0.9;
 	
@@ -52,6 +54,10 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	
 	@Override
 	public boolean hasNext() {
+		for (Particle p : state.getParticles())
+			if (state.getPlayer().isInside(p)) {
+				return false;
+			}
 		return state.getPlayer().getPosition().getX() > 0;
 	}
 
@@ -59,13 +65,21 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	public State next() {
 		Set<Particle> newParticles = new HashSet<>();
 		
-		Particle newPlayer = generate(state.getPlayer(), field);
-		System.out.println("[newPlayer[Target]]:" + newPlayer.getTarget());
+		/*
+		if (i > 0)
+			System.out.println("[newPlayer[Target]]:" + newPlayer.getTarget().getPosition());
+		*/
 		for (Particle p : state.getParticles()) {
-			Particle newParticle = generate(p, newPlayer);
+			Particle newParticle = generate(p, state.getPlayer());
 			newParticles.add(newParticle);
-			System.out.println("[newParticle[Target]]:" + newParticle.getTarget());
+			/*
+			if (i > 0) {
+				System.out.println("[newParticle[Target]]:" + newParticle.getTarget().getPosition());
+				System.out.println("[newParticle[Velocity]]:" + newParticle.getVelocity());
+			}
+			*/
 		}
+		Particle newPlayer = generate(state.getPlayer(), field);
 		
 		state = new State(state.getTime() + dt, field, newPlayer, newParticles);
 		return state;
@@ -85,16 +99,22 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	}
 	
 	private Set<Particle> checkContact(Particle p) {
-		Set<Particle> contacts = new HashSet<Particle>();
-		
-		for (Particle other : state.getParticles()) {
-			if (p.equals(other))
-				continue;
-			if (p.isInsidePersonalSpace(other)) {
-				contacts.add(other);
-			}
-		}
-		return contacts; 
+	    Set<Particle> contacts = new HashSet<Particle>();
+	    
+	    // Verificar contacto con el jugador si la partícula no es el jugador
+	    if (!p.equals(state.getPlayer()) && p.isInsidePersonalSpace(state.getPlayer())) {
+	        contacts.add(state.getPlayer());
+	    }
+	    
+	    // Verificar contacto con otras partículas
+	    for (Particle other : state.getParticles()) {
+	        if (p.equals(other))
+	            continue;
+	        if (p.isInsidePersonalSpace(other)) {
+	            contacts.add(other);
+	        }
+	    }
+	    return contacts; 
 	}
 	
 	private double updateRadius(Particle p, boolean hasContact) {		
@@ -112,16 +132,12 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	    
 	    if (contacts.isEmpty()) {
 	        // Cálculo de e_t = (r_i - T_i)/|r_i - T_i| según la descripción
-	        double dx = p.getTarget().getPosition().getX() - p.getPosition().getX();
-	        double dy = p.getTarget().getPosition().getY() - p.getPosition().getY();
+	    	double dx = p.getTarget().getPosition().getX() - p.getPosition().getX();
+	    	double dy = p.getTarget().getPosition().getY() - p.getPosition().getY();
 	        
 	        double magnitude = Math.sqrt(dx * dx + dy * dy);
-	        if (magnitude > 0) {
-	            newDirection[0] = - dx / magnitude;
-	            newDirection[1] = - dy / magnitude;
-	        } else {
-	            newDirection = p.getVelocity().getDirection();
-	        }
+	        newDirection[0] = dx / magnitude;
+	        newDirection[1] = dy / magnitude;
 	        
 	        // Cálculo de v_i
 	        double v_i = p.getMaxVelocity() * Math.pow(
@@ -139,15 +155,16 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        double dy = p.getPosition().getY() - contact.getPosition().getY();
 	        
 	        double magnitude = Math.sqrt(dx * dx + dy * dy);
-	        if (magnitude > 0) {
-	            newDirection[0] = - dx / magnitude;
-	            newDirection[1] = - dy / magnitude;
-	        } else {
-	            // En caso de solapamiento exacto, elegir dirección aleatoria
-	            double angle = Math.random() * 2 * Math.PI;
-	            newDirection[0] = Math.cos(angle);
-	            newDirection[1] = Math.sin(angle);
-	        }
+	        
+	        boolean shouldAway = p.getId() == 0;
+	        int direction = shouldAway ? 1 : -1;
+	        
+	        newDirection[0] = direction * dx / magnitude;
+	        newDirection[1] = direction * dy / magnitude;
+	        
+	    	if (p.getId() == 0) {
+	    		i++;
+	    	}
 	        
 	        return new Velocity(newDirection, p.getMaxVelocity());
 	    }

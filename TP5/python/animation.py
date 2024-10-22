@@ -75,8 +75,12 @@ def animate_particles(data):
     ax.set_xlim(0, data.static_params['width'])
     ax.set_ylim(0, data.static_params['height'])
 
-    # Diccionario para guardar los círculos de cada partícula
+    # Diccionario para guardar los círculos y vectores de velocidad de cada partícula
     circles = {}
+    quiver_data = {'x': [], 'y': [], 'vx': [], 'vy': []}
+
+    # Obtener los límites del gráfico para ajustar el tamaño de las flechas (1%)
+    scale_factor = 0.01 * min(data.static_params['width'], data.static_params['height'])
 
     def init():
         for pid in data.particles.keys():
@@ -89,13 +93,37 @@ def animate_particles(data):
                                 alpha=0.5)
             circles[pid] = circle
             ax.add_artist(circle)
-        return list(circles.values())
+
+            # Inicializar datos de flechas
+            quiver_data['x'].append(data.particles[pid]['x'][0])
+            quiver_data['y'].append(data.particles[pid]['y'][0])
+            quiver_data['vx'].append(data.particles[pid]['vx'][0] * scale_factor)
+            quiver_data['vy'].append(data.particles[pid]['vy'][0] * scale_factor)
+
+        # Crear el quiver inicial
+        quiver = ax.quiver(quiver_data['x'], quiver_data['y'],
+                           quiver_data['vx'], quiver_data['vy'],
+                           angles='xy', scale_units='xy', scale=1, color='black')
+
+        return list(circles.values()) + [quiver]
 
     def update(frame):
-        for pid, circle in circles.items():
+        for i, (pid, circle) in enumerate(circles.items()):
+            # Actualizar la posición del círculo (partícula)
             circle.center = (data.particles[pid]['x'][frame],
                              data.particles[pid]['y'][frame])
-        return list(circles.values())
+
+            # Actualizar los datos de quiver para velocidad, escalando
+            quiver_data['x'][i] = data.particles[pid]['x'][frame]
+            quiver_data['y'][i] = data.particles[pid]['y'][frame]
+            quiver_data['vx'][i] = data.particles[pid]['vx'][frame] * scale_factor
+            quiver_data['vy'][i] = data.particles[pid]['vy'][frame] * scale_factor
+
+        # Redibujar el quiver con nuevos datos
+        ax.collections[-1].set_offsets(np.c_[quiver_data['x'], quiver_data['y']])
+        ax.collections[-1].set_UVC(quiver_data['vx'], quiver_data['vy'])
+
+        return list(circles.values()) + [ax.collections[-1]]
 
     frames = len(data.times)
     ani = animation.FuncAnimation(fig, update, frames=frames,

@@ -9,6 +9,17 @@ public class Position {
         this.posY = posY;
     }
 
+    public double distanceTo(Position other) {
+        double deltaX = this.posX - other.getX();
+        double deltaY = this.posY - other.getY();
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+    
+    @Override
+    public String toString() {
+    	return String.format("{%.2f, %.2f}", posX, posY);
+    }
+    
     public double getX() {
         return posX;
     }

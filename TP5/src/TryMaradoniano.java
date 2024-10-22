@@ -29,6 +29,7 @@ public class TryMaradoniano {
 	private final double minRadius; 
 	private final double maxRadius;
 	
+	private State initial;
 	
 	public TryMaradoniano(int N, Field field, double blueVelocityMax, double redVelocityMax, double blueTau, double redTau, double minRadius, double maxRadius) {
 		this.N = N;
@@ -39,6 +40,41 @@ public class TryMaradoniano {
 		this.redTau = redTau;
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
+		
+		this.initial = initialState();
+	}
+	
+	public State twoState() {
+		Set<Particle> particles = new HashSet<>();
+			
+		Particle player = new Particle(
+			    0, 
+			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
+			    field,
+			    new Velocity(new double[] {-1.0, 0}, redVelocityMax),
+			    redVelocityMax,
+			    minRadius,
+			    maxRadius,
+			    maxRadius,
+			    redTau
+			);
+		
+		Particle second = new Particle(
+			    1,
+			    new Position(2 * maxRadius, field.getHeight()/2.0),
+			    player,
+			    new Velocity(new double[] {1.0, 0}, redVelocityMax),
+			    redVelocityMax,
+			    minRadius,
+			    maxRadius,
+			    maxRadius,
+			    redTau
+			);
+				
+		particles.add(second);
+		
+	
+		return new State(0.0, field, player, particles);
 	}
 	
 	public State initialState() {
@@ -66,7 +102,7 @@ public class TryMaradoniano {
             
             boolean match = false;
             for (Particle particle : particles) {
-                match = blue.isInside(particle);
+                match = blue.isInsidePersonalSpace(particle);
                 if (match)
                     break;
             }
@@ -86,7 +122,7 @@ public class TryMaradoniano {
 
 		Path filepath = getFilePath(directory, "dynamic.txt");
 	        
-		TryMaradonianoSystem tms = new TryMaradonianoSystem(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, initialState());
+		TryMaradonianoSystem tms = new TryMaradonianoSystem(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, this.initial);
 		runSolution(tms, filepath);
 		
 		System.out.println("Finished");

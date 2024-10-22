@@ -12,6 +12,10 @@ public class Velocity {
         this.mod = mod;
     }
 
+    @Override
+    public String toString() {
+    	return String.format("{%.2f, %.2f}", direction[0]*mod, direction[1]*mod);
+    }
     
     // ====== GETTERS & SETTERS ======
 	public double[] getDirection() {
