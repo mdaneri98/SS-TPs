@@ -1,8 +1,0 @@
-blueVelocityMax: 6.000000
-redVelocityMax: 4.000000
-blueTau: 0.300000
-redTau: 0.500000
-rMin: 0.150000
-rMax: 0.320000
-width: 10
-height: 7
