@@ -31,6 +31,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 
 	private final double dt;
 
+	private Set<Integer> repelledParticles = new HashSet<>();
+
 	private final Field field;
 
 	// ====== ... ======
@@ -65,6 +67,9 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	public State next() {
 		Set<Particle> newParticles = new HashSet<>();
 
+		// Limpiar el set de partículas repelidas del dt anterior
+		repelledParticles.clear();
+
 		for (Particle p : state.getParticles()) {
 			Particle newParticle = generate(p, state.getPlayer());
 			newParticles.add(newParticle);
@@ -84,7 +89,6 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		Velocity newVelocity = updateVelocity(p, contacts);
 		Position newPosition = updatePosition(p, dt);
 
-
 		return new Particle(p.getId(), newPosition, target, newVelocity, p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
 	}
 
@@ -102,12 +106,6 @@ public class TryMaradonianoSystem implements Iterator<State> {
 				continue;
 			if (p.isInsidePersonalSpace(other)) {
 				contacts.add(other);
-			}
-		}
-
-		if (p.getId() == 0) {
-			for (Particle contact : contacts) {
-				System.out.println(contact.getId());
 			}
 		}
 
@@ -152,15 +150,14 @@ public class TryMaradonianoSystem implements Iterator<State> {
 
 			double magnitude = Math.sqrt(dx * dx + dy * dy);
 
-			boolean shouldAway = p.getId() == 0;
-			int direction = shouldAway ? 1 : -1;
+			newDirection[0] = dx / magnitude;
+			newDirection[1] = dy / magnitude;
 
-			newDirection[0] = direction * dx / magnitude;
-			newDirection[1] = direction * dy / magnitude;
-
-			if (p.getId() == 0) {
-				i++;
-			}
+			System.out.println(String.format("[Choque] [%d{x: %.3f, y: %.3f}]->[%d]",
+					p.getId(),
+					newDirection[0] * p.getMaxVelocity(),
+					newDirection[1] * p.getMaxVelocity(),
+					contact.getId()));
 
 			return new Velocity(newDirection, p.getMaxVelocity());
 		}

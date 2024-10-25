@@ -5,7 +5,7 @@ public class Main {
 
 	public static void main(String args[]) {
 		
-		double blueVelocityMax = 3.8;
+		double blueVelocityMax = 6;
 		double redVelocityMax = 4.0;
 		
 		double blueTau = 0.3;

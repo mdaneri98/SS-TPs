@@ -80,44 +80,48 @@ public class TryMaradoniano {
 	public State bounceState() {
 		Set<Particle> particles = new HashSet<>();
 
+		// Crear el jugador en el lado derecho
 		Particle player = new Particle(
 				0,
 				new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
 				field,
-				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
-				0,
+				new Velocity(new double[] {0, 0}, 0),
+				redVelocityMax, // Cambiado de 0 a redVelocityMax para permitir movimiento
 				minRadius,
 				maxRadius,
 				maxRadius,
 				redTau
 		);
 
+		// Primera partícula cerca del eje y
 		Particle p1 = new Particle(
 				1,
-				new Position(1, 3.5),
-				field,
-				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
-				0,
+				new Position(1, 3.5),  // A un tercio de la altura
+				player,
+				new Velocity(new double[] {0, 0}, blueVelocityMax),
+				blueVelocityMax,
 				minRadius,
 				maxRadius,
 				maxRadius,
-				redTau
+				blueTau
 		);
 
+		// Segunda partícula cerca del eje y, separada de la primera
 		Particle p2 = new Particle(
 				2,
-				new Position(2, 3.5 + maxRadius + 0.01),
-				field,
-				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
-				0,
+				new Position(1, 4.5),  // A dos tercios de la altura
+				player,
+				new Velocity(new double[] {0, 1}, blueVelocityMax),
+				blueVelocityMax,
 				minRadius,
 				maxRadius,
 				maxRadius,
-				redTau
+				blueTau
 		);
+
+		// Agregar las partículas al conjunto
 		particles.add(p1);
 		particles.add(p2);
-		particles.add(player);
 
 		return new State(0.0, field, player, particles);
 	}

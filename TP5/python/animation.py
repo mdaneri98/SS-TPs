@@ -151,9 +151,10 @@ def animate_particles(data):
 
     def update(frame):
         for i, (pid, circle) in enumerate(circles.items()):
-            # Actualizar la posición del círculo (partícula)
+            # Actualizar la posición y el radio del círculo
             circle.center = (data.particles[pid]['x'][frame],
                              data.particles[pid]['y'][frame])
+            circle.radius = data.particles[pid]['radius'][frame]  # Añadida esta línea
 
             # Actualizar los datos de quiver para velocidad, escalando
             quiver_data['x'][i] = data.particles[pid]['x'][frame]
@@ -191,10 +192,6 @@ def main():
     # Frame inicial
     fig, ax = create_particle_plot(data, frame_index=0)
     plt.show()
-
-    # Frame intermedio (frame 50)
-    # fig, ax = create_particle_plot(data, frame_index=50)
-    # plt.show()
 
     # Frame final
     fig, ax = create_particle_plot(data, frame_index=-1)
