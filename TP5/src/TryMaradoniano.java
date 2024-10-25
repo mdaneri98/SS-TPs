@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.Vector;
 
 import models.Field;
 import models.Particle;
@@ -41,7 +42,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = bounceState();
+		this.initial = initialState();
 	}
 	
 	public State twoState() {
@@ -51,7 +52,7 @@ public class TryMaradoniano {
 			    0, 
 			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
 			    field,
-			    new Velocity(new double[] {-1.0, 0}, redVelocityMax),
+			    new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax),
 			    redVelocityMax,
 			    minRadius,
 			    maxRadius,
@@ -63,7 +64,7 @@ public class TryMaradoniano {
 			    1,
 			    new Position(2 * maxRadius, field.getHeight()/2.0),
 			    player,
-			    new Velocity(new double[] {1.0, 0}, redVelocityMax),
+			    new Velocity(new Vector<Double>(List.of(1.0, 0.0)), redVelocityMax),
 			    redVelocityMax,
 			    minRadius,
 			    maxRadius,
@@ -85,7 +86,7 @@ public class TryMaradoniano {
 				0,
 				new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
 				field,
-				new Velocity(new double[] {0, 0}, 0),
+				new Velocity(new Vector<Double>(List.of(0.0, 0.0)), 0),
 				redVelocityMax, // Cambiado de 0 a redVelocityMax para permitir movimiento
 				minRadius,
 				maxRadius,
@@ -98,7 +99,7 @@ public class TryMaradoniano {
 				1,
 				new Position(1, 3.5),  // A un tercio de la altura
 				player,
-				new Velocity(new double[] {0, 0}, blueVelocityMax),
+				new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax),
 				blueVelocityMax,
 				minRadius,
 				maxRadius,
@@ -111,7 +112,7 @@ public class TryMaradoniano {
 				2,
 				new Position(1, 4.5),  // A dos tercios de la altura
 				player,
-				new Velocity(new double[] {0, 1}, blueVelocityMax),
+				new Velocity(new Vector<Double>(List.of(0.0, -1.0)), blueVelocityMax),
 				blueVelocityMax,
 				minRadius,
 				maxRadius,
@@ -134,7 +135,7 @@ public class TryMaradoniano {
 			    0, 
 			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
 			    field,
-			    new Velocity(new double[] {-1.0, 0}, redVelocityMax), // Vector dirección hacia la izquierda
+			    new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax), // Vector dirección hacia la izquierda
 			    redVelocityMax,
 			    minRadius,
 			    maxRadius,
@@ -147,7 +148,7 @@ public class TryMaradoniano {
             double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
             double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
             
-            Particle blue = new Particle(particles.size() + 1, new Position(x, y), player, new Velocity(new double[] {0,0}, blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
+            Particle blue = new Particle(particles.size() + 1, new Position(x, y), player, new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
             
             boolean match = false;
             for (Particle particle : particles) {
@@ -264,13 +265,13 @@ public class TryMaradoniano {
 	            	writer.write(String.format(Locale.US, "%.6f\n", state.getTime()));
 	            	
 	            	Particle p = state.getPlayer();
-	            	double velX = p.getVelocity().getDirection()[0] * p.getVelocity().getMod();
-                	double velY = p.getVelocity().getDirection()[1] * p.getVelocity().getMod();
+	            	double velX = p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod();
+                	double velY = p.getVelocity().getDirection().getLast() * p.getVelocity().getMod();
                     writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", p.getId(), p.getPosition().getX(), p.getPosition().getY(), velX, velY, p.getActualRadius()));
 	            	
 	                for (Particle red : state.getParticles()) {
-						velX = red.getVelocity().getDirection()[0] * red.getVelocity().getMod();
-						velY = red.getVelocity().getDirection()[1] * red.getVelocity().getMod();
+						velX = red.getVelocity().getDirection().getFirst() * red.getVelocity().getMod();
+						velY = red.getVelocity().getDirection().getLast() * red.getVelocity().getMod();
 						writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", red.getId(), red.getPosition().getX(), red.getPosition().getY(), velX, velY, red.getActualRadius()));
 					}
 	            }

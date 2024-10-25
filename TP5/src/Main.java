@@ -5,7 +5,7 @@ public class Main {
 
 	public static void main(String args[]) {
 		
-		double blueVelocityMax = 6;
+		double blueVelocityMax = 3.8;
 		double redVelocityMax = 4.0;
 		
 		double blueTau = 0.3;
@@ -14,7 +14,7 @@ public class Main {
 		double rMin = 0.15;
 		double rMax = 0.32;
 		
-		int N = 3;
+		int N = 4;
 		
 		Field field = new Field(100, 70, new Position(0, 70/2.0));
 		

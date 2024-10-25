@@ -1,5 +1,6 @@
 package models;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -28,6 +29,13 @@ public class Particle implements Target {
         this.tau = tau;
     }
 
+    public double distanceTo(Particle other) {
+        double dx = this.getPosition().getX() - other.getPosition().getX();
+        double dy = this.getPosition().getY() - other.getPosition().getY();
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    
     public boolean isInside(Particle other) {
         // Calcular la distancia entre los centros de las partículas
         double distance = Math.sqrt(Math.pow(other.getPosition().getX() - this.getPosition().getX(), 2) + Math.pow(other.getPosition().getY() - this.getPosition().getY(), 2));
@@ -73,12 +81,6 @@ public class Particle implements Target {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public Velocity desired() {
-    	if (actualRadius == minRadius)
-    		return new Velocity(new double[] {0, 0}, 0);
-    	return new Velocity(velocity.getDirection(), this.maxVelocity);
     }
     
     // Getters and Setters
