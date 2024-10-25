@@ -11,10 +11,27 @@ TP2/self-propelled-agents/!**/src/test/**/out/
 # Ignorar el directorio output
 TP3/MolecularDynamics/!**/src/main/**/out/
 
+# Ignorar archivos .class generados en producción de TP5
+TP5/out/production/**/*.class
+
+# Ignorar archivos específicos en python/outputs de TP5
+TP5/python/outputs/try_maradoniano/dynamic.txt
+TP5/python/outputs/try_maradoniano/static.txt
+
+# Ignorar outputs y archivos generados en TP3
+TP3/MolecularDynamics/python/outputs/
+TP3/cat
+
+
 # TP4 
 TP4/simulator/out/
 TP4/simulator/!**/src/main/**/out/
 /TP4/simulator/python/outputs/
+
+# TP5	
+TP5/out/production/
+TP5/!**/src/main/**/out/
+TP5/!**/src/main/**/out/
 
 
 # Ignorar archivos de configuración de IDEs (IntelliJ IDEA, PyCharm)

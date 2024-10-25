@@ -48,7 +48,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 
-		this.dt = 0.0001;
+		this.dt = 0.001;
 
 		this.state = initial;
 	}

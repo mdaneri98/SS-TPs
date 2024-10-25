@@ -16,7 +16,7 @@ public class Main {
 		
 		int N = 3;
 		
-		Field field = new Field(10, 7, new Position(0, 7/2.0));
+		Field field = new Field(100, 70, new Position(0, 70/2.0));
 		
 		TryMaradoniano tm = new TryMaradoniano(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, rMin, rMax);
 		
