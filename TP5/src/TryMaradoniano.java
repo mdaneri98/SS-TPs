@@ -41,7 +41,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = initialState();
+		this.initial = bounceState();
 	}
 	
 	public State twoState() {
@@ -74,6 +74,51 @@ public class TryMaradoniano {
 		particles.add(second);
 		
 	
+		return new State(0.0, field, player, particles);
+	}
+
+	public State bounceState() {
+		Set<Particle> particles = new HashSet<>();
+
+		Particle player = new Particle(
+				0,
+				new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
+				field,
+				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
+				0,
+				minRadius,
+				maxRadius,
+				maxRadius,
+				redTau
+		);
+
+		Particle p1 = new Particle(
+				1,
+				new Position(1, 3.5),
+				field,
+				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
+				0,
+				minRadius,
+				maxRadius,
+				maxRadius,
+				redTau
+		);
+
+		Particle p2 = new Particle(
+				2,
+				new Position(2, 3.5 + maxRadius + 0.01),
+				field,
+				new Velocity(new double[] {0, 0}, 0), // Vector dirección hacia la izquierda
+				0,
+				minRadius,
+				maxRadius,
+				maxRadius,
+				redTau
+		);
+		particles.add(p1);
+		particles.add(p2);
+		particles.add(player);
+
 		return new State(0.0, field, player, particles);
 	}
 	
@@ -132,9 +177,8 @@ public class TryMaradoniano {
         LinkedList<State> statesToSave = new LinkedList<>();
 
         int stateCounter = 0;
-        int saveFrequency = 20; // Guarda cada 100 estados
+        int saveFrequency = 40; // Guarda cada 100 estados
         int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
-
 
         while (iterator.hasNext()) {
             State currentState = iterator.next();
@@ -220,12 +264,11 @@ public class TryMaradoniano {
                 	double velY = p.getVelocity().getDirection()[1] * p.getVelocity().getMod();
                     writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", p.getId(), p.getPosition().getX(), p.getPosition().getY(), velX, velY, p.getActualRadius()));
 	            	
-	                for (Particle red : state.getParticles())
-	                    if (p.getId() == 1 || true) {
-	                    	velX = p.getVelocity().getDirection()[0] * p.getVelocity().getMod();
-	                    	velY = p.getVelocity().getDirection()[1] * p.getVelocity().getMod();
-	                        writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", red.getId(), red.getPosition().getX(), red.getPosition().getY(), velX, velY, red.getActualRadius()));
-	                    }
+	                for (Particle red : state.getParticles()) {
+						velX = red.getVelocity().getDirection()[0] * red.getVelocity().getMod();
+						velY = red.getVelocity().getDirection()[1] * red.getVelocity().getMod();
+						writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", red.getId(), red.getPosition().getX(), red.getPosition().getY(), velX, velY, red.getActualRadius()));
+					}
 	            }
 	        } catch (IOException e) {
 	            System.out.println("Error al escribir un estado: " + e.getMessage());

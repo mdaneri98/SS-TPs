@@ -68,6 +68,45 @@ class ParticleData:
                     self.particles[pid]['radius'].append(radius)
 
 
+def create_particle_plot(data, frame_index=0):
+    """
+    Crea un gráfico estático para un frame específico
+    """
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    # Configurar los límites del campo
+    ax.set_xlim(0, data.static_params['width'])
+    ax.set_ylim(0, data.static_params['height'])
+
+    # Factor de escala para las flechas de velocidad
+    scale_factor = 0.01 * min(data.static_params['width'], data.static_params['height'])
+
+    # Dibujar cada partícula
+    for pid in data.particles.keys():
+        # Color según tipo de partícula
+        color = 'blue' if pid == 0 else 'red'
+
+        # Crear y añadir el círculo
+        circle = plt.Circle((data.particles[pid]['x'][frame_index],
+                             data.particles[pid]['y'][frame_index]),
+                            data.particles[pid]['radius'][frame_index],
+                            color=color,
+                            alpha=0.5)
+        ax.add_artist(circle)
+
+        # Añadir vector de velocidad
+        ax.quiver(data.particles[pid]['x'][frame_index],
+                  data.particles[pid]['y'][frame_index],
+                  data.particles[pid]['vx'][frame_index] * scale_factor,
+                  data.particles[pid]['vy'][frame_index] * scale_factor,
+                  angles='xy', scale_units='xy', scale=1, color='black')
+
+    # Añadir título con el tiempo
+    ax.set_title(f'Tiempo: {data.times[frame_index]:.2f}s')
+
+    return fig, ax
+
+
 def animate_particles(data):
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -105,6 +144,9 @@ def animate_particles(data):
                            quiver_data['vx'], quiver_data['vy'],
                            angles='xy', scale_units='xy', scale=1, color='black')
 
+        # Añadir título con el tiempo
+        ax.set_title(f'Tiempo: {data.times[0]:.2f}s')
+
         return list(circles.values()) + [quiver]
 
     def update(frame):
@@ -123,6 +165,9 @@ def animate_particles(data):
         ax.collections[-1].set_offsets(np.c_[quiver_data['x'], quiver_data['y']])
         ax.collections[-1].set_UVC(quiver_data['vx'], quiver_data['vy'])
 
+        # Actualizar título con el tiempo actual
+        ax.set_title(f'Tiempo: {data.times[frame]:.2f}s')
+
         return list(circles.values()) + [ax.collections[-1]]
 
     frames = len(data.times)
@@ -137,7 +182,23 @@ def main():
     data = ParticleData()
     data.load_static('outputs/try_maradoniano/static.txt')
     data.load_dynamic('outputs/try_maradoniano/dynamic.txt')
+
+    # Ejemplo de uso:
+    # 1. Mostrar la animación completa
     animate_particles(data)
+
+    # 2. Mostrar frames específicos
+    # Frame inicial
+    fig, ax = create_particle_plot(data, frame_index=0)
+    plt.show()
+
+    # Frame intermedio (frame 50)
+    # fig, ax = create_particle_plot(data, frame_index=50)
+    # plt.show()
+
+    # Frame final
+    fig, ax = create_particle_plot(data, frame_index=-1)
+    plt.show()
 
 
 if __name__ == '__main__':
