@@ -42,7 +42,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = bounceState();
+		this.initial = initialState();
 	}
 	
 	public State twoState() {

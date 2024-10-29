@@ -175,8 +175,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	    avoidanceVector.add(0.0);
 
 	    for (Particle other : onVision) {
-	    	System.out.println(String.format("Rugbier velocity: %f %f", p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod(), p.getVelocity().getDirection().getLast() * p.getVelocity().getMod()));
-	    	System.out.println(String.format("Particle velocity: %f %f", other.getVelocity().getDirection().getFirst() * other.getVelocity().getMod(), other.getVelocity().getDirection().getLast() * other.getVelocity().getMod()));
+	    	System.out.println(String.format("--->Rugbier velocity: %f %f", p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod(), p.getVelocity().getDirection().getLast() * p.getVelocity().getMod()));
+	    	System.out.println(String.format("--->Particle velocity: %f %f", other.getVelocity().getDirection().getFirst() * other.getVelocity().getMod(), other.getVelocity().getDirection().getLast() * other.getVelocity().getMod()));
 	    	
 	        // Step 1: Calculate relative velocity vij = vj - vi
 	        Velocity vij = other.getVelocity().subtract(p.getVelocity());
@@ -201,8 +201,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        double alpha = Utils.angleBetweenVectors(eij, vij.getDirection());
 	        System.out.println("Angle alpha: " + alpha);
 
-	        // Step 6: Compute f(α) = |α - π/2|
-	        double fAlpha = Math.abs(alpha - Math.PI / 2);
+	        // Step 6: Compute f(α) = ||α| - π/2|
+	        double fAlpha = Math.abs(Math.abs(alpha) - Math.PI / 2);
 	        System.out.println("f(alpha): " + fAlpha);
 
 	        // Step 7: Rotate e^ij by -sign(α)f(α)
@@ -227,7 +227,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	    } catch (ArithmeticException e) {
 	        // Handle case where no avoidance is needed
 	        //System.out.println("No avoidance needed, returning original vector: " + avoidanceVector);
-	        return avoidanceVector;
+	        return unitDirectionVector(p.getTarget().getPosition(), p.getPosition());
 	    }
 	}
 
