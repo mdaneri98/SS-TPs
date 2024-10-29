@@ -53,11 +53,11 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 
-		this.ap = 0.3;
-		this.bp = 0.3;
-		this.dt = 0.001;
-
+		this.ap = 1.1;
+		this.bp = 2.1;
+		
 		this.state = initial;
+		this.dt = 0.001;
 	}
 
 
@@ -170,67 +170,62 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	
 	// Método avoidManeuver: Calcula la maniobra de evitación
 	private Vector<Double> avoidManeuver(Particle p, Set<Particle> onVision) {
-	    Vector<Double> avoidanceVector = new Vector<>(2);
-	    avoidanceVector.add(0.0);
-	    avoidanceVector.add(0.0);
+	    Vector<Double> na = new Vector<>(2);
+	    na.add(0.0);
+	    na.add(0.0);
 
+	    System.out.println(String.format("--->Rugbier velocity: %f %f", p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod(), p.getVelocity().getDirection().getLast() * p.getVelocity().getMod()));
 	    for (Particle other : onVision) {
-	    	System.out.println(String.format("--->Rugbier velocity: %f %f", p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod(), p.getVelocity().getDirection().getLast() * p.getVelocity().getMod()));
 	    	System.out.println(String.format("--->Particle velocity: %f %f", other.getVelocity().getDirection().getFirst() * other.getVelocity().getMod(), other.getVelocity().getDirection().getLast() * other.getVelocity().getMod()));
 	    	
 	        // Step 1: Calculate relative velocity vij = vj - vi
 	        Velocity vij = other.getVelocity().subtract(p.getVelocity());
-	        System.out.println("Relative velocity (vij): " + vij);
 
 	        // Step 2: Compute angle β between vij and direction to target
 	        Vector<Double> targetDirection = unitDirectionVector(p.getTarget().getPosition(), p.getPosition());//new Vector<>(List.of(p.getTarget().getPosition().getX(), p.getTarget().getPosition().getY()));
-	        double beta = Utils.angleBetweenVectors(targetDirection, vij.getDirection());
-	        System.out.println("Angle beta: " + beta);
+	        double beta = Utils.signedAngleBetweenVectors(targetDirection, vij.getDirection());
 
 	        // Step 3: Check if avoidance is needed
 	        if (Math.abs(beta) < Math.PI / 2) {
-	            System.out.println("Skipping particle, it's moving away");
 	            continue; // Skip this particle as it's moving away
 	        }
 
 	        // Step 4: Construct unit vector e^ij (from particle i to j)
 	        Vector<Double> eij = unitDirectionVector(other.getPosition(), p.getPosition());
-	        System.out.println("Unit vector e^ij: " + eij);
 
 	        // Step 5: Calculate angle α between e^ij and relative velocity
-	        double alpha = Utils.angleBetweenVectors(eij, vij.getDirection());
-	        System.out.println("Angle alpha: " + alpha);
+	        double alpha = Utils.signedAngleBetweenVectors(eij, vij.getDirection());
 
 	        // Step 6: Compute f(α) = ||α| - π/2|
 	        double fAlpha = Math.abs(Math.abs(alpha) - Math.PI / 2);
-	        System.out.println("f(alpha): " + fAlpha);
 
 	        // Step 7: Rotate e^ij by -sign(α)f(α)
 	        Vector<Double> rotatedEij = Utils.rotate(eij, -Math.signum(alpha) * fAlpha);
-	        System.out.println("Rotated e^ij: " + rotatedEij);
 
 	        // Step 8: Apply weight based on distance
 	        double distance = Utils.distance(p.getPosition(), other.getPosition());
 	        double weight = ap * Math.exp(-distance / bp);
-	        System.out.println("Weight: " + weight);
 
 	        // Add weighted contribution to avoidance vector
-	        avoidanceVector.set(0, avoidanceVector.get(0) + weight * rotatedEij.get(0));
-	        avoidanceVector.set(1, avoidanceVector.get(1) + weight * rotatedEij.get(1));
-	        System.out.println("Avoidance vector: " + avoidanceVector);
+	        na.set(0, na.get(0) + weight * rotatedEij.get(0));
+	        na.set(1, na.get(1) + weight * rotatedEij.get(1));
+	        System.out.println("Avoidance vector: " + na);
 	    }
 
-	    try {
-	        Vector<Double> normalizedAvoidanceVector = Utils.normalize(avoidanceVector);
-	        //System.out.println("Normalized avoidance vector: " + normalizedAvoidanceVector);
-	        return normalizedAvoidanceVector;
-	    } catch (ArithmeticException e) {
-	        // Handle case where no avoidance is needed
-	        //System.out.println("No avoidance needed, returning original vector: " + avoidanceVector);
-	        return unitDirectionVector(p.getTarget().getPosition(), p.getPosition());
-	    }
+	    // ea = normalize(SUM(na) + nw + et)
+	    Vector<Double> et = unitDirectionVector(p.getTarget().getPosition(), p.getPosition());
+	    Vector<Double> nw = calculateWallCollision(p);
+	    Vector<Double> total = Utils.add(Utils.add(na, nw), et);
+	    Vector<Double> ea = Utils.normalize(total);
+	    System.out.println(ea.getFirst() + " " +  ea.getLast());
+	    
+	    return ea;
 	}
 
+	private Vector<Double> calculateWallCollision(Particle p) {
+		return new Vector(List.of(0d,0d));
+	}
+	
 	// Método onVision: Obtiene las dos partículas más cercanas en el campo visual
 	private Set<Particle> onVision(Particle p) {
 	    List<Particle> visibleParticles = new ArrayList<>();
@@ -239,7 +234,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        if (p.equals(other)) continue;
 
 	        Vector<Double> directionToOther = unitDirectionVector(other.getPosition(), p.getPosition());
-	        double angle = Utils.angleBetweenVectors(p.getVelocity().getDirection(), directionToOther);
+	        double angle = Utils.signedAngleBetweenVectors(p.getVelocity().getDirection(), directionToOther);
 
 	        if (angle >= -Math.PI / 2 && angle <= Math.PI / 2) {
 	            visibleParticles.add(other);
@@ -249,6 +244,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	    // Ordenar las partículas visibles por distancia a `p`
 	    visibleParticles.sort(Comparator.comparingDouble(other -> p.distanceTo(other)));
 
+	    System.out.println(visibleParticles.size());
+	    
 	    // Seleccionar las dos primeras partículas más cercanas y devolver como un Set
 	    return new HashSet<>(visibleParticles.subList(0, Math.min(2, visibleParticles.size())));
 	}

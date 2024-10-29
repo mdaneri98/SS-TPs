@@ -20,20 +20,22 @@ public class Utils {
 		return Math.acos(cosTheta);
 	}
 	
-	public static double angleBetweenVectors(Vector<Double> v1, Vector<Double> v2) {
+	public static double signedAngleBetweenVectors(Vector<Double> v1, Vector<Double> v2) {
 	    if (v1.size() != 2 || v2.size() != 2)
 	        throw new IllegalArgumentException("Both vectors must be 2-dimensional.");
-
+	    
+	    // Producto cruz en 2D para determinar el signo
+	    double crossProduct = v1.get(0) * v2.get(1) - v1.get(1) * v2.get(0);
+	    
+	    // Calcular el ángulo absoluto
 	    double dotProduct = v1.get(0) * v2.get(0) + v1.get(1) * v2.get(1);
 	    double magnitudeV1 = Math.sqrt(v1.get(0) * v1.get(0) + v1.get(1) * v1.get(1));
 	    double magnitudeV2 = Math.sqrt(v2.get(0) * v2.get(0) + v2.get(1) * v2.get(1));
-
 	    double cosTheta = dotProduct / (magnitudeV1 * magnitudeV2);
-
-	    // Limitar cosTheta entre -1 y 1
 	    cosTheta = Math.max(-1.0, Math.min(1.0, cosTheta));
-
-	    return Math.acos(cosTheta);
+	    
+	    // El signo del producto cruz determina si el ángulo es positivo o negativo
+	    return Math.copySign(Math.acos(cosTheta), crossProduct);
 	}
 
 	
@@ -44,6 +46,17 @@ public class Utils {
 	    Vector<Double> result = new Vector<>(2);
 	    result.add(v1.get(0) - v2.get(0));
 	    result.add(v1.get(1) - v2.get(1));
+
+	    return result;
+	}
+	
+	public static Vector<Double> add(Vector<Double> v1, Vector<Double> v2) {
+	    if (v1.size() != 2 || v2.size() != 2)
+	        throw new IllegalArgumentException("Both vectors must be 2-dimensional.");
+
+	    Vector<Double> result = new Vector<>(2);
+	    result.add(v1.get(0) + v2.get(0));
+	    result.add(v1.get(1) + v2.get(1));
 
 	    return result;
 	}
