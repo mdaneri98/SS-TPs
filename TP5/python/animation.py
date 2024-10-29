@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.patches as patches
 import numpy as np
+import os
 
 
 class ParticleData:
@@ -68,68 +70,107 @@ class ParticleData:
                     self.particles[pid]['radius'].append(radius)
 
 
-def create_particle_plot(data, frame_index=0):
-    """
-    Crea un gráfico estático para un frame específico
-    """
+def animate_particles(data, folder_path):
     fig, ax = plt.subplots(figsize=(10, 8))
 
     # Configurar los límites del campo
-    ax.set_xlim(0, data.static_params['width'])
-    ax.set_ylim(0, data.static_params['height'])
-
-    # Factor de escala para las flechas de velocidad
-    scale_factor = 0.01 * min(data.static_params['width'], data.static_params['height'])
-
-    # Dibujar cada partícula
-    for pid in data.particles.keys():
-        # Color según tipo de partícula
-        color = 'blue' if pid == 0 else 'red'
-
-        # Crear y añadir el círculo
-        circle = plt.Circle((data.particles[pid]['x'][frame_index],
-                             data.particles[pid]['y'][frame_index]),
-                            data.particles[pid]['radius'][frame_index],
-                            color=color,
-                            alpha=0.5)
-        ax.add_artist(circle)
-
-        # Añadir vector de velocidad
-        ax.quiver(data.particles[pid]['x'][frame_index],
-                  data.particles[pid]['y'][frame_index],
-                  data.particles[pid]['vx'][frame_index] * scale_factor,
-                  data.particles[pid]['vy'][frame_index] * scale_factor,
-                  angles='xy', scale_units='xy', scale=1, color='black')
-
-    # Añadir título con el tiempo
-    ax.set_title(f'Tiempo: {data.times[frame_index]:.2f}s')
-
-    return fig, ax
-
-
-def animate_particles(data):
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Configurar los límites del campo
-    ax.set_xlim(0, data.static_params['width'])
-    ax.set_ylim(0, data.static_params['height'])
+    width = data.static_params['width']
+    height = data.static_params['height']
+    ax.set_xlim(0, width)
+    ax.set_ylim(0, height)
 
     # Diccionario para guardar los círculos y vectores de velocidad de cada partícula
     circles = {}
     quiver_data = {'x': [], 'y': [], 'vx': [], 'vy': []}
+    
+    # Variables para mantener referencias a elementos dinámicos
+    quiver = None
+    ortho_lines = []
+    
+    # Polígonos para las áreas coloreadas
+    front_area = patches.Polygon([(0, 0)], color='orange', alpha=0.2)
+    back_area = patches.Polygon([(0, 0)], color='green', alpha=0.2)
+    ax.add_patch(front_area)
+    ax.add_patch(back_area)
 
     # Obtener los límites del gráfico para ajustar el tamaño de las flechas (1%)
-    scale_factor = 0.01 * min(data.static_params['width'], data.static_params['height'])
+    scale_factor = 0.01 * min(width, height)
+
+    def create_area_vertices(x0, y0, ortho_vx, ortho_vy):
+        # Encuentra los puntos de intersección con los bordes del área de juego
+        def find_intersection(px, py, vx, vy):
+            # Parametric line equation: p + t*v
+            # Find smallest positive t that intersects with boundary
+            ts = []
+            # Intersección con x = 0
+            if vx != 0:
+                t = -px/vx
+                y_int = py + t*vy
+                if 0 <= y_int <= height and t > 0:
+                    ts.append((t, 0, y_int))
+            # Intersección con x = width
+            if vx != 0:
+                t = (width-px)/vx
+                y_int = py + t*vy
+                if 0 <= y_int <= height and t > 0:
+                    ts.append((t, width, y_int))
+            # Intersección con y = 0
+            if vy != 0:
+                t = -py/vy
+                x_int = px + t*vx
+                if 0 <= x_int <= width and t > 0:
+                    ts.append((t, x_int, 0))
+            # Intersección con y = height
+            if vy != 0:
+                t = (height-py)/vy
+                x_int = px + t*vx
+                if 0 <= x_int <= width and t > 0:
+                    ts.append((t, x_int, height))
+            
+            if ts:
+                t, x, y = min(ts, key=lambda x: x[0])
+                return (x, y)
+            return None
+
+        # Encuentra los puntos de intersección en ambas direcciones
+        p1 = find_intersection(x0, y0, ortho_vx, ortho_vy)
+        p2 = find_intersection(x0, y0, -ortho_vx, -ortho_vy)
+
+        if p1 is None or p2 is None:
+            return None, None
+
+        # Crea los vértices para las dos áreas
+        corners = [(0, 0), (width, 0), (width, height), (0, height)]
+        
+        # Encuentra qué esquinas están en cada área
+        front_corners = []
+        back_corners = []
+        
+        for corner in corners:
+            # Vector desde el punto de la línea hasta la esquina
+            to_corner = (corner[0] - x0, corner[1] - y0)
+            # Producto cruz 2D para determinar de qué lado está
+            cross_product = ortho_vx * to_corner[1] - ortho_vy * to_corner[0]
+            if cross_product > 0:
+                front_corners.append(corner)
+            else:
+                back_corners.append(corner)
+
+        # Ordenar los puntos para formar polígonos válidos
+        front_vertices = sorted(front_corners + [p1, p2], key=lambda p: np.arctan2(p[1]-y0, p[0]-x0))
+        back_vertices = sorted(back_corners + [p1, p2], key=lambda p: np.arctan2(p[1]-y0, p[0]-x0))
+
+        return front_vertices, back_vertices
 
     def init():
         for pid in data.particles.keys():
             # La partícula 0 es azul (jugador), el resto rojas
-            color = 'blue' if pid == 0 else 'red'
+            color = 'red' if pid == 0 else 'blue'
             circle = plt.Circle((data.particles[pid]['x'][0],
-                                 data.particles[pid]['y'][0]),
-                                data.particles[pid]['radius'][0],
-                                color=color,
-                                alpha=0.5)
+                               data.particles[pid]['y'][0]),
+                              data.particles[pid]['radius'][0],
+                              color=color,
+                              alpha=0.5)
             circles[pid] = circle
             ax.add_artist(circle)
 
@@ -140,63 +181,98 @@ def animate_particles(data):
             quiver_data['vy'].append(data.particles[pid]['vy'][0] * scale_factor)
 
         # Crear el quiver inicial
+        nonlocal quiver
         quiver = ax.quiver(quiver_data['x'], quiver_data['y'],
-                           quiver_data['vx'], quiver_data['vy'],
-                           angles='xy', scale_units='xy', scale=1, color='black')
+                          quiver_data['vx'], quiver_data['vy'],
+                          angles='xy', scale_units='xy', scale=1, color='black')
+
+        # Inicializar líneas ortogonales
+        nonlocal ortho_lines
+        ortho_lines = [ax.plot([], [], color='gray', linestyle='--')[0],
+                      ax.plot([], [], color='gray', linestyle='--')[0]]
 
         # Añadir título con el tiempo
         ax.set_title(f'Tiempo: {data.times[0]:.2f}s')
 
-        return list(circles.values()) + [quiver]
+        return list(circles.values()) + [quiver] + ortho_lines + [front_area, back_area]
 
     def update(frame):
+        # Actualizar círculos y datos de quiver
         for i, (pid, circle) in enumerate(circles.items()):
             # Actualizar la posición y el radio del círculo
             circle.center = (data.particles[pid]['x'][frame],
-                             data.particles[pid]['y'][frame])
-            circle.radius = data.particles[pid]['radius'][frame]  # Añadida esta línea
+                           data.particles[pid]['y'][frame])
+            circle.radius = data.particles[pid]['radius'][frame]
 
-            # Actualizar los datos de quiver para velocidad, escalando
+            # Actualizar los datos de quiver para velocidad
             quiver_data['x'][i] = data.particles[pid]['x'][frame]
             quiver_data['y'][i] = data.particles[pid]['y'][frame]
             quiver_data['vx'][i] = data.particles[pid]['vx'][frame] * scale_factor
             quiver_data['vy'][i] = data.particles[pid]['vy'][frame] * scale_factor
 
-        # Redibujar el quiver con nuevos datos
-        ax.collections[-1].set_offsets(np.c_[quiver_data['x'], quiver_data['y']])
-        ax.collections[-1].set_UVC(quiver_data['vx'], quiver_data['vy'])
+        # Actualizar quiver
+        quiver.set_offsets(np.c_[quiver_data['x'], quiver_data['y']])
+        quiver.set_UVC(quiver_data['vx'], quiver_data['vy'])
+
+        # Actualizar líneas ortogonales y áreas coloreadas para la partícula id=0
+        if 0 in data.particles:
+            x0, y0 = data.particles[0]['x'][frame], data.particles[0]['y'][frame]
+            vx = data.particles[0]['vx'][frame]
+            vy = data.particles[0]['vy'][frame]
+            norm = np.sqrt(vx**2 + vy**2)
+            if norm > 0:  # Evitar división por cero
+                ortho_vx, ortho_vy = -vy / norm, vx / norm
+                
+                # Definir los extremos de la línea ortogonal
+                length = max(width, height)
+                x_back = x0 - ortho_vx * length
+                y_back = y0 - ortho_vy * length
+                x_front = x0 + ortho_vx * length
+                y_front = y0 + ortho_vy * length
+
+                # Actualizar las líneas ortogonales
+                ortho_lines[0].set_data([x0, x_front], [y0, y_front])  # Línea naranja
+                ortho_lines[1].set_data([x_back, x0], [y_back, y0])    # Línea verde
+
+                # Actualizar áreas coloreadas
+                front_vertices, back_vertices = create_area_vertices(x0, y0, ortho_vx, ortho_vy)
+                if front_vertices and back_vertices:
+                    front_area.set_xy(front_vertices)
+                    back_area.set_xy(back_vertices)
+            else:
+                # Si la velocidad es cero, ocultar las líneas y áreas
+                ortho_lines[0].set_data([], [])
+                ortho_lines[1].set_data([], [])
+                front_area.set_xy([(0, 0)])
+                back_area.set_xy([(0, 0)])
 
         # Actualizar título con el tiempo actual
         ax.set_title(f'Tiempo: {data.times[frame]:.2f}s')
 
-        return list(circles.values()) + [ax.collections[-1]]
+        return list(circles.values()) + [quiver] + ortho_lines + [front_area, back_area]
 
     frames = len(data.times)
     ani = animation.FuncAnimation(fig, update, frames=frames,
-                                  init_func=init, blit=True,
-                                  interval=50)  # 50ms entre frames
+                                init_func=init, blit=True,
+                                interval=50)  # 50ms entre frames
 
-    plt.show()
+    # Guardar la animación como un GIF
+    gif_path = os.path.join(folder_path, 'animation.gif')
+    ani.save(gif_path, writer='pillow', fps=10)
+
+    print(f'Guardado GIF en: {gif_path}')
+    plt.close(fig)
 
 
 def main():
+    folder_path = 'outputs/try_maradoniano/'
+    
     data = ParticleData()
-    data.load_static('outputs/try_maradoniano/static.txt')
-    data.load_dynamic('outputs/try_maradoniano/dynamic.txt')
+    data.load_static(folder_path + 'static.txt')
+    data.load_dynamic(folder_path + 'dynamic.txt')
 
-    # Ejemplo de uso:
-    # 1. Mostrar la animación completa
-    animate_particles(data)
-
-    # 2. Mostrar frames específicos
-    # Frame inicial
-    fig, ax = create_particle_plot(data, frame_index=0)
-    plt.show()
-
-    # Frame final
-    fig, ax = create_particle_plot(data, frame_index=-1)
-    plt.show()
+    animate_particles(data, folder_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

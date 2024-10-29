@@ -42,7 +42,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = twoState();
+		this.initial = bounceState();
 	}
 	
 	public State twoState() {
@@ -86,7 +86,7 @@ public class TryMaradoniano {
 				0,
 				new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
 				field,
-				new Velocity(new Vector<Double>(List.of(0.0, 0.0)), 0),
+				new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax),
 				redVelocityMax, // Cambiado de 0 a redVelocityMax para permitir movimiento
 				minRadius,
 				maxRadius,
