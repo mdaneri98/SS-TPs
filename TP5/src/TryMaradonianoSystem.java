@@ -194,7 +194,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        }
 
 	        // Step 4: Construct unit vector e^ij (from particle i to j)
-	        Vector<Double> eij = unitDirectionVector(p.getPosition(), other.getPosition());
+	        Vector<Double> eij = unitDirectionVector(other.getPosition(),p.getPosition());
 	        System.out.println("Unit vector e^ij: " + eij);
 
 	        // Step 5: Calculate angle α between e^ij and relative velocity
