@@ -42,7 +42,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = initialState();
+		this.initial = twoState();
 	}
 	
 	public State twoState() {
@@ -269,10 +269,10 @@ public class TryMaradoniano {
                 	double velY = p.getVelocity().getDirection().getLast() * p.getVelocity().getMod();
                     writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", p.getId(), p.getPosition().getX(), p.getPosition().getY(), velX, velY, p.getActualRadius()));
 	            	
-	                for (Particle red : state.getParticles()) {
-						velX = red.getVelocity().getDirection().getFirst() * red.getVelocity().getMod();
-						velY = red.getVelocity().getDirection().getLast() * red.getVelocity().getMod();
-						writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", red.getId(), red.getPosition().getX(), red.getPosition().getY(), velX, velY, red.getActualRadius()));
+	                for (Particle blue : state.getParticles()) {
+						velX = blue.getVelocity().getDirection().getFirst() * blue.getVelocity().getMod();
+						velY = blue.getVelocity().getDirection().getLast() * blue.getVelocity().getMod();
+						writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", blue.getId(), blue.getPosition().getX(), blue.getPosition().getY(), velX, velY, blue.getActualRadius()));
 					}
 	            }
 	        } catch (IOException e) {

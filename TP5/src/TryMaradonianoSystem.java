@@ -91,10 +91,11 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		Set<Particle> contacts = checkContact(p);
 
 		double newRadius = updateRadius(p, !contacts.isEmpty()); /* Unicamente se achica si colisiona con otra particula => ¡No contra pared! */
-		Velocity newVelocity = updateVelocity(p, contacts);
+		double newModule = updateModule(p, newRadius);
+		Vector<Double> newDirection = updateDirection(p, contacts);
 		Position newPosition = updatePosition(p, dt);
 
-		return new Particle(p.getId(), newPosition, target, newVelocity, p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
+		return new Particle(p.getId(), newPosition, target, new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
 	}
 
 	private Set<Particle> checkContact(Particle p) {
@@ -118,81 +119,116 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	}
 
 	private double updateRadius(Particle p, boolean hasContact) {
-		if (hasContact) {
+		if (hasContact)
 			return p.getMinRadius();
-		}
-		// -> ¿𝑟(𝑡 − 𝛥𝑡)?
+		
 		double newRadius = p.getActualRadius() + p.getMaxRadius() * dt / p.getTau();
 		return Math.min(newRadius, p.getMaxRadius());
 	}
 	
-	private Velocity updateVelocity(Particle p, Set<Particle> contacts) {
+	private double updateModule(Particle p, double newRadius) {
+		if (newRadius == p.getMinRadius())
+			return p.getMaxRadius();
+		return p.getMaxVelocity() * Math.pow( (newRadius - p.getMinRadius()) / (p.getMaxRadius() - p.getMinRadius()) , this.beta);
+	}
+	
+	private Vector<Double> updateDirection(Particle p, Set<Particle> contacts) {
 		Vector<Double> newDirection;
 
 		if (contacts.isEmpty()) {
 			// Cálculo de e_t = (r_i - T_i)/|r_i - T_i|
 			newDirection = unitDirectionVector(p.getTarget().getPosition(), p.getPosition());
-			
-			// Cálculo de v_i
-			double v_i = p.getMaxVelocity() * Math.pow(
-					(p.getActualRadius() - p.getMinRadius()) /
-							(p.getMaxRadius() - p.getMinRadius()),
-					beta
-			);
-
-			return new Velocity(newDirection, v_i);
 		} else {
 			Particle contact = contacts.iterator().next();
 	
 			// Cálculo de e_ij = (r_i - r_j)/|r_i - r_j|
 			newDirection = unitDirectionVector(p.getPosition(), contact.getPosition());
 			
-			System.out.println(String.format("[Choque] [%d{x: %.3f, y: %.3f}]->[%d]",
+			/*System.out.println(String.format("[Choque] [%d{x: %.3f, y: %.3f}]->[%d]",
 					p.getId(),
 					newDirection.getFirst() * p.getMaxVelocity(),
 					newDirection.getLast() * p.getMaxVelocity(),
 					contact.getId()));
-	
-			return new Velocity(newDirection, p.getMaxVelocity());
+					*/
 		}
+		return newDirection;
 	}
 	
 	// ============ EL RUGBIER ============
 	private Particle avoid(Particle p, Target target) {
 		// Check if any particle is in contact with other particle or wall
 		boolean hasFieldContact = p.isInsidePersonalSpace(field);
-
-		Velocity newVelocity = updateVelocity(p, this.onVision(p));
+		Set<Particle> contacts = checkContact(p);
+		
+		double newRadius = updateRadius(p, !contacts.isEmpty()); /* Unicamente se achica si colisiona con otra particula => ¡No contra pared! */
+		double newModule = p.getMaxVelocity();	/* FIXME: Preguntar cual sería la velocidad del rugbier. */
+		Vector<Double> newDirection = avoidManeuver(p, onVision(p));
 		Position newPosition = updatePosition(p, dt);
 
-		return new Particle(p.getId(), newPosition, target, newVelocity, p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
+		return new Particle(p.getId(), newPosition, target, new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
 	}
 	
 	// Método avoidManeuver: Calcula la maniobra de evitación
-	private Velocity avoidManeuver(Particle p, Set<Particle> onVision) {
-	    Vector<Double> avoidanceVector = new Vector<>(List.of(0.0, 0.0));
+	private Vector<Double> avoidManeuver(Particle p, Set<Particle> onVision) {
+	    Vector<Double> avoidanceVector = new Vector<>(2);
+	    avoidanceVector.add(0.0);
+	    avoidanceVector.add(0.0);
 
 	    for (Particle other : onVision) {
-	    	Vector<Double> eij= unitDirectionVector(p.getPosition(), other.getPosition());
+	    	System.out.println(String.format("Rugbier velocity: %f %f", p.getVelocity().getDirection().getFirst() * p.getVelocity().getMod(), p.getVelocity().getDirection().getLast() * p.getVelocity().getMod()));
+	    	System.out.println(String.format("Particle velocity: %f %f", other.getVelocity().getDirection().getFirst() * other.getVelocity().getMod(), other.getVelocity().getDirection().getLast() * other.getVelocity().getMod()));
 	    	
-	    	Velocity relativeVelocity = other.getVelocity().subtract(p.getVelocity());
-	    	double beta = Utils.angleBetweenVectors(p.getVelocity().getDirection(), relativeVelocity.getDirection());
-	    	
-	    	Vector<Double> directionToOther = unitDirectionVector(other.getPosition(), p.getPosition());
-	        double alpha = Utils.angleBetweenVectors(directionToOther, relativeVelocity.getDirection());
-	        double fAlpha = Math.abs(Math.abs(alpha) - Math.PI / 2);
-	        Utils.rotate(directionToOther, -Math.signum(alpha) * fAlpha);
+	        // Step 1: Calculate relative velocity vij = vj - vi
+	        Velocity vij = other.getVelocity().subtract(p.getVelocity());
+	        System.out.println("Relative velocity (vij): " + vij);
 
-	        double distance = p.getPosition().distanceTo(other.getPosition());
+	        // Step 2: Compute angle β between vij and direction to target
+	        Vector<Double> targetDirection = unitDirectionVector(p.getPosition(), p.getTarget().getPosition());//new Vector<>(List.of(p.getTarget().getPosition().getX(), p.getTarget().getPosition().getY()));
+	        double beta = Utils.angleBetweenVectors(targetDirection, vij.getDirection());
+	        System.out.println("Angle beta: " + beta);
+
+	        // Step 3: Check if avoidance is needed
+	        if (Math.abs(beta) < Math.PI / 2) {
+	            System.out.println("Skipping particle, it's moving away");
+	            continue; // Skip this particle as it's moving away
+	        }
+
+	        // Step 4: Construct unit vector e^ij (from particle i to j)
+	        Vector<Double> eij = unitDirectionVector(p.getPosition(), other.getPosition());
+	        System.out.println("Unit vector e^ij: " + eij);
+
+	        // Step 5: Calculate angle α between e^ij and relative velocity
+	        double alpha = Utils.angleBetweenVectors(eij, vij.getDirection());
+	        System.out.println("Angle alpha: " + alpha);
+
+	        // Step 6: Compute f(α) = |α - π/2|
+	        double fAlpha = Math.abs(alpha - Math.PI / 2);
+	        System.out.println("f(alpha): " + fAlpha);
+
+	        // Step 7: Rotate e^ij by -sign(α)f(α)
+	        Vector<Double> rotatedEij = Utils.rotate(eij, -Math.signum(alpha) * fAlpha);
+	        System.out.println("Rotated e^ij: " + rotatedEij);
+
+	        // Step 8: Apply weight based on distance
+	        double distance = Utils.distance(p.getPosition(), other.getPosition());
 	        double weight = ap * Math.exp(-distance / bp);
+	        System.out.println("Weight: " + weight);
 
-	        avoidanceVector.set(0, avoidanceVector.get(0) + weight * directionToOther.get(0));
-	        avoidanceVector.set(1, avoidanceVector.get(1) + weight * directionToOther.get(1));
+	        // Add weighted contribution to avoidance vector
+	        avoidanceVector.set(0, avoidanceVector.get(0) + weight * rotatedEij.get(0));
+	        avoidanceVector.set(1, avoidanceVector.get(1) + weight * rotatedEij.get(1));
+	        System.out.println("Avoidance vector: " + avoidanceVector);
 	    }
 
-	    avoidanceVector = Utils.normalize(avoidanceVector);
-	    double newVelocityMagnitude = Math.min(p.getMaxVelocity(), Utils.magnitude(avoidanceVector));
-	    return new Velocity(avoidanceVector, newVelocityMagnitude);
+	    try {
+	        Vector<Double> normalizedAvoidanceVector = Utils.normalize(avoidanceVector);
+	        //System.out.println("Normalized avoidance vector: " + normalizedAvoidanceVector);
+	        return normalizedAvoidanceVector;
+	    } catch (ArithmeticException e) {
+	        // Handle case where no avoidance is needed
+	        //System.out.println("No avoidance needed, returning original vector: " + avoidanceVector);
+	        return avoidanceVector;
+	    }
 	}
 
 	// Método onVision: Obtiene las dos partículas más cercanas en el campo visual

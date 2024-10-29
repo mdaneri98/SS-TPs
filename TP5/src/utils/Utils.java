@@ -2,6 +2,8 @@ package utils;
 
 import java.util.Vector;
 
+import models.Position;
+
 public class Utils {
 
 	public static double angleBetweenVectors(Vector<Double> v1, Vector<Double> v2) {
@@ -69,6 +71,17 @@ public class Utils {
 	        throw new IllegalArgumentException("The vector must be 2-dimensional.");
 	    
 	    return Math.sqrt(v.get(0) * v.get(0) + v.get(1) * v.get(1));
+	}
+	
+	public static Double distance(Position p1, Position p2) {
+	    Vector<Double> diff = new Vector<>(2);
+	    diff.add(p2.getX() - p1.getX());
+	    diff.add(p2.getY() - p1.getY());
+	    return Utils.magnitude(diff);
+	}
+	
+	public static void printVector(Vector<Double> v) {
+		System.out.println(String.format("%f %f", v.getFirst(), v.getLast()));
 	}
 	
 }
