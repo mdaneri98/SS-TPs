@@ -183,7 +183,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        System.out.println("Relative velocity (vij): " + vij);
 
 	        // Step 2: Compute angle β between vij and direction to target
-	        Vector<Double> targetDirection = unitDirectionVector(p.getPosition(), p.getTarget().getPosition());//new Vector<>(List.of(p.getTarget().getPosition().getX(), p.getTarget().getPosition().getY()));
+	        Vector<Double> targetDirection = unitDirectionVector(p.getTarget().getPosition(), p.getPosition());//new Vector<>(List.of(p.getTarget().getPosition().getX(), p.getTarget().getPosition().getY()));
 	        double beta = Utils.angleBetweenVectors(targetDirection, vij.getDirection());
 	        System.out.println("Angle beta: " + beta);
 
