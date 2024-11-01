@@ -77,7 +77,7 @@ def create_frame(data, frame_index, output_dir=None):
     ax.set_ylim(0, data.static_params['height'])
 
     # Factor de escala para las flechas de velocidad
-    scale_factor = 0.005 * min(data.static_params['width'], data.static_params['height'])
+    scale_factor = 0.0001 * min(data.static_params['width'], data.static_params['height'])
 
     # Limpiar el gráfico anterior
     ax.clear()
@@ -121,7 +121,7 @@ def animate_particles(data, output_dir):
     ax.set_xlim(0, data.static_params['width'])
     ax.set_ylim(0, data.static_params['height'])
 
-    scale_factor = 0.01 * min(data.static_params['width'], data.static_params['height'])
+    scale_factor = 0.0001 * min(data.static_params['width'], data.static_params['height'])
     
     def update(frame):
         # Limpiar el gráfico anterior
@@ -158,7 +158,7 @@ def animate_particles(data, output_dir):
 
     frames = len(data.times)
     ani = animation.FuncAnimation(fig, update, frames=frames,
-                                interval=50, blit=True)
+                                interval=200, blit=True)
     
     # Guardar la animación como GIF
     ani.save(os.path.join(output_dir, 'animation.gif'), writer='pillow')

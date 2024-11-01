@@ -15,8 +15,8 @@ TP3/MolecularDynamics/!**/src/main/**/out/
 TP5/out/production/**/*.class
 
 # Ignorar archivos específicos en python/outputs de TP5
-TP5/python/outputs/try_maradoniano/dynamic.txt
-TP5/python/outputs/try_maradoniano/static.txt
+TP5/python/**/outputs/
+TP5/python/**/outputs/
 
 # Ignorar outputs y archivos generados en TP3
 TP3/MolecularDynamics/python/outputs/

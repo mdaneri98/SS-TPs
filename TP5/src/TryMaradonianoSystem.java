@@ -40,7 +40,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	// ====== ... ======
 	private State state;
 
-	public TryMaradonianoSystem(int N, Field field, double blueVelocityMax, double redVelocityMax, double blueTau, double redTau, double minRadius, double maxRadius, State initial) {
+	public TryMaradonianoSystem(int N, Field field, double blueVelocityMax, double redVelocityMax, double blueTau, double redTau, double minRadius, double maxRadius, double ap, double bp, State initial) {
 		this.N = N;
 		this.field = field;
 		this.blueVelocityMax = blueVelocityMax;
@@ -50,8 +50,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 
-		this.ap = 2.0;
-		this.bp = 4.0;
+		this.ap = ap;
+		this.bp = bp;
 		
 		this.state = initial;
 		this.dt = minRadius / (2 * redVelocityMax);
@@ -167,30 +167,27 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	
 	// Método avoidManeuver: Calcula la maniobra de evitación
 	private Vector<Double> avoidManeuver(Particle player) {
-		Vector<Double> avoidanceVector = new Vector<>(2);
-		avoidanceVector.add(0.0);
-		avoidanceVector.add(0.0);
+	    // El vector nc que queremos calcular
+	    Vector<Double> nc = new Vector<>(2);
+	    nc.add(player.getVelocity().getDirection().getFirst());
+	    nc.add(player.getVelocity().getDirection().getLast());
 
-		for (Particle p : state.getParticles()) {
-			Vector<Double> e_ij = unitDirectionVector(p.getPosition(), player.getPosition());
-			double distance_ij = p.getPosition().distanceTo(player.getPosition());
+	    for (Particle p : state.getParticles()) {
+	        // Calcular e_ij (vector unitario desde j hacia i)
+	        Vector<Double> e_ij = unitDirectionVector(player.getPosition(), p.getPosition());
+	        
+	        // Calcular distancia entre partículas
+	        double d_ij = p.getPosition().distanceTo(player.getPosition());
+	        
+	        // Aplicar la ecuación
+	        double factor = ap * Math.exp(-d_ij/bp);
+	        
+	        // Sumar la contribución al vector nc
+	        nc.set(0, nc.get(0) + e_ij.get(0) * factor);
+	        nc.set(1, nc.get(1) + e_ij.get(1) * factor);
+	    }
 
-
-			for (int i = 0; i < 2; i++) {
-				avoidanceVector.set(i, avoidanceVector.get(i) - e_ij.get(i) * ap * Math.exp(- distance_ij / bp));
-			}
-		}
-
-		Vector<Double> targetDirection = unitDirectionVector(player.getTarget(), player.getPosition()); 
-
-		Vector<Double> resultVector = new Vector<Double>(
-				List.of(
-						targetDirection.get(0) + avoidanceVector.get(0),
-						targetDirection.get(1) + avoidanceVector.get(1)
-						)
-				);
-
-		return Utils.normalize(resultVector);
+	    return nc;
 	}
 
 	private Vector<Double> calculateWallCollision(Particle p) {

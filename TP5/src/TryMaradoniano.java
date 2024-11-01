@@ -29,10 +29,14 @@ public class TryMaradoniano {
 	private final double redTau;
 	private final double minRadius; 
 	private final double maxRadius;
+	private final double ap;
+	private final double bp;
+	
+	private String outputDirectory = "try_maradoniano";
 	
 	private State initial;
 	
-	public TryMaradoniano(int N, Field field, double blueVelocityMax, double redVelocityMax, double blueTau, double redTau, double minRadius, double maxRadius) {
+	public TryMaradoniano(int N, Field field, double blueVelocityMax, double redVelocityMax, double blueTau, double redTau, double minRadius, double maxRadius, double ap, double bp) {
 		this.N = N;
 		this.field = field;
 		this.blueVelocityMax = blueVelocityMax;
@@ -41,8 +45,10 @@ public class TryMaradoniano {
 		this.redTau = redTau;
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
+		this.ap = ap;
+		this.bp = bp;
 		
-		this.initial = bounceState();
+		this.initial = initialState();
 	}
 	
 	public State twoState() {
@@ -165,18 +171,18 @@ public class TryMaradoniano {
 	}
 	
 	public void run() {
-		String directory = String.format(Locale.US, "try_maradoniano");
+        // Modificar el método run para usar el outputDirectory
+        Path staticPath = getFilePath(outputDirectory, "static.txt");
+        saveStatic(staticPath);
 
-		Path staticPath = getFilePath(directory, "static.txt");
-		saveStatic(staticPath);
-
-		Path filepath = getFilePath(directory, "dynamic.txt");
-	        
-		TryMaradonianoSystem tms = new TryMaradonianoSystem(N, field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, this.initial);
-		runSolution(tms, filepath);
-		
-		System.out.println("Finished");
-	}
+        Path filepath = getFilePath(outputDirectory, "dynamic.txt");
+            
+        TryMaradonianoSystem tms = new TryMaradonianoSystem(N, field, blueVelocityMax, redVelocityMax, 
+                blueTau, redTau, minRadius, maxRadius, ap, bp, this.initial);
+        runSolution(tms, filepath);
+        
+        System.out.println("Finished");
+    }
 	
 	private void runSolution(Iterator<State> iterator, Path filepath) {
         LinkedList<State> statesToSave = new LinkedList<>();
@@ -232,7 +238,7 @@ public class TryMaradoniano {
 	        }
 	    }
 
-	    private Path getFilePath(String directory, String filename) {
+	  private Path getFilePath(String directory, String filename) {
 	        try {
 	            String projectPath = Paths.get("").toAbsolutePath().toString();
 	            Path directoryPath = Paths.get(projectPath, "python", "outputs", directory);
@@ -281,5 +287,8 @@ public class TryMaradoniano {
 	        }
 	    }
 	
+	    public void setOutputDirectory(String directory) {
+	        this.outputDirectory = directory;
+	    }
 	
 }
