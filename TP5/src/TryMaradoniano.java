@@ -42,7 +42,7 @@ public class TryMaradoniano {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 		
-		this.initial = initialState();
+		this.initial = bounceState();
 	}
 	
 	public State twoState() {
@@ -182,7 +182,7 @@ public class TryMaradoniano {
         LinkedList<State> statesToSave = new LinkedList<>();
 
         int stateCounter = 0;
-        int saveFrequency = 99; // Guarda cada 100 estados
+        int saveFrequency = 19; // Guarda cada 100 estados
         int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
 
         while (iterator.hasNext()) {

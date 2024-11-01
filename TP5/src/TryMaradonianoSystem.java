@@ -180,7 +180,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 
 
 			for (int i = 0; i < 2; i++) {
-				avoidanceVector.set(i, avoidanceVector.get(i) + e_ij.get(i) * ap * Math.exp(- distance_ij / bp));
+				avoidanceVector.set(i, avoidanceVector.get(i) - e_ij.get(i) * ap * Math.exp(- distance_ij / bp));
 			}
 		}
 

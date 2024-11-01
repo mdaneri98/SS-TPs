@@ -14,7 +14,7 @@ public class Main {
 		double rMin = 0.15;
 		double rMax = 0.32;
 		
-		int N = 5;
+		int N = 15;
 		
 		Field field = new Field(100, 70, new Position(0, 70/2.0));
 		
