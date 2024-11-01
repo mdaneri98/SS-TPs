@@ -51,7 +51,7 @@ public class TryMaradoniano {
 		Particle player = new Particle(
 			    0, 
 			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
-			    field,
+			    field.getLeftCenter(),
 			    new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax),
 			    redVelocityMax,
 			    minRadius,
@@ -63,7 +63,7 @@ public class TryMaradoniano {
 		Particle second = new Particle(
 			    1,
 			    new Position(2 * maxRadius, field.getHeight()/2.0),
-			    player,
+			    player.getPosition(),
 			    new Velocity(new Vector<Double>(List.of(1.0, 0.0)), blueVelocityMax),
 			    blueVelocityMax,
 			    minRadius,
@@ -85,7 +85,7 @@ public class TryMaradoniano {
 		Particle player = new Particle(
 				0,
 				new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
-				field,
+				field.getLeftCenter(),
 				new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax),
 				redVelocityMax, // Cambiado de 0 a redVelocityMax para permitir movimiento
 				minRadius,
@@ -98,7 +98,7 @@ public class TryMaradoniano {
 		Particle p1 = new Particle(
 				1,
 				new Position(1, 3.5),  // A un tercio de la altura
-				player,
+				player.getPosition(),
 				new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax),
 				blueVelocityMax,
 				minRadius,
@@ -111,7 +111,7 @@ public class TryMaradoniano {
 		Particle p2 = new Particle(
 				2,
 				new Position(1, 4.5),  // A dos tercios de la altura
-				player,
+				player.getPosition(),
 				new Velocity(new Vector<Double>(List.of(0.0, -1.0)), blueVelocityMax),
 				blueVelocityMax,
 				minRadius,
@@ -134,7 +134,7 @@ public class TryMaradoniano {
 		Particle player = new Particle(
 			    0, 
 			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
-			    field,
+			    field.getLeftCenter(),
 			    new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax), // Vector dirección hacia la izquierda
 			    redVelocityMax,
 			    minRadius,
@@ -148,7 +148,7 @@ public class TryMaradoniano {
             double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
             double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
             
-            Particle blue = new Particle(particles.size() + 1, new Position(x, y), player, new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
+            Particle blue = new Particle(particles.size() + 1, new Position(x, y), player.getPosition(), new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
             
             boolean match = false;
             for (Particle particle : particles) {

@@ -1,10 +1,8 @@
 package models;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Vector;
 
-public class Particle implements Target {
+public class Particle {
 
     private final int id;
     private final Position position;
@@ -15,9 +13,9 @@ public class Particle implements Target {
     private final double actualRadius;
     private final double tau;
     
-    private final Target target;
+    private final Position target;
 
-    public Particle(int id, Position position, Target target, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius, double tau) {
+    public Particle(int id, Position position, Position target, Velocity velocity, double maxVelocity, double minRadius, double maxRadius, double actualRadius, double tau) {
     	this.id = id;
         this.position = position;
         this.target = target;
@@ -88,7 +86,7 @@ public class Particle implements Target {
         return id;
     }
     
-    public Target getTarget() {
+    public Position getTarget() {
     	return target;
     }
     

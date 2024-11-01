@@ -11,13 +11,10 @@ import java.util.Vector;
 import models.Field;
 import models.Particle;
 import models.Position;
-import models.Target;
 import models.Velocity;
 import utils.Utils;
 
 public class TryMaradonianoSystem implements Iterator<State> {
-
-	static int i = 20;
 
 	// ====== From paper ======
 	private final double beta = 0.9;
@@ -53,8 +50,8 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 
-		this.ap = 1.1;
-		this.bp = 2.1;
+		this.ap = 2.0;
+		this.bp = 4.0;
 		
 		this.state = initial;
 		this.dt = minRadius / (2 * redVelocityMax);
@@ -75,17 +72,17 @@ public class TryMaradonianoSystem implements Iterator<State> {
 		Set<Particle> newParticles = new HashSet<>();
 
 		for (Particle p : state.getParticles()) {
-			Particle newParticle = chase(p, state.getPlayer());
+			Particle newParticle = chase(p, state.getPlayer().getPosition());
 			newParticles.add(newParticle);
 		}
-		Particle newPlayer = avoid(state.getPlayer(), field);
+		Particle newPlayer = avoid(state.getPlayer());
 
 		state = new State(state.getTime() + dt, field, newPlayer, newParticles);
 		return state;
 	}
 	
 	// ============ NPC'S ============
-	private Particle chase(Particle p, Target target) {
+	private Particle chase(Particle p, Position target) {
 		// Check if any particle is in contact with other particle or wall
 		boolean hasFieldContact = p.isInsidePersonalSpace(field);
 		Set<Particle> contacts = checkContact(p);
@@ -128,7 +125,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	
 	private double updateModule(Particle p, double newRadius) {
 		if (newRadius == p.getMinRadius())
-			return p.getMaxRadius();
+			return p.getMaxVelocity();
 		return p.getMaxVelocity() * Math.pow( (newRadius - p.getMinRadius()) / (p.getMaxRadius() - p.getMinRadius()) , this.beta);
 	}
 	
@@ -137,7 +134,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 
 		if (contacts.isEmpty()) {
 			// Cálculo de e_t = (r_i - T_i)/|r_i - T_i|
-			newDirection = unitDirectionVector(p.getTarget().getPosition(), p.getPosition());
+			newDirection = unitDirectionVector(p.getTarget(), p.getPosition());
 		} else {
 			Particle contact = contacts.iterator().next();
 	
@@ -155,17 +152,17 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	}
 	
 	// ============ EL RUGBIER ============
-	private Particle avoid(Particle p, Target target) {
+	private Particle avoid(Particle p) {
 		// Check if any particle is in contact with other particle or wall
 		boolean hasFieldContact = p.isInsidePersonalSpace(field);
 		Set<Particle> contacts = checkContact(p);
 		
-		double newRadius = updateRadius(p, !contacts.isEmpty()); /* Unicamente se achica si colisiona con otra particula => ¡No contra pared! */
-		double newModule = p.getMaxVelocity();	/* FIXME: Preguntar cual sería la velocidad del rugbier. */
+		double newRadius = updateRadius(p, !contacts.isEmpty());
+		double newModule = p.getMaxVelocity();
 		Vector<Double> newDirection = avoidManeuver(p);
 		Position newPosition = updatePosition(p, dt);
 
-		return new Particle(p.getId(), newPosition, target, new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
+		return new Particle(p.getId(), newPosition, field.getShorterGoal(p), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
 	}
 	
 	// Método avoidManeuver: Calcula la maniobra de evitación
@@ -184,7 +181,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 			}
 		}
 
-		Vector<Double> targetDirection = unitDirectionVector(player.getTarget().getPosition(), player.getPosition()); 
+		Vector<Double> targetDirection = unitDirectionVector(player.getTarget(), player.getPosition()); 
 
 		Vector<Double> resultVector = new Vector<Double>(
 				List.of(
