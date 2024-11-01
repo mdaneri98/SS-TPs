@@ -94,7 +94,7 @@ def animate_particles(data, folder_path):
     ax.add_patch(back_area)
 
     # Obtener los límites del gráfico para ajustar el tamaño de las flechas (1%)
-    scale_factor = 0.01 * min(width, height)
+    scale_factor = 0.001 * min(width, height)
 
     def create_area_vertices(x0, y0, ortho_vx, ortho_vy):
         # Encuentra los puntos de intersección con los bordes del área de juego
