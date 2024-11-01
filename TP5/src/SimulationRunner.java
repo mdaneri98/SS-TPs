@@ -19,7 +19,7 @@ public class SimulationRunner {
         Field field = new Field(width, height);
         
         // Parámetros configurables
-        int numIteraciones = 1000; // Modificar este valor para cambiar el número de iteraciones
+        int numIteraciones = 100; // Modificar este valor para cambiar el número de iteraciones
         
         // Primer análisis: variación del parámetro de heurística
         runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, 
@@ -34,28 +34,31 @@ public class SimulationRunner {
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
         
         int N = 15;  // Número fijo de jugadores
-        double[] parametros = {0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
+        double[] aps = {0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
+        double[] bps = {0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
         
-        for (double ap : parametros) {
-            for (int i = 0; i < numIteraciones; i++) {
-                String directory = String.format(Locale.US, "heuristic_analysis/param_%.2f/sim_%03d", ap, i);
-                
-                try {
-                    Path dirPath = Paths.get("python", "outputs", directory);
-                    Files.createDirectories(dirPath);
-                    
-                    TryMaradoniano tm = new TryMaradoniano(N, field, blueVelocityMax, redVelocityMax,
-                            blueTau, redTau, minRadius, maxRadius, ap, 1);
-                    tm.setOutputDirectory(directory);
-                    tm.run();
-                    
-                    System.out.printf("Completada simulación para parámetro %.2f, realización %d/%d%n", 
-                            ap, i + 1, numIteraciones);
-                } catch (Exception e) {
-                    System.err.printf("Error en simulación parámetro %.2f, realización %d: %s%n", 
-                            ap, i, e.getMessage());
-                }
-            }
+        for (double ap : aps) {
+	        for (double bp : bps) {
+	            for (int i = 0; i < numIteraciones; i++) {
+	                String directory = String.format(Locale.US, "heuristic_analysis/ap_%.2f_bp_%.2f/sim_%03d", ap, bp, i);
+	                
+	                try {
+	                    Path dirPath = Paths.get("python", "outputs", directory);
+	                    Files.createDirectories(dirPath);
+	                    
+	                    TryMaradoniano tm = new TryMaradoniano(N, field, blueVelocityMax, redVelocityMax,
+	                            blueTau, redTau, minRadius, maxRadius, ap, bp);
+	                    tm.setOutputDirectory(directory);
+	                    tm.run();
+	                    
+	                    System.out.printf("Completada simulación para parámetro %.2f, realización %d/%d%n", 
+	                            ap, i + 1, numIteraciones);
+	                } catch (Exception e) {
+	                    System.err.printf("Error en simulación parámetro %.2f, realización %d: %s%n", 
+	                            ap, i, e.getMessage());
+	                }
+	            }
+	        }
         }
     }
     

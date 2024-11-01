@@ -158,7 +158,7 @@ def animate_particles(data, output_dir):
 
     frames = len(data.times)
     ani = animation.FuncAnimation(fig, update, frames=frames,
-                                interval=200, blit=True)
+                                interval=50, blit=True)
     
     # Guardar la animación como GIF
     ani.save(os.path.join(output_dir, 'animation.gif'), writer='pillow')
@@ -166,7 +166,7 @@ def animate_particles(data, output_dir):
 
 def main():
     data = ParticleData()
-    data.load_static('outputs/try_maradoniano/static.txt')
+    data.load_static('outputs/try_maradoniano//static.txt')
     data.load_dynamic('outputs/try_maradoniano/dynamic.txt')
 
     # Directorio para guardar los outputs

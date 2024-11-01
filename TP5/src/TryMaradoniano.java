@@ -186,11 +186,12 @@ public class TryMaradoniano {
 	
 	private void runSolution(Iterator<State> iterator, Path filepath) {
         LinkedList<State> statesToSave = new LinkedList<>();
+        statesToSave.add(this.initial);
 
         int stateCounter = 0;
-        int saveFrequency = 19; // Guarda cada 100 estados
+        int saveFrequency = 1; // Guarda cada 100 estados
         int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
-
+        
         while (iterator.hasNext()) {
             State currentState = iterator.next();
             stateCounter++;

@@ -1,247 +1,287 @@
-import os
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pathlib import Path
+import logging
+import os
 
-def load_dynamic_data(filepath):
-    """Carga los datos dinámicos de una simulación."""
-    times = []
-    player_positions = []  # Posiciones del jugador rojo
-    
-    with open(filepath, 'r') as f:
-        current_time = None
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-                
-            try:
-                time = float(line)
-                current_time = time
-                times.append(time)
-                continue
-            except ValueError:
-                pass
-                
-            # Procesamos solo al jugador rojo (ID = 0)
-            parts = line.split(',')
-            if len(parts) == 6 and int(parts[0]) == 0:
-                x = float(parts[1])
-                player_positions.append(x)
-    
-    return np.array(times), np.array(player_positions)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='analysis.log'
+)
 
-def analyze_simulation(filepath):
-    """Analiza una simulación individual."""
-    if not os.path.exists(filepath):
-        return None, False
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
+
+class SimulationAnalyzer:
+    def __init__(self, base_path="."):
+        self.base_path = Path(base_path).absolute()
+        logging.info(f"Ruta base inicial: {self.base_path}")
         
-    times, positions = load_dynamic_data(filepath)
+        if not (self.base_path / "outputs").exists():
+            logging.error(f"No se encontró el directorio outputs en {self.base_path}")
+            raise FileNotFoundError(f"No se encontró el directorio outputs en {self.base_path}")
+            
+        self.base_path = self.base_path / "outputs"
+        logging.info(f"Ruta base final: {self.base_path}")
     
-    if len(positions) == 0:
-        return None, False
-    
-    # Máxima distancia recorrida en x
-    max_distance = abs(100 - np.min(positions))  # 100 es el ancho del campo
-    
-    # Determinar si fue try (llegó cerca del ingoal)
-    is_try = np.min(positions) < 1.0  # consideramos try si llegó a x < 1
-    
-    return max_distance, is_try
-
-def get_simulation_dirs(base_dir, prefix):
-    """Obtiene las carpetas de simulación existentes."""
-    if not os.path.exists(base_dir):
-        return []
-    return sorted([d for d in os.listdir(base_dir) if d.startswith(prefix)])
-
-def run_heuristic_analysis():
-    """Analiza el comportamiento variando el parámetro de la heurística."""
-    base_dir = "outputs/heuristic_analysis"
-    param_dirs = get_simulation_dirs(base_dir, "param_")
-    
-    if not param_dirs:
-        print("No se encontraron simulaciones para análisis de heurística")
-        return None, None, None
-    
-    # Extraer los valores de los parámetros de los nombres de las carpetas
-    parameters = []
-    avg_distances = []
-    try_fractions = []
-    
-    for param_dir in param_dirs:
+    def parse_dynamic_file(self, file_path):
+        """
+        Parsea el archivo dynamic.txt y retorna todas las posiciones x
+        """
         try:
-            param = float(param_dir.split('_')[1])
-            sim_dirs = get_simulation_dirs(os.path.join(base_dir, param_dir), "sim_")
+            logging.debug(f"Intentando abrir archivo: {file_path}")
+            with open(file_path, 'r') as f:
+                lines = f.readlines()
             
-            if not sim_dirs:
-                continue
+            positions = []
+            i = 0
+            while i < len(lines):
+                # Saltar el tiempo
+                i += 1
+                if i >= len(lines):
+                    break
                 
-            distances = []
-            try_count = 0
-            num_sims = len(sim_dirs)
+                # Leer la línea del jugador
+                line = lines[i].strip()
+                if not line:
+                    continue
+                
+                try:
+                    parts = line.split(',')
+                    if len(parts) >= 2:
+                        x_pos = float(parts[1])
+                        positions.append(x_pos)
+                except (ValueError, IndexError) as e:
+                    logging.debug(f"Error al procesar línea {i}: {line}")
+                    continue
+                
+                # Avanzar hasta la próxima marca de tiempo
+                i += 1
+                while i < len(lines):
+                    if ',' not in lines[i]:
+                        i -= 1
+                        break
+                    i += 1
+                i += 1
             
-            for sim_dir in sim_dirs:
-                dynamic_file = os.path.join(base_dir, param_dir, sim_dir, "dynamic.txt")
-                max_dist, is_try = analyze_simulation(dynamic_file)
-                
-                if max_dist is not None:
-                    distances.append(max_dist)
-                    if is_try:
-                        try_count += 1
+            return positions if positions else None
             
-            if distances:
-                parameters.append(param)
-                avg_distances.append(np.mean(distances))
-                try_fractions.append(try_count / num_sims)
-                
-        except (ValueError, IndexError):
-            continue
+        except Exception as e:
+            logging.error(f"Error al parsear dynamic.txt: {str(e)}")
+            return None
     
-    # Convertir a numpy arrays
-    parameters = np.array(parameters)
-    avg_distances = np.array(avg_distances)
-    try_fractions = np.array(try_fractions)
+    def analyze_trajectory(self, positions):
+        """
+        Analiza una trayectoria completa y retorna métricas relevantes
+        """
+        if not positions or len(positions) < 2:
+            return None
+            
+        # Posición inicial (debería ser cercana a 100)
+        start_pos = positions[0]
+        
+        # Máxima distancia recorrida desde la posición inicial
+        distances = [abs(pos - start_pos) for pos in positions]
+        max_distance = max(distances)
+        
+        # Verificar si se logró el try (llegó a x ≤ 0)
+        min_x = min(positions)
+        try_achieved = min_x <= 0
+        
+        return {
+            'start_pos': start_pos,
+            'max_distance': max_distance,
+            'try_achieved': try_achieved,
+            'min_x': min_x
+        }
     
-    # Ordenar por parámetro
-    sort_idx = np.argsort(parameters)
-    parameters = parameters[sort_idx]
-    avg_distances = avg_distances[sort_idx]
-    try_fractions = try_fractions[sort_idx]
-    
-    # Guardar resultados
-    results = np.column_stack((parameters, avg_distances, try_fractions))
-    np.savetxt('heuristic_results.txt', results, 
-               header='parameter,avg_distance,try_fraction', 
-               delimiter=',', comments='')
-    
-    # Visualizar resultados
-    plot_results(parameters, avg_distances, try_fractions, 'heuristic')
-    
-    return parameters, avg_distances, try_fractions
-
-def run_players_analysis():
-    """Analiza el comportamiento variando el número de jugadores."""
-    base_dir = "outputs/players_analysis"
-    player_dirs = get_simulation_dirs(base_dir, "N_")
-    
-    if not player_dirs:
-        print("No se encontraron simulaciones para análisis de jugadores")
-        return None, None, None
-    
-    player_counts = []
-    avg_distances = []
-    try_fractions = []
-    
-    for player_dir in player_dirs:
+    def load_simulation_data(self, sim_path):
+        """
+        Carga y analiza los datos de una simulación individual
+        """
         try:
-            N = int(player_dir.split('_')[1])
-            sim_dirs = get_simulation_dirs(os.path.join(base_dir, player_dir), "sim_")
+            dynamic_path = sim_path / "dynamic.txt"
+            logging.debug(f"Intentando cargar: {dynamic_path}")
             
-            if not sim_dirs:
+            if not dynamic_path.exists():
+                logging.error(f"Archivo no encontrado: {dynamic_path}")
+                return None
+            
+            positions = self.parse_dynamic_file(dynamic_path)
+            if not positions:
+                return None
+                
+            return self.analyze_trajectory(positions)
+            
+        except Exception as e:
+            logging.error(f"Error al cargar datos de {sim_path}: {str(e)}")
+            return None
+    
+    def load_heuristic_data(self):
+        """
+        Carga los datos de las simulaciones con variación de parámetros heurísticos
+        """
+        results = []
+        heuristic_path = self.base_path / "heuristic_analysis"
+        
+        if not heuristic_path.exists():
+            logging.error(f"No se encontró el directorio: {heuristic_path}")
+            return pd.DataFrame()
+        
+        logging.info(f"Buscando datos en: {heuristic_path}")
+        
+        param_dirs = [d for d in heuristic_path.iterdir() 
+                     if d.is_dir() and d.name.startswith("ap_")]
+        
+        if not param_dirs:
+            logging.error("No se encontraron directorios de parámetros")
+            return pd.DataFrame()
+        
+        for param_dir in param_dirs:
+            logging.info(f"Procesando directorio: {param_dir}")
+            
+            try:
+                dir_parts = param_dir.name.split('_')
+                ap_val = float(dir_parts[1])
+                bp_val = float(dir_parts[3])
+                
+                distances = []
+                tries_achieved = 0
+                total_sims = 0
+                valid_sims = 0
+                
+                sim_dirs = [d for d in param_dir.iterdir() 
+                          if d.is_dir() and d.name.startswith("sim_")]
+                
+                for sim_dir in sim_dirs:
+                    total_sims += 1
+                    sim_data = self.load_simulation_data(sim_dir)
+                    
+                    if sim_data is None:
+                        continue
+                    
+                    valid_sims += 1
+                    distances.append(sim_data['max_distance'])
+                    
+                    if sim_data['try_achieved']:
+                        tries_achieved += 1
+                
+                if valid_sims > 0:
+                    results.append({
+                        'ap': ap_val,
+                        'bp': bp_val,
+                        'avg_distance': np.mean(distances),
+                        'std_distance': np.std(distances),
+                        'try_ratio': tries_achieved / valid_sims,
+                        'total_sims': total_sims,
+                        'valid_sims': valid_sims
+                    })
+                    logging.info(f"Procesado: ap={ap_val}, bp={bp_val}, "
+                               f"sims válidas={valid_sims}/{total_sims}, "
+                               f"tries={tries_achieved}")
+                
+            except Exception as e:
+                logging.error(f"Error al procesar directorio {param_dir}: {str(e)}")
                 continue
-                
-            distances = []
-            try_count = 0
-            num_sims = len(sim_dirs)
+        
+        return pd.DataFrame(results)
+    
+    def analyze_heuristic_parameters(self):
+        """
+        Analiza el impacto de los parámetros heurísticos
+        """
+        logging.info("Iniciando análisis de parámetros heurísticos")
+        df = self.load_heuristic_data()
+        
+        if df.empty:
+            logging.error("No hay datos para analizar")
+            return None
+        
+        try:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
             
-            for sim_dir in sim_dirs:
-                dynamic_file = os.path.join(base_dir, player_dir, sim_dir, "dynamic.txt")
-                max_dist, is_try = analyze_simulation(dynamic_file)
-                
-                if max_dist is not None:
-                    distances.append(max_dist)
-                    if is_try:
-                        try_count += 1
+            # Heatmap para distancia promedio
+            pivot_dist = df.pivot(index='ap', columns='bp', values='avg_distance')
+            sns.heatmap(pivot_dist, ax=ax1, cmap='viridis', 
+                       annot=True, fmt='.1f')
+            ax1.set_title('Distancia Promedio Recorrida')
+            ax1.set_xlabel('Parámetro bp')
+            ax1.set_ylabel('Parámetro ap')
             
-            if distances:
-                player_counts.append(N)
-                avg_distances.append(np.mean(distances))
-                try_fractions.append(try_count / num_sims)
-                
-        except (ValueError, IndexError):
-            continue
-    
-    # Convertir a numpy arrays
-    player_counts = np.array(player_counts)
-    avg_distances = np.array(avg_distances)
-    try_fractions = np.array(try_fractions)
-    
-    # Ordenar por número de jugadores
-    sort_idx = np.argsort(player_counts)
-    player_counts = player_counts[sort_idx]
-    avg_distances = avg_distances[sort_idx]
-    try_fractions = try_fractions[sort_idx]
-    
-    # Guardar resultados
-    results = np.column_stack((player_counts, avg_distances, try_fractions))
-    np.savetxt('players_results.txt', results, 
-               header='players,avg_distance,try_fraction', 
-               delimiter=',', comments='')
-    
-    # Visualizar resultados
-    plot_results(player_counts, avg_distances, try_fractions, 'players')
-    
-    return player_counts, avg_distances, try_fractions
-
-def plot_results(x_values, distances, fractions, analysis_type):
-    """Genera gráficos de los resultados."""
-    plt.figure(figsize=(15, 5))
-    
-    # Gráfico de distancia promedio
-    plt.subplot(1, 3, 1)
-    plt.plot(x_values, distances, 'b-o')
-    plt.xlabel('Parámetro' if analysis_type == 'heuristic' else 'Número de jugadores')
-    plt.ylabel('Distancia promedio recorrida (m)')
-    plt.grid(True)
-    plt.title('Distancia Promedio')
-    
-    # Gráfico de fracción de tries
-    plt.subplot(1, 3, 2)
-    plt.plot(x_values, fractions, 'r-o')
-    plt.xlabel('Parámetro' if analysis_type == 'heuristic' else 'Número de jugadores')
-    plt.ylabel('Fracción de tries logrados')
-    plt.grid(True)
-    plt.title('Fracción de Tries')
-    
-    # Gráfico combinado (producto normalizado)
-    plt.subplot(1, 3, 3)
-    # Normalizar cada métrica
-    norm_distances = distances / np.max(distances) if np.max(distances) > 0 else distances
-    norm_fractions = fractions / np.max(fractions) if np.max(fractions) > 0 else fractions
-    combined = norm_distances * norm_fractions
-    plt.plot(x_values, combined, 'g-o')
-    plt.xlabel('Parámetro' if analysis_type == 'heuristic' else 'Número de jugadores')
-    plt.ylabel('Métrica combinada')
-    plt.grid(True)
-    plt.title('Métrica Combinada')
-    
-    plt.tight_layout()
-    plt.savefig(f'{analysis_type}_analysis_results.png')
-    plt.close()
+            # Heatmap para ratio de tries
+            pivot_tries = df.pivot(index='ap', columns='bp', values='try_ratio')
+            sns.heatmap(pivot_tries, ax=ax2, cmap='viridis',
+                       annot=True, fmt='.2f')
+            ax2.set_title('Ratio de Tries Logrados')
+            ax2.set_xlabel('Parámetro bp')
+            ax2.set_ylabel('Parámetro ap')
+            
+            plt.tight_layout()
+            plt.savefig(self.base_path / 'heuristic_analysis_results.png')
+            plt.close()
+            
+            df.to_csv(self.base_path / 'heuristic_analysis_results.csv', index=False)
+            
+            best_distance = df.loc[df['avg_distance'].idxmax()]
+            best_tries = df.loc[df['try_ratio'].idxmax()]
+            
+            logging.info("Análisis completado exitosamente")
+            
+            return {
+                'best_distance': {
+                    'ap': best_distance['ap'],
+                    'bp': best_distance['bp'],
+                    'value': best_distance['avg_distance'],
+                    'std': best_distance['std_distance'],
+                    'valid_sims': best_distance['valid_sims']
+                },
+                'best_tries': {
+                    'ap': best_tries['ap'],
+                    'bp': best_tries['bp'],
+                    'value': best_tries['try_ratio'],
+                    'valid_sims': best_tries['valid_sims']
+                }
+            }
+            
+        except Exception as e:
+            logging.error(f"Error durante el análisis: {str(e)}")
+            return None
 
 if __name__ == "__main__":
-    print("Analizando parámetro de heurística...")
-    params, h_distances, h_fractions = run_heuristic_analysis()
-    
-    if params is not None and len(params) > 0:
-        # Encontrar mejor parámetro usando métricas normalizadas
-        norm_distances = h_distances / np.max(h_distances)
-        norm_fractions = h_fractions / np.max(h_fractions)
-        combined_metric = norm_distances * norm_fractions
-        best_idx = np.argmax(combined_metric)
+    try:
+        current_dir = Path.cwd()
+        print(f"Directorio actual: {current_dir}")
+        print(f"Contenido del directorio:")
+        for item in current_dir.iterdir():
+            print(f"  {item}")
+            
+        analyzer = SimulationAnalyzer()
         
-        print(f"\nMejor parámetro encontrado: {params[best_idx]:.2f}")
-        print(f"Distancia promedio: {h_distances[best_idx]:.2f}")
-        print(f"Fracción de tries: {h_fractions[best_idx]:.2f}")
+        print("\nAnalizando parámetros heurísticos...")
+        best_params = analyzer.analyze_heuristic_parameters()
         
-        print("\nAnalizando número de jugadores...")
-        players, p_distances, p_fractions = run_players_analysis()
-        
-        if players is not None and len(players) > 0:
-            print("\nResultados para diferentes números de jugadores:")
-            for i, N in enumerate(players):
-                print(f"N={N}: Distancia={p_distances[i]:.2f}, "
-                      f"Fracción tries={p_fractions[i]:.2f}")
-    
-    print("\nAnálisis completado. Se han generado archivos de resultados y gráficos.")
+        if best_params:
+            print("\nMejores parámetros encontrados:")
+            print("\nPara distancia máxima recorrida:")
+            print(f"ap={best_params['best_distance']['ap']}, "
+                  f"bp={best_params['best_distance']['bp']}")
+            print(f"Distancia promedio: {best_params['best_distance']['value']:.2f} "
+                  f"± {best_params['best_distance']['std']:.2f}")
+            print(f"Simulaciones válidas: {best_params['best_distance']['valid_sims']}")
+            
+            print("\nPara ratio de tries:")
+            print(f"ap={best_params['best_tries']['ap']}, "
+                  f"bp={best_params['best_tries']['bp']}")
+            print(f"Ratio de tries: {best_params['best_tries']['value']:.3f}")
+            print(f"Simulaciones válidas: {best_params['best_tries']['valid_sims']}")
+        else:
+            print("\nNo se pudieron determinar los mejores parámetros")
+            
+    except Exception as e:
+        logging.error(f"Error en la ejecución principal: {str(e)}")

@@ -186,13 +186,23 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        nc.set(0, nc.get(0) + e_ij.get(0) * factor);
 	        nc.set(1, nc.get(1) + e_ij.get(1) * factor);
 	    }
+	    
+	    // Obtener el punto más cercano en la pared
+        Position wall_point = field.getClosestBoundaryPoint(player);
+	    
+	    // Calcular e_iw = (w - ri)/|w - ri|
+        Vector<Double> e_iw = unitDirectionVector(player.getPosition(), wall_point);
+	    
+	    double wall_distance = field.getDistanceToClosestBoundary(player);
 
-	    return nc;
+	    // Calcular n_w_c = e_iw * Aw * exp(-d_iw/Bw)
+        double wall_factor = ap * Math.exp(-wall_distance/bp);
+        
+        nc.set(0, nc.get(0) + e_iw.get(0) * wall_factor);
+        nc.set(1, nc.get(1) + e_iw.get(1) * wall_factor);
+
+	    return Utils.normalize(nc);
 	}
-
-	private Vector<Double> calculateWallCollision(Particle p) {
-		return new Vector(List.of(0d,0d));
-	}	
 	
 	// ============ SAME ============
 	private Vector<Double> unitDirectionVector(Position d1, Position d2) {
