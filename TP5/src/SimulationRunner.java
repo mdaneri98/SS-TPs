@@ -19,7 +19,7 @@ public class SimulationRunner {
         Field field = new Field(width, height);
         
         // Parámetros configurables
-        int numIteraciones = 100; // Modificar este valor para cambiar el número de iteraciones
+        int numIteraciones = 1000; // Modificar este valor para cambiar el número de iteraciones
         
         // Primer análisis: variación del parámetro de heurística
         runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, 
@@ -66,8 +66,8 @@ public class SimulationRunner {
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
             
         int[] playerCounts = {15, 25, 50, 75, 100};
-        double ap = 3.0;  // Usar el mejor parámetro encontrado en el análisis anterior
-        
+        double ap = 2.0;  // Usar el mejor parámetro encontrado en el análisis anterior
+        double bp = 1.0;
         for (int N : playerCounts) {
             for (int i = 0; i < numIteraciones; i++) {
                 String directory = String.format(Locale.US, "players_analysis/N_%d/sim_%03d", N, i);
@@ -77,7 +77,7 @@ public class SimulationRunner {
                     Files.createDirectories(dirPath);
                     
                     TryMaradoniano tm = new TryMaradoniano(N, field, blueVelocityMax, redVelocityMax,
-                            blueTau, redTau, minRadius, maxRadius, ap, 1);
+                            blueTau, redTau, minRadius, maxRadius, ap, bp);
                     tm.setOutputDirectory(directory);
                     tm.run();
                     

@@ -189,7 +189,7 @@ public class TryMaradoniano {
         statesToSave.add(this.initial);
 
         int stateCounter = 0;
-        int saveFrequency = 1; // Guarda cada 100 estados
+        int saveFrequency = 10; // Guarda cada 100 estados
         int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
         
         while (iterator.hasNext()) {
