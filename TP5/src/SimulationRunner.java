@@ -22,11 +22,11 @@ public class SimulationRunner {
         int numIteraciones = 1000; // Modificar este valor para cambiar el número de iteraciones
         
         // Primer análisis: variación del parámetro de heurística
-        runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, 
-                           minRadius, maxRadius, numIteraciones);
+        //runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau,
+                           //minRadius, maxRadius, numIteraciones);
         
         // Segundo análisis: variación del número de jugadores
-        runPlayersAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, 
+        runPlayersAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau,
                           minRadius, maxRadius, numIteraciones);
     }
     
@@ -34,8 +34,8 @@ public class SimulationRunner {
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
         
         int N = 15;  // Número fijo de jugadores
-        double[] aps = {0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
-        double[] bps = {0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
+        double[] aps = {1, 2, 3, 4, 5, 6, 7, 8};
+        double[] bps = {1, 2, 3, 4, 5, 6, 7, 8};
         
         for (double ap : aps) {
 	        for (double bp : bps) {
@@ -66,7 +66,7 @@ public class SimulationRunner {
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
             
         int[] playerCounts = {15, 25, 50, 75, 100};
-        double ap = 2.0;  // Usar el mejor parámetro encontrado en el análisis anterior
+        double ap = 6.0;  // Usar el mejor parámetro encontrado en el análisis anterior
         double bp = 1.0;
         for (int N : playerCounts) {
             for (int i = 0; i < numIteraciones; i++) {
