@@ -165,15 +165,38 @@ def animate_particles(data, output_dir):
     plt.close()
 
 def main():
-    data = ParticleData()
-    data.load_static('outputs/try_maradoniano//static.txt')
-    data.load_dynamic('outputs/try_maradoniano/dynamic.txt')
-
-    # Directorio para guardar los outputs
-    output_dir = 'outputs/try_maradoniano/frames'
+    # Directorio base donde están las simulaciones
+    base_dir = 'outputs/heuristic_analysis'
     
-    # Crear la animación y guardar los frames
-    animate_particles(data, output_dir)
+    # Recorrer todas las carpetas de ap_bp
+    for ap_bp_dir in os.listdir(base_dir):
+        if ap_bp_dir.startswith('ap_'):
+            # Construir la ruta a la simulación 0
+            sim_path = os.path.join(base_dir, ap_bp_dir, 'sim_000')
+            
+            # Verificar que exista la simulación 0
+            if not os.path.exists(sim_path):
+                continue
+                
+            # Cargar los datos de la simulación
+            data = ParticleData()
+            static_file = os.path.join(sim_path, 'static.txt')
+            dynamic_file = os.path.join(sim_path, 'dynamic.txt')
+            
+            # Verificar que existan los archivos necesarios
+            if not (os.path.exists(static_file) and os.path.exists(dynamic_file)):
+                continue
+                
+            data.load_static(static_file)
+            data.load_dynamic(dynamic_file)
+            
+            # Crear directorio para los frames dentro de sim_000
+            frames_dir = os.path.join(sim_path, 'frames')
+            
+            # Generar la animación
+            animate_particles(data, frames_dir)
+            
+            print(f"Procesado {ap_bp_dir} - simulación 000")
 
 if __name__ == '__main__':
     main()
