@@ -43,7 +43,7 @@ public class Particle {
     }
     
     public boolean isInsidePersonalSpace(Particle other) {
-        double distance = this.position.distanceTo(other.getPosition()); // Suponiendo que tienes una manera de obtener la posición
+        double distance = this.position.distanceTo(other.getPosition());
         return distance < (this.actualRadius + other.getActualRadius());
     }
 

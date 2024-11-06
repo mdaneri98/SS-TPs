@@ -71,11 +71,11 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	public State next() {
 		Set<Particle> newParticles = new HashSet<>();
 
+		Particle newPlayer = avoid(state.getPlayer());
 		for (Particle p : state.getParticles()) {
 			Particle newParticle = chase(p, state.getPlayer().getPosition());
 			newParticles.add(newParticle);
 		}
-		Particle newPlayer = avoid(state.getPlayer());
 
 		state = new State(state.getTime() + dt, field, newPlayer, newParticles);
 		return state;
@@ -94,25 +94,25 @@ public class TryMaradonianoSystem implements Iterator<State> {
 
 		return new Particle(p.getId(), newPosition, target, new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
 	}
-
+	
 	private Set<Particle> checkContact(Particle p) {
-		Set<Particle> contacts = new HashSet<Particle>();
+	    Set<Particle> contacts = new HashSet<Particle>();
 
-		// Verificar contacto con el jugador si la partícula no es el jugador
-		if (!p.equals(state.getPlayer()) && p.isInsidePersonalSpace(state.getPlayer())) {
-			contacts.add(state.getPlayer());
-		}
+	    // Verificar contacto con el jugador si la partícula no es el jugador
+	    if (!p.equals(state.getPlayer()) && p.isInsidePersonalSpace(state.getPlayer())) {
+	        contacts.add(state.getPlayer());
+	    }
 
-		// Verificar contacto con otras partículas
-		for (Particle other : state.getParticles()) {
-			if (p.equals(other))
-				continue;
-			if (p.isInsidePersonalSpace(other)) {
-				contacts.add(other);
-			}
-		}
+	    // Verificar contacto con otras partículas
+	    for (Particle other : state.getParticles()) {
+	        if (p.equals(other))
+	            continue;
+	        if (p.isInsidePersonalSpace(other)) {
+	            contacts.add(other);
+	        }
+	    }
 
-		return contacts;
+	    return contacts;
 	}
 
 	private double updateRadius(Particle p, boolean hasContact) {
@@ -154,52 +154,55 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	// ============ EL RUGBIER ============
 	private Particle avoid(Particle p) {
 		// Check if any particle is in contact with other particle or wall
-		boolean hasFieldContact = p.isInsidePersonalSpace(field);
-		Set<Particle> contacts = checkContact(p);
+		//boolean hasFieldContact = p.isInsidePersonalSpace(field);
+		//Set<Particle> contacts = checkContact(p);
 		
-		double newRadius = updateRadius(p, !contacts.isEmpty());
+		//double newRadius = updateRadius(p, !contacts.isEmpty());
+		Position newPosition = updatePosition(p, dt);
 		double newModule = p.getMaxVelocity();
 		Vector<Double> newDirection = avoidManeuver(p);
-		Position newPosition = updatePosition(p, dt);
 
-		return new Particle(p.getId(), newPosition, field.getShorterGoal(p), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
+		return new Particle(p.getId(), newPosition, field.getShorterGoal(newPosition), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), p.getActualRadius(), p.getTau());
 	}
 	
 	// Método avoidManeuver: Calcula la maniobra de evitación
 	private Vector<Double> avoidManeuver(Particle player) {
 	    // El vector nc que queremos calcular
 	    Vector<Double> nc = new Vector<>(2);
-	    nc.add(player.getVelocity().getDirection().getFirst());
-	    nc.add(player.getVelocity().getDirection().getLast());
+	    nc.add(0.0);
+	    nc.add(0.0);
 
-	    for (Particle p : state.getParticles()) {
-	        // Calcular e_ij (vector unitario desde j hacia i)
+	    // 1. Atracción hacia el target
+	    Vector<Double> e_t = unitDirectionVector(field.getShorterGoal(player), player.getPosition());
+	    nc.set(0, e_t.get(0));
+	    nc.set(1, e_t.get(1));
+
+	    // 2. Repulsión de los N_ez zombies más cercanos
+	    List<Particle> sortedParticles = new ArrayList<>(state.getParticles());
+	    sortedParticles.sort((p1, p2) -> {
+	        double d1 = p1.getPosition().distanceTo(player.getPosition());
+	        double d2 = p2.getPosition().distanceTo(player.getPosition());
+	        return Double.compare(d1, d2);
+	    });
+	    
+	    int N_ez = 4;
+	    for (int i = 0; i < Math.min(N_ez, sortedParticles.size()); i++) {
+	        Particle p = sortedParticles.get(i);
 	        Vector<Double> e_ij = unitDirectionVector(player.getPosition(), p.getPosition());
-	        
-	        // Calcular distancia entre partículas
 	        double d_ij = p.getPosition().distanceTo(player.getPosition());
-	        
-	        // Aplicar la ecuación
 	        double factor = ap * Math.exp(-d_ij/bp);
-	        
-	        // Sumar la contribución al vector nc
 	        nc.set(0, nc.get(0) + e_ij.get(0) * factor);
 	        nc.set(1, nc.get(1) + e_ij.get(1) * factor);
 	    }
-	    
-	    // Obtener el punto más cercano en la pared
-        Position wall_point = field.getClosestBoundaryPoint(player);
-	    
-	    // Calcular e_iw = (w - ri)/|w - ri|
-        Vector<Double> e_iw = unitDirectionVector(player.getPosition(), wall_point);
-	    
-	    double wall_distance = field.getDistanceToClosestBoundary(player);
 
-	    // Calcular n_w_c = e_iw * Aw * exp(-d_iw/Bw)
-        double wall_factor = ap * Math.exp(-wall_distance/bp);
-        
-        nc.set(0, nc.get(0) + e_iw.get(0) * wall_factor);
-        nc.set(1, nc.get(1) + e_iw.get(1) * wall_factor);
+	    // 3. Repulsión de la pared
+	    Position wall_point = field.getClosestBoundaryPoint(player);
+	    Vector<Double> e_iw = unitDirectionVector(player.getPosition(), wall_point);
+	    double wall_distance = field.getDistanceToClosestBoundary(player);
+	    double wall_factor = ap * Math.exp(-wall_distance/bp);
+	    
+	    nc.set(0, nc.get(0) + e_iw.get(0) * wall_factor);
+	    nc.set(1, nc.get(1) + e_iw.get(1) * wall_factor);
 
 	    return Utils.normalize(nc);
 	}

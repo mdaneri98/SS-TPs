@@ -208,16 +208,22 @@ class SimulationAnalyzer:
             
             # Heatmap para distancia promedio
             pivot_dist = df.pivot(index='ap', columns='bp', values='avg_distance')
+            pivot_dist = pivot_dist.sort_index(ascending=False)  # Ordenar ap de mayor a menor
+            pivot_dist = pivot_dist.sort_index(axis=1)  # Ordenar bp de menor a mayor
+            
             sns.heatmap(pivot_dist, ax=ax1, cmap='viridis', 
-                       annot=True, fmt='.1f')
+                       annot=False, cbar_kws={'label': 'Distancia (m)'})
             ax1.set_title('Distancia Promedio Recorrida')
             ax1.set_xlabel('Parámetro bp')
             ax1.set_ylabel('Parámetro ap')
             
             # Heatmap para ratio de tries
             pivot_tries = df.pivot(index='ap', columns='bp', values='try_ratio')
+            pivot_tries = pivot_tries.sort_index(ascending=False)  # Ordenar ap de mayor a menor
+            pivot_tries = pivot_tries.sort_index(axis=1)  # Ordenar bp de menor a mayor
+            
             sns.heatmap(pivot_tries, ax=ax2, cmap='viridis',
-                       annot=True, fmt='.2f')
+                       annot=False, cbar_kws={'label': 'Tries ratio'})
             ax2.set_title('Ratio de Tries Logrados')
             ax2.set_xlabel('Parámetro bp')
             ax2.set_ylabel('Parámetro ap')

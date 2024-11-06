@@ -13,6 +13,10 @@ public class Field {
 		this.height = height;
 	}
 	
+	public Position getShorterGoal(Position from) {
+		return new Position(0, Math.min(height, Math.max(0, from.getY())));
+	}
+	
 	public Position getShorterGoal(Particle p) {
 		return new Position(0, Math.min(height, Math.max(0, p.getPosition().getY())));
 	}
