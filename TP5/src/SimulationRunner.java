@@ -1,6 +1,8 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import models.Field;
@@ -19,7 +21,7 @@ public class SimulationRunner {
         Field field = new Field(width, height);
         
         // Parámetros configurables
-        int numIteraciones = 1000; // Modificar este valor para cambiar el número de iteraciones
+        int numIteraciones = 50; // Modificar este valor para cambiar el número de iteraciones
         
         // Primer análisis: variación del parámetro de heurística
         //runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau,
@@ -34,8 +36,15 @@ public class SimulationRunner {
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
         
         int N = 15;  // Número fijo de jugadores
-        double[] aps = {1, 2, 3, 4, 5, 6, 7, 8};
-        double[] bps = {1, 2, 3, 4, 5, 6, 7, 8};
+        List<Double> aps = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+        	aps.add((double) i * 10);
+        }
+        
+        List<Double> bps = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+        	bps.add((double) i * 0.2);
+        }
         
         for (double ap : aps) {
 	        for (double bp : bps) {
