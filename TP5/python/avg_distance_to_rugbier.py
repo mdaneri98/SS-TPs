@@ -152,7 +152,6 @@ class CentroidAnalyzer:
         time_index = avg_metrics.index
         
         plt.plot(time_index, avg_metrics['centroid_distance'],
-                label='Distancia media al centroide', 
                 color='blue', 
                 linewidth=2)
         
@@ -160,14 +159,13 @@ class CentroidAnalyzer:
                         avg_metrics['centroid_distance'] - std_metrics['centroid_distance'],
                         avg_metrics['centroid_distance'] + std_metrics['centroid_distance'],
                         alpha=0.3,
-                        color='blue',
-                        label='Desviación estándar')
+                        color='blue')
         
         plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('Distancia (m)')
         #plt.title(f'Distancia al centroide del equipo (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
         
         output_path = self.output_dir / f'centroid_analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')

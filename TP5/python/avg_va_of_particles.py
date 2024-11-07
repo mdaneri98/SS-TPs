@@ -180,7 +180,7 @@ class VaAnalyzer:
         plt.figure(figsize=(12, 8))
         
         plt.plot(data['times'], data['avg_va'], 
-                label='VA promedio', color='blue', linewidth=2)
+                color='blue', linewidth=2)
         plt.fill_between(data['times'], 
                         data['avg_va'] - data['std_va'],
                         data['avg_va'] + data['std_va'],
@@ -191,7 +191,7 @@ class VaAnalyzer:
         plt.ylabel('VA')
         plt.ylim(0, 1)  # VA está entre 0 y 1
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
         
         output_file = self.base_path / f'va_analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_file, dpi=300, bbox_inches='tight')

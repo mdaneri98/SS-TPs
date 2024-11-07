@@ -265,7 +265,7 @@ class EnhancedCPMAnalyzer:
         plt.ylabel('Distancia (m)')
         #plt.title(f'Distancia Promedio al Rugbier (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
 
         output_path = self.output_dir / f'distance_analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -278,9 +278,9 @@ class EnhancedCPMAnalyzer:
         
         plt.xlabel('Tiempo normalizado (0-1)')
         plt.ylabel('Número de jugadores')
-        plt.title(f'Jugadores Cercanos al Rugbier (ap={ap_value}, bp={bp_value})')
+        #plt.title(f'Jugadores Cercanos al Rugbier (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
         
         output_path = self.output_dir / f'close_players_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -289,7 +289,7 @@ class EnhancedCPMAnalyzer:
         # 3. Gráfico de Alineación (VA)
         plt.figure(figsize=(10, 6))
         plt.plot(time_index, avg_metrics['va'],
-                label='VA', color='green', linewidth=2)
+                color='green', linewidth=2)
         plt.fill_between(time_index,
                         np.clip(avg_metrics['va'] - std_metrics['va'], 0, 1),
                         np.clip(avg_metrics['va'] + std_metrics['va'], 0, 1),
@@ -300,7 +300,7 @@ class EnhancedCPMAnalyzer:
         plt.ylim(0, 1)  # VA ya está normalizado por definición
         #plt.title(f'Velocidad de Alineación (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
 
         output_path = self.output_dir / f'va_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
@@ -315,7 +315,7 @@ class EnhancedCPMAnalyzer:
         plt.ylabel('Dispersión de distancias')
         #plt.title(f'Dispersión del Equipo (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
-        plt.legend()
+        #plt.legend()
         
         output_path = self.output_dir / f'dispersion_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')

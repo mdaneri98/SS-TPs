@@ -191,7 +191,7 @@ class VelocityAnalyzer:
         
         # Graficar velocidad de los otros
         plt.plot(data['times'], data['avg_others'],
-                label='Otros jugadores', color='red', linewidth=2)
+                label='Oponentes', color='red', linewidth=2)
         plt.fill_between(data['times'],
                         data['avg_others'] - data['std_others'],
                         data['avg_others'] + data['std_others'],

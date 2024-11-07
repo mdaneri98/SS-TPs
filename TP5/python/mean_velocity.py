@@ -128,7 +128,7 @@ class MeanVelocityAnalyzer:
         plt.figure(figsize=(12, 8))
         
         plt.plot(data['times'], data['mean_v'], 
-                label='Velocidad media', color='blue', linewidth=2)
+                color='blue', linewidth=2)
         plt.fill_between(data['times'],
                         data['mean_v'] - data['std_v'],
                         data['mean_v'] + data['std_v'],
