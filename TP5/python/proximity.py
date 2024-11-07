@@ -96,39 +96,37 @@ class EnhancedCPMAnalyzer:
                 continue
             
             distances = []
-            velocities_alignment = []
+            v_vectors = []  # Para calcular VA
+            
+            # Calcular distancias y recolectar vectores velocidad
             for pos in positions:
                 if pos['id'] != 0:
                     # Distancia
                     dist = np.sqrt((pos['x'] - rugbier['x'])**2 + 
-                                 (pos['y'] - rugbier['y'])**2)
+                                (pos['y'] - rugbier['y'])**2)
                     distances.append(dist)
                     
-                    # Alineación de velocidades
-                    v1 = np.array([pos['vx'], pos['vy']])
-                    v2 = np.array([rugbier['vx'], rugbier['vy']])
-                    
-                    norm_v1 = np.linalg.norm(v1)
-                    norm_v2 = np.linalg.norm(v2)
-                    if norm_v1 > 0 and norm_v2 > 0:
-                        alignment = np.dot(v1, v2) / (norm_v1 * norm_v2)
-                        velocities_alignment.append(alignment)
+                    # Vector velocidad normalizado
+                    v = np.array([pos['vx'], pos['vy']])
+                    v_mag = np.linalg.norm(v)
+                    if v_mag > 0:  # Solo agregar si la velocidad no es cero
+                        v_normalized = v / v_mag
+                        v_vectors.append(v_normalized)
             
-            if distances and velocities_alignment:
-                dist_25th = np.percentile(distances, 25)
-                dist_75th = np.percentile(distances, 75)
+            if distances and v_vectors:
+                # Calcular VA según la fórmula
+                v_sum = np.zeros(2)  # Vector suma en 2D
+                for v in v_vectors:
+                    v_sum += v
+                va = np.linalg.norm(v_sum) / len(v_vectors)  # |Σvi|/N
                 
                 metrics_data.append({
                     'time': time_step['time'],
                     'mean_distance': np.mean(distances),
-                    'median_distance': np.median(distances),
-                    'distance_25th': dist_25th,
-                    'distance_75th': dist_75th,
-                    'distance_iqr': dist_75th - dist_25th,
-                    'mean_alignment': np.mean(velocities_alignment),
+                    'std_distance': np.std(distances),
                     'min_distance': np.min(distances),
                     'max_distance': np.max(distances),
-                    'std_distance': np.std(distances),
+                    'va': va,  # VA calculado correctamente
                     'n_close_players': sum(1 for d in distances if d < 10)
                 })
         
@@ -247,59 +245,79 @@ class EnhancedCPMAnalyzer:
         return avg_metrics, std_metrics, avg_duration, std_duration
 
     def plot_enhanced_analysis(self, avg_metrics, std_metrics, ap_value, bp_value, avg_duration, std_duration):
-        """Genera visualizaciones mejoradas"""
+        """Genera visualizaciones mejoradas en gráficos separados"""
         plt.style.use('default')
-        fig, axes = plt.subplots(2, 1, figsize=(12, 16))
         
-        # Plot 1: Distancias y variabilidad
-        ax = axes[0]
+        # Datos comunes
         time_index = avg_metrics.index
         
-        ax.plot(time_index, avg_metrics['median_distance'], 
-                label='Distancia mediana', color='blue', linewidth=2)
-        ax.fill_between(time_index, 
-                       avg_metrics['distance_25th'],
-                       avg_metrics['distance_75th'],
-                       alpha=0.3, color='blue',
-                       label='Rango intercuartil')
+        # 1. Gráfico de Distancia Promedio
+        plt.figure(figsize=(10, 6))
+        plt.plot(time_index, avg_metrics['mean_distance'], 
+                label='Distancia promedio', color='blue', linewidth=2)
+        plt.fill_between(time_index, 
+                    avg_metrics['mean_distance'] - avg_metrics['std_distance'],
+                    avg_metrics['mean_distance'] + avg_metrics['std_distance'],
+                    alpha=0.3, color='blue',
+                    label='Desviación estándar')
+
+        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.ylabel('Distancia promedio al rugbier (m)')
+        plt.title(f'Distancia Promedio al Rugbier (ap={ap_value}, bp={bp_value})')
+        plt.grid(True)
+        plt.legend()
+
+        output_path = self.output_dir / f'distance_analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
         
-        ax2 = ax.twinx()
-        ax2.plot(time_index, avg_metrics['n_close_players'],
-                color='red', linestyle='--', label='Jugadores cercanos (<10u)')
+        # 2. Gráfico de Jugadores Cercanos
+        plt.figure(figsize=(10, 6))
+        plt.plot(time_index, avg_metrics['n_close_players'],
+                color='red', label='Jugadores cercanos (<10u)')
         
-        ax.set_xlabel('Tiempo normalizado (0-1)')
-        ax.set_ylabel('Distancia al rugbier principal (unidades)')
-        ax2.set_ylabel('Número de jugadores cercanos')
-        title = f'Análisis de proximidad (ap={ap_value}, bp={bp_value})\n'
-        title += f'Duración promedio: {avg_duration:.1f} ± {std_duration:.1f} pasos'
-        ax.set_title(title)
+        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.ylabel('Número de jugadores')
+        plt.title(f'Jugadores Cercanos al Rugbier (ap={ap_value}, bp={bp_value})')
+        plt.grid(True)
+        plt.legend()
         
-        lines1, labels1 = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+        output_path = self.output_dir / f'close_players_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
         
-        # Plot 2: Alineación y dispersión
-        ax = axes[1]
+        # 3. Gráfico de Alineación (VA)
+        plt.figure(figsize=(10, 6))
+        plt.plot(time_index, avg_metrics['va'],
+                label='VA', color='green', linewidth=2)
+        plt.fill_between(time_index,
+                        np.clip(avg_metrics['va'] - std_metrics['va'], 0, 1),
+                        np.clip(avg_metrics['va'] + std_metrics['va'], 0, 1),
+                        alpha=0.3, color='green')
+
+        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.ylabel('VA')
+        plt.ylim(0, 1)  # VA ya está normalizado por definición
+        plt.title(f'Velocidad de Alineación (ap={ap_value}, bp={bp_value})')
+        plt.grid(True)
+        plt.legend()
+
+        output_path = self.output_dir / f'va_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
         
-        ax.plot(time_index, avg_metrics['mean_alignment'],
-                label='Alineación media', color='green', linewidth=2)
+        # 4. Gráfico de Dispersión
+        plt.figure(figsize=(10, 6))
+        plt.plot(time_index, avg_metrics['std_distance'],
+                color='purple', label='Dispersión')
         
-        ax2 = ax.twinx()
-        ax2.plot(time_index, avg_metrics['std_distance'],
-                color='purple', linestyle='--', label='Dispersión (std)')
+        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.ylabel('Dispersión de distancias')
+        plt.title(f'Dispersión del Equipo (ap={ap_value}, bp={bp_value})')
+        plt.grid(True)
+        plt.legend()
         
-        ax.set_xlabel('Tiempo normalizado (0-1)')
-        ax.set_ylabel('Alineación de velocidades (-1 a 1)')
-        ax2.set_ylabel('Dispersión de distancias')
-        ax.set_title('Alineación y dispersión del equipo')
-        
-        lines1, labels1 = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
-        
-        plt.tight_layout()
-        
-        output_path = self.output_dir / f'analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
+        output_path = self.output_dir / f'dispersion_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
 
