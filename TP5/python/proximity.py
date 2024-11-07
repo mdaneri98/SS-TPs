@@ -312,7 +312,7 @@ class EnhancedCPMAnalyzer:
                 color='purple', label='Dispersión')
         
         plt.xlabel('Tiempo normalizado (s)')
-        plt.ylabel('Dispersión de distancias')
+        plt.ylabel(r'Dispersión ($m^2$)')
         #plt.title(f'Dispersión del Equipo (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
         #plt.legend()
