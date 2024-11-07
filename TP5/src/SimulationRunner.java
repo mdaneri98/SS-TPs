@@ -27,8 +27,7 @@ public class SimulationRunner {
         //runHeuristicAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, numIteraciones);
         
         // Segundo análisis: variación del número de jugadores
-        runPlayersAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau,
-                          minRadius, maxRadius, numIteraciones);
+        runPlayersAnalysis(field, blueVelocityMax, redVelocityMax, blueTau, redTau, minRadius, maxRadius, numIteraciones);
     }
     
     private static void runHeuristicAnalysis(Field field, double blueVelocityMax, double redVelocityMax, 
@@ -36,12 +35,12 @@ public class SimulationRunner {
         
         int N = 15;  // Número fijo de jugadores
         List<Double> aps = new ArrayList<>();
-        for (int i = 2; i < 40; i += 1) {
-        	aps.add((double) i * 1);
+        for (int i = 2; i < 24; i += 4) {
+        	aps.add((double) i);
         }
         
         List<Double> bps = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 50; i++) {
         	bps.add((double) i * 0.4);
         }
         
@@ -59,8 +58,6 @@ public class SimulationRunner {
 	                    tm.setOutputDirectory(directory);
 	                    tm.run();
 	                    
-	                    System.out.printf("Completada simulación para parámetro %.2f, realización %d/%d%n", 
-	                            ap, i + 1, numIteraciones);
 	                } catch (Exception e) {
 	                    System.err.printf("Error en simulación parámetro %.2f, realización %d: %s%n", 
 	                            ap, i, e.getMessage());
@@ -73,10 +70,15 @@ public class SimulationRunner {
     private static void runPlayersAnalysis(Field field, double blueVelocityMax, double redVelocityMax,
             double blueTau, double redTau, double minRadius, double maxRadius, int numIteraciones) {
             
-        int[] playerCounts = {15, 25, 50, 75, 100};
-        double ap = 34.0;  // Usar el mejor parámetro encontrado en el análisis anterior
-        double bp = 1.2;
-        for (int N : playerCounts) {
+        List<Integer> playersCount = new ArrayList<>();
+        for (int i = 5; i <= 100; i+= 5)
+        	playersCount.add(i);
+        
+        
+        double ap = 6.0;  // Usar el mejor parámetro encontrado en el análisis anterior
+        double bp = 1.6;
+        for (int j = 0; j < playersCount.size(); j++) {
+        	int N = playersCount.get(j);
             for (int i = 0; i < numIteraciones; i++) {
                 String directory = String.format(Locale.US, "players_analysis/N_%d/sim_%03d", N, i);
                 
@@ -89,8 +91,6 @@ public class SimulationRunner {
                     tm.setOutputDirectory(directory);
                     tm.run();
                     
-                    System.out.printf("Completada simulación para %d jugadores, realización %d/%d%n", 
-                            N, i + 1, numIteraciones);
                 } catch (Exception e) {
                     System.err.printf("Error en simulación %d jugadores, realización %d: %s%n", 
                             N, i, e.getMessage());

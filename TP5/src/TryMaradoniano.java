@@ -136,39 +136,38 @@ public class TryMaradoniano {
 	public State initialState() {
 		Random random = new Random();
 		Set<Particle> particles = new HashSet<>();
-			
+
 		Particle player = new Particle(
-			    0, 
-			    new Position(field.getWidth() - 2 * maxRadius, field.getHeight()/2.0),
-			    field.getLeftCenter(),
-			    new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax), // Vector dirección hacia la izquierda
-			    redVelocityMax,
-			    minRadius,
-			    maxRadius,
-			    maxRadius,
-			    redTau
-			);
-		
+		0,
+		new Position(field.getWidth() - 2*maxRadius, field.getHeight()/2.0),
+		field.getLeftCenter(),
+		new Velocity(new Vector<Double>(List.of(-1.0, 0.0)), redVelocityMax), // Vector dirección hacia la izquierda
+		redVelocityMax,
+		minRadius,
+		maxRadius,
+		maxRadius,
+		redTau
+		);
+
 		while (particles.size() < N) {
-			// Posición x aleatoria dentro del área L x L
-            double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
-            double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
-            
-            Particle blue = new Particle(particles.size() + 1, new Position(x, y), player.getPosition(), new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
-            
-            boolean match = false;
-            for (Particle particle : particles) {
-                match = blue.isInsidePersonalSpace(particle);
-                if (match)
-                    break;
-            }
-            if (!match)
-            	particles.add(blue);
+		// Posición x aleatoria dentro del área L x L
+		double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
+		double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
+
+		Particle blue = new Particle(particles.size() + 1, new Position(x, y), player.getPosition(), new Velocity(new Vector<Double>(List.of(0.0, 0.0)), blueVelocityMax), blueVelocityMax, minRadius, maxRadius, maxRadius, blueTau);
+
+		boolean match = false;
+		for (Particle particle : particles) {
+		match = blue.isInsidePersonalSpace(particle);
+		if (match)
+		break;
 		}
-		
-	
+		if (!match)
+		particles.add(blue);
+		}
+
 		return new State(0.0, field, player, particles);
-	}
+		}
 	
 	public void run() {
         // Modificar el método run para usar el outputDirectory
@@ -181,37 +180,50 @@ public class TryMaradoniano {
                 blueTau, redTau, minRadius, maxRadius, ap, bp, this.initial);
         runSolution(tms, filepath);
         
-        System.out.println("Finished");
+      
     }
 	
 	private void runSolution(Iterator<State> iterator, Path filepath) {
-        LinkedList<State> statesToSave = new LinkedList<>();
-        statesToSave.add(this.initial);
-
-        int stateCounter = 0;
-        int saveFrequency = 10; // Guarda cada 100 estados
-        int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
-        
-        while (iterator.hasNext()) {
-            State currentState = iterator.next();
-            stateCounter++;
-
-            if (stateCounter % saveFrequency == 0) {
-                statesToSave.add(currentState);
-            }
-
-            if (statesToSave.size() >= maxStatesToSave) {
-                save(statesToSave, filepath);
-                statesToSave.clear();
-            }
-        }
-
-        // Si quedan estados por guardar después de salir del bucle
-        if (!statesToSave.isEmpty()) {
-            save(statesToSave, filepath);
-            statesToSave.clear();
-        }
-    }
+	    LinkedList<State> statesToSave = new LinkedList<>();
+	    State initialState = this.initial;
+	    statesToSave.add(initialState);  // Guardamos el estado inicial
+	    
+	    int stateCounter = 0;
+	    int saveFrequency = 10;
+	    int maxStatesToSave = 100;
+	    
+	    State lastState = initialState;  // Guardamos referencia al último estado
+	    
+	    while (iterator.hasNext()) {
+	        State currentState = iterator.next();
+	        stateCounter++;
+	        lastState = currentState;  // Actualizamos el último estado
+	        
+	        if (stateCounter % saveFrequency == 0) {
+	            statesToSave.add(currentState);
+	        }
+	        
+	        if (statesToSave.size() >= maxStatesToSave) {
+	            save(statesToSave, filepath);
+	            statesToSave.clear();
+	            // Después de limpiar, volvemos a agregar el último estado guardado
+	            // para mantener continuidad en el archivo
+	            statesToSave.add(currentState);
+	        }
+	    }
+	    
+	    // Si el último estado no fue guardado por la frecuencia, lo agregamos
+	    if (lastState != initialState && 
+	        (statesToSave.isEmpty() || !statesToSave.getLast().equals(lastState))) {
+	        statesToSave.add(lastState);
+	    }
+	    
+	    // Guardamos los estados restantes (incluyendo el último si corresponde)
+	    if (!statesToSave.isEmpty()) {
+	        save(statesToSave, filepath);
+	        statesToSave.clear();
+	    }
+	}
 	
 	  private void saveStatic(Path filePath) {
 	        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE)) {
@@ -247,9 +259,6 @@ public class TryMaradoniano {
 
 	            // Crea los directorios si no existen
 	            Files.createDirectories(directoryPath);
-
-	            if (Files.deleteIfExists(filePath))
-	                System.out.println("Archivo borrado: " + filePath);
 
 	            return filePath;
 	        } catch (IOException e) {

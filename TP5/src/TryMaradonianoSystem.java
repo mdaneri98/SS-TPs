@@ -185,7 +185,7 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	        return Double.compare(d1, d2);
 	    });
 	    
-	    int N_ez = 4;
+	    int N_ez = 2;
 	    for (int i = 0; i < Math.min(N_ez, sortedParticles.size()); i++) {
 	        Particle p = sortedParticles.get(i);
 	        Vector<Double> e_ij = unitDirectionVector(player.getPosition(), p.getPosition());
@@ -196,10 +196,13 @@ public class TryMaradonianoSystem implements Iterator<State> {
 	    }
 
 	    // 3. Repulsión de la pared
+	    double wa = 8;
+	    double wb = 1;
+	    
 	    Position wall_point = field.getClosestBoundaryPoint(player);
 	    Vector<Double> e_iw = unitDirectionVector(player.getPosition(), wall_point);
 	    double wall_distance = field.getDistanceToClosestBoundary(player);
-	    double wall_factor = ap * Math.exp(-wall_distance/bp);
+	    double wall_factor = wa * Math.exp(-wall_distance/wb);
 	    
 	    nc.set(0, nc.get(0) + e_iw.get(0) * wall_factor);
 	    nc.set(1, nc.get(1) + e_iw.get(1) * wall_factor);
