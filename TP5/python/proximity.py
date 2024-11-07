@@ -305,8 +305,8 @@ class EnhancedCPMAnalyzer:
 
 if __name__ == "__main__":
     try:
-        ap_value = 4.0
-        bp_value = 0.8
+        ap_value = 35.0
+        bp_value = 1.2
         
         analyzer = EnhancedCPMAnalyzer()
         avg_metrics, std_metrics, avg_duration, std_duration = analyzer.analyze_parameter_set(ap_value, bp_value)
