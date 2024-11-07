@@ -214,8 +214,8 @@ class SimulationAnalyzer:
             sns.heatmap(pivot_dist, ax=ax1, cmap='viridis', 
                        annot=False, cbar_kws={'label': 'Distancia (m)'})
             #ax1.set_title('Distancia Promedio Recorrida')
-            ax1.set_xlabel('Bp')
-            ax1.set_ylabel('Ap')
+            plt.xlabel(r'$B_p$')
+            plt.ylabel(r'$A_p$')
             
             # Heatmap para ratio de tries
             pivot_tries = df.pivot(index='ap', columns='bp', values='try_ratio')
@@ -225,8 +225,8 @@ class SimulationAnalyzer:
             sns.heatmap(pivot_tries, ax=ax2, cmap='viridis',
                        annot=False, cbar_kws={'label': 'Tries ratio (%)'})
             #ax2.set_title('Ratio de Tries Logrados')
-            ax2.set_xlabel('Bp')
-            ax2.set_ylabel('Ap')
+            plt.xlabel(r'$B_p$')
+            plt.ylabel(r'$A_p$')
             
             plt.tight_layout()
             plt.savefig(self.base_path / 'heuristic_analysis_results.png')
