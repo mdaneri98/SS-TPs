@@ -163,9 +163,9 @@ class CentroidAnalyzer:
                         color='blue',
                         label='Desviación estándar')
         
-        plt.xlabel('Tiempo normalizado (0-1)')
-        plt.ylabel('Distancia al centroide (m)')
-        plt.title(f'Distancia al centroide del equipo (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
+        plt.ylabel('Distancia (m)')
+        #plt.title(f'Distancia al centroide del equipo (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
         plt.legend()
         

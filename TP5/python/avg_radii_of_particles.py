@@ -184,8 +184,8 @@ class RadiusAnalyzer:
                         data['avg_others'] + data['std_others'],
                         alpha=0.3, color='red')
         
-        plt.title(f'Evolución de radios (ap={ap_value}, bp={bp_value})')
-        plt.xlabel('Tiempo normalizado')
+        #plt.title(f'Evolución de radios (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('Radio (m)')
         plt.grid(True)
         plt.legend()

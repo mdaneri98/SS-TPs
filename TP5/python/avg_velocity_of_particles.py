@@ -197,8 +197,8 @@ class VelocityAnalyzer:
                         data['avg_others'] + data['std_others'],
                         alpha=0.3, color='red')
         
-        plt.title(f'Evolución de velocidades (ap={ap_value}, bp={bp_value})')
-        plt.xlabel('Tiempo normalizado')
+        #plt.title(f'Evolución de velocidades (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('Velocidad (m/s)')
         plt.grid(True)
         plt.legend()

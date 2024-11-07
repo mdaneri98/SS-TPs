@@ -190,9 +190,9 @@ class VelocityAnalyzer:
                        annot=False,
                        cbar_kws={'label': 'Velocidad media (m/s)'})
             
-            plt.title('Velocidad Media del Sistema')
-            plt.xlabel('Parámetro bp')
-            plt.ylabel('Parámetro ap')
+            #plt.title('Velocidad Media del Sistema')
+            plt.xlabel('Bp (m)')
+            plt.ylabel(r'$A_p$ (m/s$^2$)')
             
             plt.tight_layout()
             plt.savefig(self.base_path / 'velocity_heatmap.png', dpi=300)

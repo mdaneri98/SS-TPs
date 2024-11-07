@@ -134,8 +134,8 @@ class MeanVelocityAnalyzer:
                         data['mean_v'] + data['std_v'],
                         alpha=0.3, color='blue')
         
-        plt.title(f'Velocidad Media del Sistema (ap={ap_value}, bp={bp_value})')
-        plt.xlabel('Tiempo normalizado')
+        #plt.title(f'Velocidad Media del Sistema (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('Velocidad media (m/s)')
         plt.grid(True)
         

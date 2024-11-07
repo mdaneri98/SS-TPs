@@ -178,7 +178,7 @@ class SimulationAnalyzer:
                         'bp': bp_val,
                         'avg_distance': np.mean(distances),
                         'std_distance': np.std(distances),
-                        'try_ratio': tries_achieved / valid_sims,
+                        'try_ratio': (tries_achieved / valid_sims) * 100,
                         'total_sims': total_sims,
                         'valid_sims': valid_sims
                     })
@@ -213,9 +213,9 @@ class SimulationAnalyzer:
             
             sns.heatmap(pivot_dist, ax=ax1, cmap='viridis', 
                        annot=False, cbar_kws={'label': 'Distancia (m)'})
-            ax1.set_title('Distancia Promedio Recorrida')
-            ax1.set_xlabel('Parámetro bp')
-            ax1.set_ylabel('Parámetro ap')
+            #ax1.set_title('Distancia Promedio Recorrida')
+            ax1.set_xlabel('Bp')
+            ax1.set_ylabel('Ap')
             
             # Heatmap para ratio de tries
             pivot_tries = df.pivot(index='ap', columns='bp', values='try_ratio')
@@ -223,10 +223,10 @@ class SimulationAnalyzer:
             pivot_tries = pivot_tries.sort_index(axis=1)  # Ordenar bp de menor a mayor
             
             sns.heatmap(pivot_tries, ax=ax2, cmap='viridis',
-                       annot=False, cbar_kws={'label': 'Tries ratio'})
-            ax2.set_title('Ratio de Tries Logrados')
-            ax2.set_xlabel('Parámetro bp')
-            ax2.set_ylabel('Parámetro ap')
+                       annot=False, cbar_kws={'label': 'Tries ratio (%)'})
+            #ax2.set_title('Ratio de Tries Logrados')
+            ax2.set_xlabel('Bp')
+            ax2.set_ylabel('Ap')
             
             plt.tight_layout()
             plt.savefig(self.base_path / 'heuristic_analysis_results.png')

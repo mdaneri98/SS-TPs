@@ -261,9 +261,9 @@ class EnhancedCPMAnalyzer:
                     alpha=0.3, color='blue',
                     label='Desviación estándar')
 
-        plt.xlabel('Tiempo normalizado (0-1)')
-        plt.ylabel('Distancia promedio al rugbier (m)')
-        plt.title(f'Distancia Promedio al Rugbier (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
+        plt.ylabel('Distancia (m)')
+        #plt.title(f'Distancia Promedio al Rugbier (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
         plt.legend()
 
@@ -295,10 +295,10 @@ class EnhancedCPMAnalyzer:
                         np.clip(avg_metrics['va'] + std_metrics['va'], 0, 1),
                         alpha=0.3, color='green')
 
-        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('VA')
         plt.ylim(0, 1)  # VA ya está normalizado por definición
-        plt.title(f'Velocidad de Alineación (ap={ap_value}, bp={bp_value})')
+        #plt.title(f'Velocidad de Alineación (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
         plt.legend()
 
@@ -311,9 +311,9 @@ class EnhancedCPMAnalyzer:
         plt.plot(time_index, avg_metrics['std_distance'],
                 color='purple', label='Dispersión')
         
-        plt.xlabel('Tiempo normalizado (0-1)')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('Dispersión de distancias')
-        plt.title(f'Dispersión del Equipo (ap={ap_value}, bp={bp_value})')
+        #plt.title(f'Dispersión del Equipo (ap={ap_value}, bp={bp_value})')
         plt.grid(True)
         plt.legend()
         

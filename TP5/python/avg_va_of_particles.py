@@ -186,8 +186,8 @@ class VaAnalyzer:
                         data['avg_va'] + data['std_va'],
                         alpha=0.3, color='blue')
         
-        plt.title(f'Evolución del parámetro de orden VA (ap={ap_value}, bp={bp_value})')
-        plt.xlabel('Tiempo normalizado')
+        #plt.title(f'Evolución del parámetro de orden VA (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (s)')
         plt.ylabel('VA')
         plt.ylim(0, 1)  # VA está entre 0 y 1
         plt.grid(True)
