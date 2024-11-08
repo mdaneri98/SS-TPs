@@ -145,6 +145,47 @@ class CentroidAnalyzer:
         
         return avg_metrics, std_metrics
 
+    def plot_centroid_comparison(self, params_list):
+        """
+        Genera visualización comparativa de la distancia al centroide para múltiples sets de parámetros
+        params_list: lista de tuplas (ap, bp)
+        """
+        plt.figure(figsize=(12, 8))
+        
+        colors = ['blue', 'red']  # Colores para cada set de parámetros
+        
+        ax = plt.gca()
+        ax.set(xticks=np.linspace(0, 1, 11), 
+               xticklabels=[f'{int(x*100)}' for x in np.linspace(0, 1, 11)])
+        
+        for i, (ap_value, bp_value) in enumerate(params_list):
+            avg_metrics, std_metrics = self.analyze_parameter_set(ap_value, bp_value)
+            
+            if avg_metrics is not None:
+                time_index = avg_metrics.index
+                
+                plt.plot(time_index, avg_metrics['centroid_distance'],
+                        color=colors[i], 
+                        linewidth=2,
+                        label=f'ap={ap_value:.1f}, bp={bp_value:.1f}')
+                
+                plt.fill_between(time_index,
+                               avg_metrics['centroid_distance'] - std_metrics['centroid_distance'],
+                               avg_metrics['centroid_distance'] + std_metrics['centroid_distance'],
+                               alpha=0.3,
+                               color=colors[i])
+        
+        plt.xlabel('Tiempo normalizado (%)')
+        plt.ylabel('Distancia media (m)')
+        plt.grid(True)
+        plt.legend()
+        
+        output_path = self.output_dir / 'centroid_comparison.png'
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        logging.info(f"Comparación guardada en {output_path}")
+
     def plot_centroid_analysis(self, avg_metrics, std_metrics, ap_value, bp_value):
         """Genera visualización de la distancia al centroide"""
         plt.figure(figsize=(12, 8))
@@ -165,35 +206,36 @@ class CentroidAnalyzer:
                         alpha=0.3,
                         color='blue')
         
-        plt.xlabel('(%)')
-        plt.ylabel('(m)')
-        #plt.title(f'Distancia al centroide del equipo (ap={ap_value}, bp={bp_value})')
+        plt.xlabel('Tiempo normalizado (%)')
+        plt.ylabel('Distancia promedio (m)')
         plt.grid(True)
-        #plt.legend()
         
         output_path = self.output_dir / f'centroid_analysis_ap_{ap_value:.2f}_bp_{bp_value:.2f}.png'
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
 
-if __name__ == "__main__":
+def main():
     try:
-        ap_value = 6.0
-        bp_value = 1.6
+        # Definir los dos sets de parámetros a comparar
+        params_list = [
+            (2.0, 0.8),  # (ap1, bp1)
+            (22.0, 0.8)  # (ap2, bp2)
+        ]
         
         analyzer = CentroidAnalyzer()
-        avg_metrics, std_metrics = analyzer.analyze_parameter_set(ap_value, bp_value)
+        analyzer.plot_centroid_comparison(params_list)
         
-        if avg_metrics is not None:
-            analyzer.plot_centroid_analysis(avg_metrics, std_metrics, ap_value, bp_value)
-            logging.info("\nAnálisis completado y gráficos guardados")
-            
-            # Imprimir estadísticas
-            print("\nEstadísticas de distancia al centroide:")
-            print(f"Distancia media global: {avg_metrics['centroid_distance'].mean():.2f} m")
-            print(f"Distancia máxima: {avg_metrics['centroid_distance'].max():.2f} m")
-            print(f"Distancia mínima: {avg_metrics['centroid_distance'].min():.2f} m")
-        else:
-            logging.error("No se pudo completar el análisis")
+        # Imprimir estadísticas para cada set
+        for ap_value, bp_value in params_list:
+            avg_metrics, _ = analyzer.analyze_parameter_set(ap_value, bp_value)
+            if avg_metrics is not None:
+                print(f"\nEstadísticas para ap={ap_value:.1f}, bp={bp_value:.1f}:")
+                print(f"Distancia media global: {avg_metrics['centroid_distance'].mean():.2f} m")
+                print(f"Distancia máxima: {avg_metrics['centroid_distance'].max():.2f} m")
+                print(f"Distancia mínima: {avg_metrics['centroid_distance'].min():.2f} m")
             
     except Exception as e:
         logging.error(f"Error en la ejecución principal: {str(e)}")
+
+if __name__ == "__main__":
+    main()

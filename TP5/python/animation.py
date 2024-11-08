@@ -1,10 +1,16 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+from pathlib import Path
 import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 class ParticleData:
-    # [La clase ParticleData permanece igual...]
     def __init__(self):
         self.times = []
         self.particles = {}  # Dictionary para guardar datos por ID
@@ -114,8 +120,8 @@ def animate_particles(data, output_dir):
     """
     Crea y guarda la animación y los frames individuales
     """
-    # Crear el directorio de salida si no existe
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     fig, ax = plt.subplots(figsize=(10, 8))
     ax.set_xlim(0, data.static_params['width'])
@@ -124,12 +130,10 @@ def animate_particles(data, output_dir):
     scale_factor = 0.0001 * min(data.static_params['width'], data.static_params['height'])
     
     def update(frame):
-        # Limpiar el gráfico anterior
         ax.clear()
         ax.set_xlim(0, data.static_params['width'])
         ax.set_ylim(0, data.static_params['height'])
         
-        # Dibujar las partículas para este frame
         artists = []
         for pid in data.particles.keys():
             color = 'blue' if pid == 0 else 'red'
@@ -152,7 +156,7 @@ def animate_particles(data, output_dir):
         ax.set_title(f'Tiempo: {data.times[frame]:.2f}s')
         
         # Guardar el frame actual
-        plt.savefig(os.path.join(output_dir, f'frame_{frame:04d}.png'))
+        plt.savefig(output_dir / f'frame_{frame:04d}.png')
         
         return artists
 
@@ -161,42 +165,101 @@ def animate_particles(data, output_dir):
                                 interval=50, blit=True)
     
     # Guardar la animación como GIF
-    ani.save(os.path.join(output_dir, 'animation.gif'), writer='pillow')
+    ani.save(output_dir / 'animation.gif', writer='pillow')
     plt.close()
 
 def main():
-    # Directorio base donde están las simulaciones
-    base_dir = 'outputs/heuristic_analysis'
-    
-    # Recorrer todas las carpetas de ap_bp
-    for ap_bp_dir in os.listdir(base_dir):
-        if ap_bp_dir.startswith('ap_'):
-            # Construir la ruta a la simulación 0
-            sim_path = os.path.join(base_dir, ap_bp_dir, 'sim_000')
+    # Usar Path para manejar rutas de manera más robusta
+    base_dir = Path('outputs/heuristic_analysis').resolve()
+    logging.info(f"Directorio base: {base_dir}")
+
+    # Recorrer todas las carpetas ap_bp
+    for ap_bp_dir in base_dir.glob('ap_*_bp_*'):
+        if not ap_bp_dir.is_dir():
+            continue
             
-            # Verificar que exista la simulación 0
-            if not os.path.exists(sim_path):
-                continue
-                
-            # Cargar los datos de la simulación
+        logging.info(f"Procesando directorio: {ap_bp_dir}")
+        
+        # Buscar la simulación 000
+        sim_dir = ap_bp_dir / 'sim_000'
+        if not sim_dir.is_dir():
+            logging.warning(f"No se encontró sim_000 en {ap_bp_dir}")
+            continue
+            
+        logging.info(f"Procesando simulación: {sim_dir}")
+        
+        # Verificar que existan los archivos necesarios
+        static_file = sim_dir / 'static.txt'
+        dynamic_file = sim_dir / 'dynamic.txt'
+        
+        if not (static_file.exists() and dynamic_file.exists()):
+            logging.warning(f"Archivos necesarios no encontrados en {sim_dir}")
+            continue
+        
+        try:
+            # Cargar los datos
             data = ParticleData()
-            static_file = os.path.join(sim_path, 'static.txt')
-            dynamic_file = os.path.join(sim_path, 'dynamic.txt')
-            
-            # Verificar que existan los archivos necesarios
-            if not (os.path.exists(static_file) and os.path.exists(dynamic_file)):
-                continue
-                
             data.load_static(static_file)
             data.load_dynamic(dynamic_file)
             
-            # Crear directorio para los frames dentro de sim_000
-            frames_dir = os.path.join(sim_path, 'frames')
+            # Crear directorio para los frames
+            frames_dir = sim_dir / 'frames'
             
             # Generar la animación
+            logging.info(f"Generando animación para {sim_dir}")
             animate_particles(data, frames_dir)
             
-            print(f"Procesado {ap_bp_dir} - simulación 000")
+            logging.info(f"Procesamiento completado para {sim_dir}")
+            
+        except Exception as e:
+            logging.error(f"Error procesando {sim_dir}: {str(e)}")
+            continue
 
 if __name__ == '__main__':
     main()
+
+def main2():
+    # Usar Path para manejar rutas de manera más robusta
+    base_dir = Path('outputs/players_analysis').resolve()
+    logging.info(f"Directorio base: {base_dir}")
+
+    # Recorrer todas las carpetas N_xx
+    for n_dir in base_dir.glob('N_*'):
+        if not n_dir.is_dir():
+            continue
+            
+        logging.info(f"Procesando directorio: {n_dir}")
+        
+        # Buscar solo las simulaciones que terminan en 00
+        for sim_dir in n_dir.glob('sim_000'):
+            if not sim_dir.is_dir():
+                continue
+                
+            logging.info(f"Procesando simulación: {sim_dir}")
+            
+            # Verificar que existan los archivos necesarios
+            static_file = sim_dir / 'static.txt'
+            dynamic_file = sim_dir / 'dynamic.txt'
+            
+            if not (static_file.exists() and dynamic_file.exists()):
+                logging.warning(f"Archivos necesarios no encontrados en {sim_dir}")
+                continue
+            
+            try:
+                # Cargar los datos
+                data = ParticleData()
+                data.load_static(static_file)
+                data.load_dynamic(dynamic_file)
+                
+                # Crear directorio para los frames
+                frames_dir = sim_dir / 'frames'
+                
+                # Generar la animación
+                logging.info(f"Generando animación para {sim_dir}")
+                animate_particles(data, frames_dir)
+                
+                logging.info(f"Procesamiento completado para {sim_dir}")
+                
+            except Exception as e:
+                logging.error(f"Error procesando {sim_dir}: {str(e)}")
+                continue

@@ -204,40 +204,51 @@ class SimulationAnalyzer:
             return None
         
         try:
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-            
-            # Heatmap para distancia promedio
+            # Configuración común para los plots
+            plt.rcParams.update({
+                'font.size': 12,
+                'figure.figsize': (8, 6),
+                'axes.labelsize': 14
+            })
+
+            # 1. Gráfico para distancia promedio
+            fig1, ax1 = plt.subplots()
             pivot_dist = df.pivot(index='ap', columns='bp', values='avg_distance')
-            pivot_dist = pivot_dist.sort_index(ascending=False)  # Ordenar ap de mayor a menor
-            pivot_dist = pivot_dist.sort_index(axis=1)  # Ordenar bp de menor a mayor
+            pivot_dist = pivot_dist.sort_index(ascending=False)
+            pivot_dist = pivot_dist.sort_index(axis=1)
             
             sns.heatmap(pivot_dist, ax=ax1, cmap='viridis', 
                        annot=False, cbar_kws={'label': 'Distancia (m)'})
-            #ax1.set_title('Distancia Promedio Recorrida')
-            plt.xlabel(r'$B_p$')
-            plt.ylabel(r'$A_p$')
+            ax1.set_xlabel(r'$B_p$')
+            ax1.set_ylabel(r'$A_p$')
             
-            # Heatmap para ratio de tries
+            plt.tight_layout()
+            plt.savefig(self.base_path / 'heuristic_distance_results.png', dpi=300, bbox_inches='tight')
+            plt.close()
+
+            # 2. Gráfico para ratio de tries
+            fig2, ax2 = plt.subplots()
             pivot_tries = df.pivot(index='ap', columns='bp', values='try_ratio')
-            pivot_tries = pivot_tries.sort_index(ascending=False)  # Ordenar ap de mayor a menor
-            pivot_tries = pivot_tries.sort_index(axis=1)  # Ordenar bp de menor a mayor
+            pivot_tries = pivot_tries.sort_index(ascending=False)
+            pivot_tries = pivot_tries.sort_index(axis=1)
             
             sns.heatmap(pivot_tries, ax=ax2, cmap='viridis',
                        annot=False, cbar_kws={'label': 'Tries ratio (%)'})
-            #ax2.set_title('Ratio de Tries Logrados')
-            plt.xlabel(r'$B_p$')
-            plt.ylabel(r'$A_p$')
+            ax2.set_xlabel(r'$B_p$')
+            ax2.set_ylabel(r'$A_p$')
             
             plt.tight_layout()
-            plt.savefig(self.base_path / 'heuristic_analysis_results.png')
+            plt.savefig(self.base_path / 'heuristic_tries_results.png', dpi=300, bbox_inches='tight')
             plt.close()
             
+            # Guardar datos en CSV
             df.to_csv(self.base_path / 'heuristic_analysis_results.csv', index=False)
             
             best_distance = df.loc[df['avg_distance'].idxmax()]
             best_tries = df.loc[df['try_ratio'].idxmax()]
             
             logging.info("Análisis completado exitosamente")
+            logging.info(f"Gráficos guardados como: heuristic_distance_results.png y heuristic_tries_results.png")
             
             return {
                 'best_distance': {

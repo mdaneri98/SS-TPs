@@ -185,7 +185,7 @@ class RadiusAnalyzer:
                         alpha=0.3, color='red')
         
         #plt.title(f'Evolución de radios (ap={ap_value}, bp={bp_value})')
-        plt.xlabel('Tiempo normalizado (s)')
+        plt.xlabel('Tiempo normalizado (%)')
         plt.ylabel('Radio (m)')
         plt.grid(True)
         plt.legend()
@@ -198,8 +198,8 @@ class RadiusAnalyzer:
 
 if __name__ == "__main__":
     # Especificar los valores de ap y bp a analizar
-    ap_value = 35.0  # Modifica este valor
-    bp_value = 1.2   # Modifica este valor
+    ap_value = 6.0  # Modifica este valor
+    bp_value = 1.6   # Modifica este valor
     
     try:
         analyzer = RadiusAnalyzer()
