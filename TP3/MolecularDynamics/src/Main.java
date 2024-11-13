@@ -25,7 +25,7 @@ public class Main {
         double dt = 0.01;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, velocity, mass, radius, staticRadius, staticMass, dt);
-        molecularDynamic.fixedSolution(5);
+        molecularDynamic.fixedSolution(15);
 
     }
 
