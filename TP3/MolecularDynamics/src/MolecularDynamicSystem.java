@@ -108,6 +108,10 @@ public class MolecularDynamicSystem {
         Particle p2 = new Particle(2, new Position(l-3*radius, radius+radius/2.0), new Velocity(-1, 0), radius, mass);
         particleSet.add(p2);
 
+        // p2 moviéndose hacia la izquierda
+        Particle p3 = new Particle(3, new Position(l/2, radius+radius/2.0), new Velocity(-1, 0), radius, mass);
+        particleSet.add(p3);
+
         return new State(0, walls, particleSet);
     }
 

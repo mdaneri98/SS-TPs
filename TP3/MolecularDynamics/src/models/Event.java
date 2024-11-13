@@ -23,8 +23,8 @@ public class Event {
         double sigma = p2.getRadius() + p1.getRadius();
         
         // Velocidades relativas
-        double deltaVX = p1.getVelocity().getX() - p2.getVelocity().getX();
-        double deltaVY = p1.getVelocity().getY() - p2.getVelocity().getY();
+        double deltaVX = p2.getVelocity().getX() - p1.getVelocity().getX();
+        double deltaVY = p2.getVelocity().getY() - p1.getVelocity().getY();
         
         // Producto escalar de velocidad relativa y posición relativa
         double deltas = deltaVX * deltaX + deltaVY * deltaY;
