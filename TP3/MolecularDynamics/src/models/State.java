@@ -54,17 +54,21 @@ public class State {
 
     private Pair<Double, Particle> findNextParticleCollision(Particle current) {
         Pair<Double, Particle> nextCollision = null;
+        
         for (Particle other : particleSet) {
-            if (current.equals(other)) continue;
+            if (current.equals(other))
+                continue;
 
-            /* Si current es la estática => tc < 0 */
+            // Si current == static => tc < 0
             double tc = current.timeToCollide(other);
+
             if (tc > 0 && tc < Double.POSITIVE_INFINITY) {
                 if (nextCollision == null || tc < nextCollision.getLeft()) {
                     nextCollision = new Pair<>(tc, other);
                 }
             }
         }
+        
         return nextCollision;
     }
 

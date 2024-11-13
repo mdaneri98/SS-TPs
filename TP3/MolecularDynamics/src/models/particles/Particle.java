@@ -47,8 +47,8 @@ public class Particle implements Obstacle {
         /* Tiempo en colisionar la particula 'particle' con esta instancia. */
 
         // Calculamos las diferencias de posición (deltaR) y velocidad (deltaV)
-        Pair<Double, Double> deltaR = new Pair<>(this.getPosition().getX() - particle.getPosition().getX(), this.getPosition().getY() - particle.getPosition().getY());
-        Pair<Double, Double> deltaV = new Pair<>(this.getVelocity().getX() - particle.getVelocity().getX(), this.getVelocity().getY() - particle.getVelocity().getY());
+        Pair<Double, Double> deltaR = new Pair<>(particle.getPosition().getX() - this.getPosition().getX(), particle.getPosition().getY() - this.getPosition().getY());
+        Pair<Double, Double> deltaV = new Pair<>(particle.getVelocity().getX() - this.getVelocity().getX(), particle.getVelocity().getY() - this.getVelocity().getY());
 
         // Magnitudes al cuadrado
         double deltaR2 = Math.pow(deltaR.getLeft(), 2) + Math.pow(deltaR.getRight(), 2); // deltaR^2

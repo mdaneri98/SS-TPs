@@ -43,7 +43,7 @@ public class MolecularDynamicSystem {
         this.n = n;
 
         createWalls(l);
-        initial = initialState();
+        initial = testParticlesInitial();
     }
 
     private void createWalls(double L) {
@@ -65,6 +65,19 @@ public class MolecularDynamicSystem {
 
         return new State(0, walls, particleSet);
     }
+    
+    private State testWallInclinadoInitial() {
+        Set<Particle> particleSet = new HashSet<>();
+
+        Particle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
+        particleSet.add(staticParticle);
+
+        // Choca contra la pared derecha => Luego izquierda => Luego derecha => ...
+        Particle p1 = new Particle(1, new Position(0.095, 0.01), new Velocity(1, -0.001), radius, mass);
+        particleSet.add(p1);
+
+        return new State(0, walls, particleSet);
+    }
 
     private State testStaticInitial() {
         Set<Particle> particleSet = new HashSet<>();
@@ -82,14 +95,17 @@ public class MolecularDynamicSystem {
     private State testParticlesInitial() {
         Set<Particle> particleSet = new HashSet<>();
 
+        // Movemos la partícula estática arriba para que no interfiera
         Particle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, mass);
         particleSet.add(staticParticle);
 
-        // [p1]~[p2] => [p1]->Left => [p2]->Right => [p1]~[p2]
-        Particle p1 = new Particle(1, new Position(0.005, 0.005), new Velocity(1, 0), radius, mass);
+        // Posicionamos las partículas móviles en el mismo eje Y, separadas horizontalmente
+        // p1 moviéndose hacia la derecha
+        Particle p1 = new Particle(1, new Position(radius, radius+radius/2.0), new Velocity(1, 0), radius, mass);
         particleSet.add(p1);
 
-        Particle p2 = new Particle(2, new Position(l/2.0, 0.005), new Velocity(-1, 0), radius, mass);
+        // p2 moviéndose hacia la izquierda
+        Particle p2 = new Particle(2, new Position(l-3*radius, radius+radius/2.0), new Velocity(-1, 0), radius, mass);
         particleSet.add(p2);
 
         return new State(0, walls, particleSet);
@@ -142,7 +158,7 @@ public class MolecularDynamicSystem {
 
         int stateCounter = 0;
         int saveFrequency = 1; // Guarda cada 100 estados
-        int maxStatesToSave = 1; // Máximo número de estados a guardar antes de escribir en archivo
+        int maxStatesToSave = 100; // Máximo número de estados a guardar antes de escribir en archivo
 
         long startTime = System.nanoTime();
         long endTime = startTime + (runSeconds * 1_000_000_000L); // Convertir segundos a nanosegundos
