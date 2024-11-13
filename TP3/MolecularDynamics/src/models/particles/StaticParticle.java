@@ -1,7 +1,12 @@
 package models.particles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StaticParticle extends Particle {
 
+	private static final List<Integer> collisionCount = new ArrayList<>();
+	
     public StaticParticle(int id, Position position, double radius, double mass) {
         super(id, position, new Velocity(0,0), radius, mass);
     }
@@ -29,6 +34,10 @@ public class StaticParticle extends Particle {
 
         // Incrementamos el momento usando la componente tangencial
         return 2 * particle.getMass() * Math.abs(velocityTangential);
+    }
+    
+    public List<Integer> collisionCount() {
+    	return collisionCount;
     }
 
 }

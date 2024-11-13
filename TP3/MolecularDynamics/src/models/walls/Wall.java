@@ -1,5 +1,8 @@
 package models.walls;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import models.Obstacle;
 import models.particles.Particle;
 
@@ -7,10 +10,15 @@ public abstract class Wall implements Obstacle {
 
     private final WallType type;
     private final double L;
+    
+    private final List<Integer> collisionCount;
 
     public Wall(WallType type, double l) {
         this.type = type;
         L = l;
+        
+        collisionCount = new ArrayList<>();
+        collisionCount.add(0);
     }
 
     public WallType getType() {
@@ -22,4 +30,9 @@ public abstract class Wall implements Obstacle {
     public double getL() {
         return L;
     }
+    
+    public List<Integer> collisionCount() {
+    	return collisionCount;
+    }
+    
 }

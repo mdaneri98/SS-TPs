@@ -1,6 +1,7 @@
 package models;
 
 import models.particles.Particle;
+import models.particles.StaticParticle;
 import models.walls.Wall;
 import models.walls.WallType;
 
@@ -12,17 +13,19 @@ public class State {
     private double time;
     private int L;
 
-
     private Map<WallType, Wall> walls;
     private Set<Particle> particleSet;
 
+    private StaticParticle staticParticle;
+    
     // <Tiempo de choque, Particulas>
     private Set<FutureCollision> collisionSet;
 
-    public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet) {
+    public State(double time, Map<WallType, Wall> walls, Set<Particle> particleSet, StaticParticle staticParticle) {
         this.time = time;
         this.walls = walls;
         this.particleSet = particleSet;
+        this.staticParticle = staticParticle;
 
         collisionSet = new TreeSet<>();
 
@@ -112,4 +115,9 @@ public class State {
     public double getTime() {
         return time;
     }
+    
+    public StaticParticle getStaticParticle() {
+    	return staticParticle;
+    }
+    
 }

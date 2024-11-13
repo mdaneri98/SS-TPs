@@ -3,6 +3,8 @@ package models.particles;
 import models.Obstacle;
 import models.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Particle implements Obstacle {
@@ -12,7 +14,7 @@ public class Particle implements Obstacle {
     private Position position;
     private double radius;
     private double mass;
-
+    
     public Particle(int id, Position position, Velocity velocity, double radius, double mass) {
         this.id = id;
         this.velocity = velocity;
@@ -154,5 +156,5 @@ public class Particle implements Obstacle {
     public void setMass(double mass) {
         this.mass = mass;
     }
-
+    
 }
