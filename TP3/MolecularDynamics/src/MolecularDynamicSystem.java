@@ -18,33 +18,19 @@ import java.util.List;
 public class MolecularDynamicSystem {
 
     private final double l;
-
-    private final double velocity;
-    private final double radius;
-    private final double mass;
-    private final double staticRadius;
-    private final double staticMass;
     private final double dt;
     private final int n;
     
 
     private final Map<WallType, Wall> walls = new HashMap<>();
-    
+    private State initial;
 
-    private final State initial;
-
-    public MolecularDynamicSystem(int n, double l, double velocity, double mass, double radius, double staticRadius, double staticMass, double dt) {
+    public MolecularDynamicSystem(int n, double l, double dt) {
         this.l = l;
-        this.velocity = velocity;
-        this.radius = radius;
-        this.mass = mass;
-        this.staticRadius = staticRadius;
-        this.staticMass = staticMass;
         this.n = n;
         this.dt = dt;
         
         createWalls(l);
-        initial = initialState();
     }
 
     private void createWalls(double L) {
@@ -54,7 +40,7 @@ public class MolecularDynamicSystem {
         walls.put(WallType.LEFT, new LeftWall(WallType.LEFT, L));
     }
 
-    private State testWallInitial() {
+    private State testWallInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
         StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
@@ -67,7 +53,52 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
     
-    private State testWallInclinadoInitial() {
+    private State testOblicuoInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
+    	   Set<Particle> particleSet = new HashSet<>();
+
+    	   // Movemos la partícula estática arriba para no interferir
+    	   StaticParticle staticParticle = new StaticParticle(0, 
+    	       new Position(l/2.0, l - 2*staticRadius), 
+    	       staticRadius, 
+    	       staticMass);
+    	   particleSet.add(staticParticle);
+
+    	   // Calcular el punto inicial en la diagonal para P1
+    	   double p1x = l/4.0;  // A un cuarto del ancho
+    	   double p1y = p1x;    // Misma coordenada y para estar en la diagonal
+
+    	   // Calcular el punto inicial en la diagonal para P2
+    	   double p2x = 3*l/4.0;  // A tres cuartos del ancho  
+    	   double p2y = p2x;      // Misma coordenada y para estar en la diagonal
+
+    	   // P1: moviéndose hacia arriba-derecha sobre la diagonal
+    	   Particle p1 = new Particle(1, 
+    	       new Position(p1x, p1y),
+    	       new Velocity(velocity/Math.sqrt(2), velocity/Math.sqrt(2)),  // 45 grados (v/√2, v/√2)
+    	       radius, 
+    	       mass);
+    	   particleSet.add(p1);
+
+    	   // P2: moviéndose hacia abajo-izquierda sobre la diagonal
+    	   Particle p2 = new Particle(2, 
+    	       new Position(p2x, p2y),
+    	       new Velocity(-velocity/Math.sqrt(2), -velocity/Math.sqrt(2)),  // 225 grados (-v/√2, -v/√2)
+    	       radius, 
+    	       mass);
+    	   particleSet.add(p2);
+
+    	   // P3: moviéndose paralelo a la diagonal pero desplazado
+    	   Particle p3 = new Particle(3, 
+    	       new Position(l/2.0, l/4.0),  // Desplazado del centro
+    	       new Velocity(velocity/Math.sqrt(2), velocity/Math.sqrt(2)),  // Misma dirección que P1
+    	       radius, 
+    	       mass);
+    	   particleSet.add(p3);
+
+    	   return new State(0, walls, particleSet, staticParticle);
+    	}
+    
+    private State testWallInclinadoInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
         StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
@@ -80,7 +111,7 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
-    private State testStaticInitial() {
+    private State testStaticInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
         StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, mass);
@@ -93,7 +124,7 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
-    private State testParticlesInitial() {
+    private State testParticlesInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
         // Movemos la partícula estática arriba para que no interfiera
@@ -116,11 +147,11 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
-    private State initialState() {
+    private State initialState(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
 
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, mass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
         particleSet.add(staticParticle);
 
         while (particleSet.size() < n) {
@@ -146,15 +177,17 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
-    public void fixedSolution(int runSeconds) {
+    public void fixedSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
         String directory = String.format(Locale.US, "fixed_solution");
 
+        initial = initialState(velocity, mass, radius, staticRadius, staticMass);
+        
         Path staticPath = getFilePath(directory, "static.csv");
         saveStatic(staticPath);
 
         Path filepath = getFilePath(directory, "particles.csv");
-
-        Iterator<State> iterator = new MolecularDynamicWithFixObstacle(velocity, mass, radius, staticRadius, initial, dt);
+        
+        Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
         runSolution(iterator, filepath, runSeconds);
     }
 
@@ -218,33 +251,46 @@ public class MolecularDynamicSystem {
     
     private void saveCollisionCounts(String directory) {
         Path countPath = getFilePath(directory, "count.csv");
-        
+
         try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
             writer.write("time,bottom,right,top,left,static\n");
-            
-            // Obtener las listas de contadores de cada pared y la partícula estática
+
+            // Obtener las listas de contadores
             List<Integer> bottomCounts = walls.get(WallType.BOTTOM).collisionCount();
             List<Integer> rightCounts = walls.get(WallType.RIGHT).collisionCount();
             List<Integer> topCounts = walls.get(WallType.TOP).collisionCount();
             List<Integer> leftCounts = walls.get(WallType.LEFT).collisionCount();
             List<Integer> staticCounts = initial.getStaticParticle().collisionCount();
-            
-            // Escribir los datos para cada intervalo de tiempo
-            int maxIntervals = bottomCounts.size();
+
+            // Encontrar el máximo número de intervalos
+            int maxIntervals = Math.max(
+                Math.max(
+                    Math.max(bottomCounts.size(), rightCounts.size()),
+                    Math.max(topCounts.size(), leftCounts.size())
+                ),
+                staticCounts.size()
+            );
+
+            // Función auxiliar para obtener el valor o 0 si el índice está fuera de rango
             for (int i = 0; i < maxIntervals; i++) {
                 writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
                     dt * i,
-                    bottomCounts.get(i),
-                    rightCounts.get(i),
-                    topCounts.get(i),
-                    leftCounts.get(i),
-                    staticCounts.get(i)
+                    getValueOrZero(bottomCounts, i),
+                    getValueOrZero(rightCounts, i),
+                    getValueOrZero(topCounts, i),
+                    getValueOrZero(leftCounts, i),
+                    getValueOrZero(staticCounts, i)
                 ));
             }
         } catch (IOException e) {
             System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Método auxiliar para obtener el valor de la lista o 0 si el índice está fuera de rango
+    private int getValueOrZero(List<Integer> list, int index) {
+        return index < list.size() ? list.get(index) : 0;
     }
 
     private Path getFilePath(String directory, String filename) {
@@ -341,7 +387,7 @@ public class MolecularDynamicSystem {
             for (Double momentum : momentums.get(i)) {
                 sumMomentum += momentum;
             }
-            double contactArea = 2 * Math.PI * staticRadius;
+            double contactArea = 2 * Math.PI * 2;//staticRadius;
 
             double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * contactArea);
             pressureByTime.put(deltaTime*i, pressure);

@@ -9,7 +9,7 @@ import models.State;
 
 import java.util.*;
 
-public class MolecularDynamicWithFixObstacle implements Iterator<State> {
+public class MolecularDynamicWithObstacle implements Iterator<State> {
 
     private double velocity;
     private double radius;
@@ -18,7 +18,7 @@ public class MolecularDynamicWithFixObstacle implements Iterator<State> {
     private double dt;
     private List<State> states;
 
-    public MolecularDynamicWithFixObstacle(double velocity, double radius, double mass, double staticRadius, State initial, double dt) {
+    public MolecularDynamicWithObstacle(double velocity, double radius, double mass, double staticRadius, State initial, double dt) {
         this.velocity = velocity;
         this.radius = radius;
         this.mass = mass;

@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import csv
 from matplotlib.animation import FuncAnimation
+import os
+from PIL import Image  # Librería para crear el GIF
 
 # Global variables
 N = 0  # Number of particles
@@ -67,14 +69,6 @@ def read_dynamic_file(filename, particles_info):
     return states
 
 
-def update(frame, circles, states):
-    state = states[frame]
-    for particle in state.particles:
-        circle = circles[particle.id]
-        circle.center = (particle.x, particle.y)
-    return circles.values()
-
-
 def animate_particles(static_file, dynamic_file):
     global N, L
     N, L, particles_info = read_static_file(static_file)
@@ -85,14 +79,29 @@ def animate_particles(static_file, dynamic_file):
     ax.set_ylim(0, L)
 
     circles = {}
+    texts = {}
+    arrows = {}
     for idx, (mass, radius) in particles_info.items():
         color = 'orange' if idx == 0 else 'black'
         circle = patches.Circle((0, 0), radius=radius, color=color, fill=True)
         ax.add_patch(circle)
         circles[idx] = circle
 
+        # Add a text for each particle ID
+        text = ax.text(0, 0, str(idx), color="green", fontsize=8, ha='center', va='center')
+        texts[idx] = text
+
+        # Initialize arrows for each particle
+        arrow = ax.arrow(0, 0, 0, 0, head_width=0.1, head_length=0.1, fc='blue', ec='blue')
+        arrows[idx] = arrow
+
     # Add a text object to display the current time
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+
+    # Create output directory for frames if not exists
+    output_dir = "outputs/fixed_solution/animation"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     def update(frame):
         state = states[frame]
@@ -100,39 +109,49 @@ def animate_particles(static_file, dynamic_file):
             circle = circles[particle.id]
             circle.center = (particle.x, particle.y)
 
+            # Update particle ID position
+            text = texts[particle.id]
+            text.set_position((particle.x, particle.y))
+
+            # Update arrow position and direction
+            arrow = arrows[particle.id]
+            scale_factor = 1 * circle.radius  # Scale arrow length according to particle radius
+            arrow.remove()  # Remove previous arrow to redraw
+            new_arrow = ax.arrow(
+                particle.x, particle.y,
+                particle.vx * scale_factor, particle.vy * scale_factor,
+                head_width=scale_factor, head_length=scale_factor, fc='blue', ec='blue'
+            )
+            arrows[particle.id] = new_arrow  # Update arrow in dictionary
+
         # Update the time text
         time_text.set_text(f'Time: {state.time:.4f}')
 
-        return list(circles.values()) + [time_text]
+        # Save the first 100 frames as images
+        if frame < 40:
+            plt.savefig(f"{output_dir}/frame_{frame:03d}.png", dpi=300)
 
+        return list(circles.values()) + list(texts.values()) + list(arrows.values()) + [time_text]
+
+    # Generate animation
     ani = FuncAnimation(fig, update, frames=len(states),
                         repeat=False, blit=True)
+
+    # Save GIF after animation is done
+    ani.save("particle_animation.gif", writer='imagemagick')
+
+    # Display the animation
     plt.show()
 
+    # Generate GIF from saved frames
+    images = []
+    for i in range(40):
+        filename = f"{output_dir}/frame_{i:03d}.png"
+        images.append(Image.open(filename))
 
-def plot_specific_frame(static_file, dynamic_file, frame_number):
-    global N, L
-    N, L, particles_info = read_static_file(static_file)
-    states = read_dynamic_file(dynamic_file, particles_info)
-
-    if frame_number < 0 or frame_number >= len(states):
-        print(f"Frame {frame_number} out of range.")
-        return
-
-    fig, ax = plt.subplots()
-    ax.set_xlim(0, L)
-    ax.set_ylim(0, L)
-
-    state = states[frame_number]
-
-    for particle in state.particles:
-        color = 'orange' if particle.id == 0 else 'black'
-        circle = patches.Circle((particle.x, particle.y), radius=particle.radius, color=color, fill=True)
-        ax.add_patch(circle)
-        ax.text(particle.x, particle.y, str(particle.id), color='green', fontsize=12, ha='center', va='center')
-
-    plt.title(f"Frame {frame_number}, Time: {state.time:.6f}")
-    plt.show()
+    # Save as GIF
+    images[0].save("particle_animation_frames.gif",
+                   save_all=True, append_images=images[1:], duration=100, loop=0)
 
 
 # Main execution
@@ -141,21 +160,3 @@ if __name__ == "__main__":
     dynamic_file = 'outputs/fixed_solution/particles.csv'
 
     animate_particles(static_file, dynamic_file)
-
-    # Uncomment the following lines to plot specific frames
-    #plot_specific_frame(static_file, dynamic_file, 1)
-    #plot_specific_frame(static_file, dynamic_file, 0)
-    #plot_specific_frame(static_file, dynamic_file, 2)
-    #plot_specific_frame(static_file, dynamic_file, 3)
-    #plot_specific_frame(static_file, dynamic_file, 4)
-    #plot_specific_frame(static_file, dynamic_file, 5)
-    #plot_specific_frame(static_file, dynamic_file, 6)
-    #plot_specific_frame(static_file, dynamic_file, 7)
-    #plot_specific_frame(static_file, dynamic_file, 8)
-    #plot_specific_frame(static_file, dynamic_file, 9)
-    #plot_specific_frame(static_file, dynamic_file, 10)
-    #plot_specific_frame(static_file, dynamic_file, 11)
-    #plot_specific_frame(static_file, dynamic_file, 12)
-    #plot_specific_frame(static_file, dynamic_file, 13)
-    #plot_specific_frame(static_file, dynamic_file, 14)
-    #plot_specific_frame(static_file, dynamic_file, 15)
