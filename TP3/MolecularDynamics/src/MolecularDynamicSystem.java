@@ -178,7 +178,7 @@ public class MolecularDynamicSystem {
     }
 
     public void fixedSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
-        String directory = String.format(Locale.US, "fixed_solution");
+        String directory = String.format(Locale.US, "fixed_solution", String.format("v_%.2f", velocity));
 
         initial = initialState(velocity, mass, radius, staticRadius, staticMass);
         
