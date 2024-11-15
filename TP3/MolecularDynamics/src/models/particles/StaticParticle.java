@@ -6,6 +6,7 @@ import java.util.List;
 public class StaticParticle extends Particle {
 
 	private static final List<Integer> collisionCount = new ArrayList<>();
+	private static final List<Double> momentumCount = new ArrayList<>();
 	
     public StaticParticle(int id, Position position, double radius, double mass) {
         super(id, position, new Velocity(0,0), radius, mass);
@@ -38,6 +39,10 @@ public class StaticParticle extends Particle {
     
     public List<Integer> collisionCount() {
     	return collisionCount;
+    }
+    
+    public List<Double> momentumCount() {
+    	return momentumCount;
     }
 
 }

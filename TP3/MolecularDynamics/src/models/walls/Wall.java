@@ -12,6 +12,7 @@ public abstract class Wall implements Obstacle {
     private final double L;
     
     private final List<Integer> collisionCount;
+    private final List<Double> momentumCount;
 
     public Wall(WallType type, double l) {
         this.type = type;
@@ -19,6 +20,9 @@ public abstract class Wall implements Obstacle {
         
         collisionCount = new ArrayList<>();
         collisionCount.add(0);
+        
+        momentumCount = new ArrayList<>();
+        momentumCount.add(0d);
     }
 
     public WallType getType() {
@@ -33,6 +37,10 @@ public abstract class Wall implements Obstacle {
     
     public List<Integer> collisionCount() {
     	return collisionCount;
+    }
+    
+    public List<Double> momentumCount() {
+    	return momentumCount;
     }
     
 }

@@ -223,6 +223,7 @@ public class MolecularDynamicSystem {
         
         // Guardar los contadores de colisiones
         saveCollisionCounts("fixed_solution");
+        savePressures("fixed_solution");
         
     }
 
@@ -275,22 +276,17 @@ public class MolecularDynamicSystem {
             for (int i = 0; i < maxIntervals; i++) {
                 writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
                     dt * i,
-                    getValueOrZero(bottomCounts, i),
-                    getValueOrZero(rightCounts, i),
-                    getValueOrZero(topCounts, i),
-                    getValueOrZero(leftCounts, i),
-                    getValueOrZero(staticCounts, i)
+                    getValueOrZero(bottomCounts, i, 0),
+                    getValueOrZero(rightCounts, i, 0),
+                    getValueOrZero(topCounts, i, 0),
+                    getValueOrZero(leftCounts, i, 0),
+                    getValueOrZero(staticCounts, i, 0)
                 ));
             }
         } catch (IOException e) {
             System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    // Método auxiliar para obtener el valor de la lista o 0 si el índice está fuera de rango
-    private int getValueOrZero(List<Integer> list, int index) {
-        return index < list.size() ? list.get(index) : 0;
     }
 
     private Path getFilePath(String directory, String filename) {
@@ -328,6 +324,57 @@ public class MolecularDynamicSystem {
                         writer.write(String.format(Locale.ENGLISH, "%.6f,%d,%.6f,%.6f,%.6f,%.6f\n", state.getTime(), p.getId(), p.getPosition().getX(), p.getPosition().getY(), p.getVelocity().getX(), p.getVelocity().getY()));
         } catch (IOException e) {
             System.out.println("Error al escribir un estado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // Método auxiliar para obtener el valor de la lista o 0 si el índice está fuera de rango
+    private <T> T getValueOrZero(List<T> list, int index, T defaultValue) {
+        return index < list.size() ? list.get(index) : defaultValue;
+    }
+    
+    private void savePressures(String directory) {
+        Path pressurePath = getFilePath(directory, "pressure.csv");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(pressurePath, StandardOpenOption.CREATE)) {
+            writer.write("time,bottom,right,top,left,static\n");
+
+            // Obtener las listas de momentos
+            List<Double> bottomMoments = walls.get(WallType.BOTTOM).momentumCount();
+            List<Double> rightMoments = walls.get(WallType.RIGHT).momentumCount();
+            List<Double> topMoments = walls.get(WallType.TOP).momentumCount();
+            List<Double> leftMoments = walls.get(WallType.LEFT).momentumCount();
+            List<Double> staticMoments = initial.getStaticParticle().momentumCount();
+
+            int maxIntervals = Math.max(
+                Math.max(
+                    Math.max(bottomMoments.size(), rightMoments.size()),
+                    Math.max(topMoments.size(), leftMoments.size())
+                ),
+                staticMoments.size()
+            );
+
+            // Calcular presiones para cada intervalo
+            for (int i = 0; i < maxIntervals; i++) {
+                // Presión = ΔP / (Δt * L) para paredes
+                // Presión = ΔP / (Δt * 2πr) para partícula estática
+                double bottomPressure = getValueOrZero(bottomMoments, i, 0d) / (dt * l);
+                double rightPressure = getValueOrZero(rightMoments, i, 0d) / (dt * l);
+                double topPressure = getValueOrZero(topMoments, i, 0d) / (dt * l);
+                double leftPressure = getValueOrZero(leftMoments, i, 0d) / (dt * l);
+                double staticPressure = getValueOrZero(staticMoments, i, 0d) / (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
+
+                writer.write(String.format(Locale.US, "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
+                    dt * i,
+                    bottomPressure,
+                    rightPressure,
+                    topPressure,
+                    leftPressure,
+                    staticPressure
+                ));
+            }
+        } catch (IOException e) {
+            System.out.println("Error al escribir el archivo de presiones: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -35,12 +35,12 @@ public class Event {
 
 	public static void applyCollision(Particle p1, Particle p2) {
 		System.out.printf("=== BEFORE === %n");
-		System.out.printf("%d -> %d %n", p1.getId(), p2.getId());
+		System.out.printf("%d(%.2f) -> %d(%.2f) %n", p1.getId(), p1.getMass(), p2.getId(), p2.getMass());
 		System.out.printf("P%d: %.6f %n", p1.getId(),
 				Math.sqrt(Math.pow(p1.getVelocity().getX(), 2) + Math.pow(p1.getVelocity().getY(), 2)));
 		System.out.printf("P%d: %.6f %n", p2.getId(),
-				Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));
-
+				Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));		
+		
 		// Calcular Δr y Δv
 		double deltaX = p2.getPosition().getX() - p1.getPosition().getX();
 		double deltaY = p2.getPosition().getY() - p1.getPosition().getY();

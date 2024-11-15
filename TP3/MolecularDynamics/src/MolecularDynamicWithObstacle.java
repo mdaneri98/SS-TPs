@@ -98,35 +98,76 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
     private void updateCounts(FutureCollision futureCollision) {
         State state = states.getLast();
         Map<WallType, Wall> walls = state.getWalls();
-        WallType[] wallTypes = WallType.values();
         
-        // Verificar si estamos en un nuevo intervalo de tiempo
-        double currentInterval = Math.floor(state.getTime() / dt);
-        double previousInterval = Math.floor((state.getTime() - futureCollision.getTc()) / dt);
+        double currentTime = state.getTime();
+        double collisionTime = currentTime - futureCollision.getTc();
         
-        // Si cambió el intervalo, inicializar nuevos contadores
+        int currentInterval = (int)(currentTime / dt);
+        int previousInterval = (int)(collisionTime / dt);
+
+        // Inicializar contadores para nuevo intervalo
         if (currentInterval > previousInterval) {
-            for (WallType type : wallTypes) {
-                walls.get(type).collisionCount().add(0);
-            }
+            walls.values().forEach(wall -> wall.collisionCount().add(0));
+            state.getStaticParticle().collisionCount().add(0);
         }
-        state.getStaticParticle().collisionCount().add(0);
-        
-        // Incrementar el contador de colisiones para cada pared
-        for (WallType type : wallTypes) {
-            Wall wall = walls.get(type);
-            List<Integer> counts = wall.collisionCount();
-            int lastIndex = counts.size() - 1;
-            int newCount = counts.getLast() + 1;
-            counts.set(lastIndex, newCount);
+
+        // Actualizar contador de colisiones
+        if (futureCollision.getObstacle() instanceof Wall wall) {
+        	updateCounts(wall, futureCollision.getParticle());
+        } else if (futureCollision.getObstacle() instanceof StaticParticle particle) {
+            updateCounts(particle, futureCollision.getParticle());
+        }
+    }
+
+    private void updateCounts(Wall wall, Particle p) {
+        // Inicializar listas si están vacías
+        if (wall.momentumCount().isEmpty()) {
+            wall.momentumCount().add(0.0);
+        }
+
+        int lastIndex = wall.collisionCount().size() - 1;
+        wall.collisionCount().set(lastIndex, wall.collisionCount().getLast() + 1);
+
+        // Calcular momento transferido según el tipo de pared
+        double transferredMomentum;
+        if (wall.getType() == WallType.LEFT || wall.getType() == WallType.RIGHT) {
+            transferredMomentum = Math.abs(2 * p.getMass() * Math.abs(p.getVelocity().getX()));
+        } else {
+            transferredMomentum = Math.abs(2 * p.getMass() * Math.abs(p.getVelocity().getY()));
+        }
+
+        // Asegurar que la lista de momentos tenga el mismo tamaño que la de colisiones
+        while (wall.momentumCount().size() <= lastIndex) {
+            wall.momentumCount().add(0.0);
         }
         
-        StaticParticle staticParticle = state.getStaticParticle();
-        List<Integer> counts = staticParticle.collisionCount();
-        int lastIndex = counts.size() - 1;
-        int newCount = counts.getLast() + 1;
-        counts.set(lastIndex, newCount);
+        wall.momentumCount().set(lastIndex, wall.momentumCount().getLast() + transferredMomentum);
+    }
+
+    private void updateCounts(StaticParticle sp, Particle p) {
+        if (sp.momentumCount().isEmpty()) {
+            sp.momentumCount().add(0.0);
+        }
+
+        int lastIndex = sp.collisionCount().size() - 1;
+        sp.collisionCount().set(lastIndex, sp.collisionCount().getLast() + 1);
+
+        // Calcular momento transferido al obstáculo
+        double deltaX = sp.getPosition().getX() - p.getPosition().getX();
+        double deltaY = sp.getPosition().getY() - p.getPosition().getY();
+        double deltaVx = -p.getVelocity().getX();  // Velocidad relativa
+        double deltaVy = -p.getVelocity().getY();
         
+        double deltaVdeltaR = deltaVx * deltaX + deltaVy * deltaY;
+        double sigma = p.getRadius() + sp.getRadius();
+        // Tomamos el valor absoluto del momento transferido
+        double transferredMomentum = Math.abs((2 * p.getMass() * deltaVdeltaR) / sigma);
+
+        while (sp.momentumCount().size() <= lastIndex) {
+            sp.momentumCount().add(0.0);
+        }
+        
+        sp.momentumCount().set(lastIndex, sp.momentumCount().getLast() + transferredMomentum);
     }
     
 }
