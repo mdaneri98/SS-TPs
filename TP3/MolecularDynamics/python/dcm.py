@@ -3,19 +3,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None):
+def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None, sample_rate=100):
     """
-    Calcula el DCM (Desplazamiento Cuadrático Medio) y el coeficiente de difusión
-    para la partícula estática (id = 0).
+    Calcula el DCM y coeficiente de difusión para la partícula estática.
+    sample_rate: tomar 1 de cada sample_rate puntos para graficar
     """
     # Leer archivo de partículas
-    path = os.path.join('outputs', base_dir, f"v_{velocity:.2f}", "static_particle.csv")
+    path = os.path.join('outputs', base_dir, f"v_{velocity:.2f}", "particles.csv")
     if not os.path.exists(path):
         print(f"Error: No se encontró el archivo en {path}")
         return
 
     # Leer datos de la partícula estática
-    df_static = pd.read_csv(path)
+    df = pd.read_csv(path)
+    df_static = df[df['id'] == 0].copy()
+
+    if df_static.empty:
+        print("No se encontraron datos de la partícula estática (id=0)")
+        print("IDs encontrados:", df['id'].unique())
+        return
 
     # Ordenar por tiempo y resetear índice
     df_static = df_static.sort_values('time').reset_index(drop=True)
@@ -34,9 +40,15 @@ def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None):
     print("Std:", displacements.std())
     print("Max:", displacements.max())
 
+    # Muestrear datos para graficar
+    df_plot = df_static.iloc[::sample_rate].copy()
+
+    # Configurar matplotlib para manejar muchos puntos
+    plt.rcParams['agg.path.chunksize'] = 10000
+
     # Visualizar la trayectoria
     plt.figure(figsize=(10, 10))
-    plt.plot(df_static['x'], df_static['y'], 'b.-', alpha=0.5, label='Trayectoria')
+    plt.plot(df_plot['x'], df_plot['y'], 'b.-', alpha=0.5, label='Trayectoria')
     plt.plot(df_static['x'].iloc[0], df_static['y'].iloc[0], 'go', label='Inicio')
     plt.plot(df_static['x'].iloc[-1], df_static['y'].iloc[-1], 'ro', label='Fin')
     plt.xlabel('X (m)')
@@ -57,13 +69,13 @@ def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None):
     # Graficar posición vs tiempo
     plt.figure(figsize=(12, 6))
     plt.subplot(2, 1, 1)
-    plt.plot(df_static['time'], df_static['x'], 'b.-', label='X')
+    plt.plot(df_plot['time'], df_plot['x'], 'b.-', label='X')
     plt.ylabel('X (m)')
     plt.grid(True)
     plt.legend()
 
     plt.subplot(2, 1, 2)
-    plt.plot(df_static['time'], df_static['y'], 'r.-', label='Y')
+    plt.plot(df_plot['time'], df_plot['y'], 'r.-', label='Y')
     plt.xlabel('Tiempo (s)')
     plt.ylabel('Y (m)')
     plt.grid(True)
@@ -138,4 +150,6 @@ def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None):
 
 if __name__ == "__main__":
     steady_state_time = 0  # Especifica aquí el tiempo de estado estacionario
-    calculate_msd_and_diffusion("common_solution", velocity=1.0, steady_state_time=steady_state_time)
+
+    # sample_rate -> mas alto -> menos detalle
+    calculate_msd_and_diffusion("common_solution", velocity=1.0, steady_state_time=steady_state_time, sample_rate=1)
