@@ -178,7 +178,8 @@ public class MolecularDynamicSystem {
     }
 
     public void fixedSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
-        String directory = String.format(Locale.US, "fixed_solution", String.format("v_%.2f", velocity));
+        String directory = String.format(Locale.US, "fixed_solution/v_%.2f", velocity);
+
 
         initial = initialState(velocity, mass, radius, staticRadius, staticMass);
         
@@ -188,10 +189,10 @@ public class MolecularDynamicSystem {
         Path filepath = getFilePath(directory, "particles.csv");
         
         Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
-        runSolution(iterator, filepath, runSeconds);
+        runSolution(iterator, directory, filepath, runSeconds);
     }
 
-    private void runSolution(Iterator<State> iterator, Path filepath, int runSeconds) {
+    private void runSolution(Iterator<State> iterator, String directory, Path filepath, int runSeconds) {
         LinkedList<State> statesToSave = new LinkedList<>();
 
         int stateCounter = 0;
@@ -222,8 +223,8 @@ public class MolecularDynamicSystem {
         }
         
         // Guardar los contadores de colisiones
-        saveCollisionCounts("fixed_solution");
-        savePressures("fixed_solution");
+        saveCollisionCounts(directory);
+        savePressures(directory);
         
     }
 
@@ -377,69 +378,6 @@ public class MolecularDynamicSystem {
             System.out.println("Error al escribir el archivo de presiones: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    private List<List<Double>> getMomentums(double deltaTime, Map<Double, Double> momentumsByTime) {
-        // Encontrar el tiempo máximo para determinar el tamaño de la lista
-        double maxTime = Collections.max(momentumsByTime.keySet());
-
-        // Crear una lista donde cada índice será un múltiplo de deltaT
-        int size = (int) Math.ceil(maxTime / deltaTime);
-        List<List<Double>> momentums = new ArrayList<>();
-
-        // Inicializar cada índice con una nueva lista vacía
-        for (int i = 0; i < size; i++) {
-            momentums.add(new ArrayList<>());
-        }
-
-        // Iterar sobre el mapa combinado y agregar los valores a la lista correspondiente
-        for (Map.Entry<Double, Double> entry : momentumsByTime.entrySet()) {
-            double collisionTime = entry.getKey();
-            double momentum = entry.getValue();
-
-            // Encontrar el índice correspondiente en la lista
-            int index = (int) Math.floor(collisionTime / deltaTime);
-
-            // Sumar el valor del momento al índice correspondiente
-            List<Double> frame = momentums.get(index);
-            frame.add(momentum);
-        }
-        return momentums;
-    }
-
-    public Map<Double, Double> calculatePressureForWalls(double deltaTime) {
-        Map<Double, Double> pressureByTime = new TreeMap<>();
-        List<List<Double>> momentums = null; //this.getMomentums(deltaTime, this.wallsPressure);
-
-
-        for (int i = 0; i < momentums.size(); i++) {
-            double sumMomentum = 0;
-            for (Double momentum : momentums.get(i)) {
-                sumMomentum += momentum;
-            }
-
-            double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * l);
-            pressureByTime.put(deltaTime*i, pressure);
-        }
-        return pressureByTime;
-    }
-
-    public Map<Double, Double> calculatePressureForStatic(double deltaTime) {
-        Map<Double, Double> pressureByTime = new TreeMap<>();
-        List<List<Double>> momentums = null; //this.getMomentums(deltaTime, this.staticParticlePressure);
-
-
-        for (int i = 0; i < momentums.size(); i++) {
-            double sumMomentum = 0;
-            for (Double momentum : momentums.get(i)) {
-                sumMomentum += momentum;
-            }
-            double contactArea = 2 * Math.PI * 2;//staticRadius;
-
-            double pressure = sumMomentum / (momentums.get(i).size() * deltaTime * contactArea);
-            pressureByTime.put(deltaTime*i, pressure);
-        }
-        return pressureByTime;
     }
 
 }
