@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         double L = 0.1;
         double staticRadius = 0.005;
-        int N = 50;
+        int N = 100;
         double radius = 0.001;
         double velocity = 1;
         double mass = 1;

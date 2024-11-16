@@ -98,17 +98,20 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
     private void updateCounts(FutureCollision futureCollision) {
         State state = states.getLast();
         Map<WallType, Wall> walls = state.getWalls();
-        
+
         double currentTime = state.getTime();
         double collisionTime = currentTime - futureCollision.getTc();
-        
+
         int currentInterval = (int)(currentTime / dt);
         int previousInterval = (int)(collisionTime / dt);
 
         // Inicializar contadores para nuevo intervalo
         if (currentInterval > previousInterval) {
             walls.values().forEach(wall -> wall.collisionCount().add(0));
+            walls.values().forEach(wall -> wall.momentumCount().add(0d));
+            state.getStaticParticle().momentumCount().add(0d);
             state.getStaticParticle().collisionCount().add(0);
+            state.getStaticParticle().uniqueCollisionCount().add(0);
         }
 
         // Actualizar contador de colisiones
@@ -120,11 +123,6 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
     }
 
     private void updateCounts(Wall wall, Particle p) {
-        // Inicializar listas si están vacías
-        if (wall.momentumCount().isEmpty()) {
-            wall.momentumCount().add(0.0);
-        }
-
         int lastIndex = wall.collisionCount().size() - 1;
         wall.collisionCount().set(lastIndex, wall.collisionCount().getLast() + 1);
 
@@ -136,19 +134,10 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
             transferredMomentum = Math.abs(2 * p.getMass() * Math.abs(p.getVelocity().getY()));
         }
 
-        // Asegurar que la lista de momentos tenga el mismo tamaño que la de colisiones
-        while (wall.momentumCount().size() <= lastIndex) {
-            wall.momentumCount().add(0.0);
-        }
-        
         wall.momentumCount().set(lastIndex, wall.momentumCount().getLast() + transferredMomentum);
     }
 
     private void updateCounts(StaticParticle sp, Particle p) {
-        if (sp.momentumCount().isEmpty()) {
-            sp.momentumCount().add(0.0);
-        }
-
         int lastIndex = sp.collisionCount().size() - 1;
         sp.collisionCount().set(lastIndex, sp.collisionCount().getLast() + 1);
 
@@ -157,17 +146,24 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
         double deltaY = sp.getPosition().getY() - p.getPosition().getY();
         double deltaVx = -p.getVelocity().getX();  // Velocidad relativa
         double deltaVy = -p.getVelocity().getY();
-        
+
         double deltaVdeltaR = deltaVx * deltaX + deltaVy * deltaY;
         double sigma = p.getRadius() + sp.getRadius();
         // Tomamos el valor absoluto del momento transferido
         double transferredMomentum = Math.abs((2 * p.getMass() * deltaVdeltaR) / sigma);
 
-        while (sp.momentumCount().size() <= lastIndex) {
-            sp.momentumCount().add(0.0);
+        // Colisiones unicas
+        if (!sp.getCollidedParticles().contains(p.getId())) {  // Verificar si no ha colisionado previamente
+            lastIndex = sp.uniqueCollisionCount().size() - 1;
+
+            // Incrementar el contador de colisiones únicas
+            sp.uniqueCollisionCount().set(lastIndex, sp.uniqueCollisionCount().get(lastIndex) + 1);
+
+            // Añadir el ID de la partícula al conjunto de partículas que han colisionado
+            sp.getCollidedParticles().add(p.getId());
         }
-        
+
         sp.momentumCount().set(lastIndex, sp.momentumCount().getLast() + transferredMomentum);
     }
-    
+
 }

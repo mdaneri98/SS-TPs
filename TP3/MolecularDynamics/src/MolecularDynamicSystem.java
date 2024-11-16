@@ -148,6 +148,26 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
+    private Path getFilePath(String directory, String filename) {
+        try {
+            String projectPath = Paths.get("").toAbsolutePath().toString();
+            Path directoryPath = Paths.get(projectPath, "python", "outputs", directory);
+            Path filePath = directoryPath.resolve(filename);
+
+            // Crea los directorios si no existen
+            Files.createDirectories(directoryPath);
+
+            if (Files.deleteIfExists(filePath))
+                System.out.println("Archivo borrado: " + filePath);
+
+            return filePath;
+        } catch (IOException e) {
+            System.out.println("Error al crear data files: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private State initialState(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
@@ -198,12 +218,12 @@ public class MolecularDynamicSystem {
 
 
         initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
-        
+
         Path staticPath = getFilePath(directory, "static.csv");
         saveStatic(staticPath);
 
         Path filepath = getFilePath(directory, "particles.csv");
-        
+
         Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
         runSolution(iterator, directory, filepath, runSeconds);
     }
@@ -237,11 +257,12 @@ public class MolecularDynamicSystem {
             save(statesToSave, filepath);
             statesToSave.clear();
         }
-        
+
         // Guardar los contadores de colisiones
         saveCollisionCounts(directory);
         savePressures(directory);
-        
+        saveUniqueCollisionCounts(directory);
+
     }
 
     private void saveStatic(Path filePath) {
@@ -266,7 +287,7 @@ public class MolecularDynamicSystem {
             e.printStackTrace();
         }
     }
-    
+
     private void saveCollisionCounts(String directory) {
         Path countPath = getFilePath(directory, "count.csv");
 
@@ -282,22 +303,22 @@ public class MolecularDynamicSystem {
 
             // Encontrar el máximo número de intervalos
             int maxIntervals = Math.max(
-                Math.max(
-                    Math.max(bottomCounts.size(), rightCounts.size()),
-                    Math.max(topCounts.size(), leftCounts.size())
-                ),
-                staticCounts.size()
+                    Math.max(
+                            Math.max(bottomCounts.size(), rightCounts.size()),
+                            Math.max(topCounts.size(), leftCounts.size())
+                    ),
+                    staticCounts.size()
             );
 
             // Función auxiliar para obtener el valor o 0 si el índice está fuera de rango
             for (int i = 0; i < maxIntervals; i++) {
                 writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
-                    dt * i,
-                    getValueOrZero(bottomCounts, i, 0),
-                    getValueOrZero(rightCounts, i, 0),
-                    getValueOrZero(topCounts, i, 0),
-                    getValueOrZero(leftCounts, i, 0),
-                    getValueOrZero(staticCounts, i, 0)
+                        dt * i,
+                        getValueOrZero(bottomCounts, i, 0),
+                        getValueOrZero(rightCounts, i, 0),
+                        getValueOrZero(topCounts, i, 0),
+                        getValueOrZero(leftCounts, i, 0),
+                        getValueOrZero(staticCounts, i, 0)
                 ));
             }
         } catch (IOException e) {
@@ -306,24 +327,29 @@ public class MolecularDynamicSystem {
         }
     }
 
-    private Path getFilePath(String directory, String filename) {
-        try {
-            String projectPath = Paths.get("").toAbsolutePath().toString();
-            Path directoryPath = Paths.get(projectPath, "python", "outputs", directory);
-            Path filePath = directoryPath.resolve(filename);
+    private void saveUniqueCollisionCounts(String directory) {
+        Path countPath = getFilePath(directory, "unique_counts.csv");
 
-            // Crea los directorios si no existen
-            Files.createDirectories(directoryPath);
+        try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
+            writer.write("time,static\n");
 
-            if (Files.deleteIfExists(filePath))
-                System.out.println("Archivo borrado: " + filePath);
+            // Obtener las listas de contadores
+            List<Integer> staticCounts = initial.getStaticParticle().uniqueCollisionCount();
 
-            return filePath;
+            // Encontrar el máximo número de intervalos
+            int maxIntervals = staticCounts.size();
+
+            // Función auxiliar para obtener el valor o 0 si el índice está fuera de rango
+            for (int i = 0; i < maxIntervals; i++) {
+                writer.write(String.format(Locale.US, "%.6f,%d\n",
+                        dt * i,
+                        getValueOrZero(staticCounts, i, 0)
+                ));
+            }
         } catch (IOException e) {
-            System.out.println("Error al crear data files: " + e.getMessage());
+            System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
     }
 
     // Save method
@@ -344,12 +370,12 @@ public class MolecularDynamicSystem {
             e.printStackTrace();
         }
     }
-    
+
     // Método auxiliar para obtener el valor de la lista o 0 si el índice está fuera de rango
     private <T> T getValueOrZero(List<T> list, int index, T defaultValue) {
         return index < list.size() ? list.get(index) : defaultValue;
     }
-    
+
     private void savePressures(String directory) {
         Path pressurePath = getFilePath(directory, "pressure.csv");
 
