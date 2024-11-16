@@ -43,7 +43,7 @@ public class MolecularDynamicSystem {
     private State testWallInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0),new Velocity(0, 0), staticRadius, staticMass);
         particleSet.add(staticParticle);
 
         // Choca contra la pared derecha => Luego izquierda => Luego derecha => ...
@@ -58,7 +58,8 @@ public class MolecularDynamicSystem {
 
     	   // Movemos la partícula estática arriba para no interferir
     	   StaticParticle staticParticle = new StaticParticle(0, 
-    	       new Position(l/2.0, l - 2*staticRadius), 
+    	       new Position(l/2.0, l - 2*staticRadius),
+                   new Velocity(0, 0),
     	       staticRadius, 
     	       staticMass);
     	   particleSet.add(staticParticle);
@@ -101,7 +102,7 @@ public class MolecularDynamicSystem {
     private State testWallInclinadoInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), new Velocity(0, 0), staticRadius, staticMass);
         particleSet.add(staticParticle);
 
         // Choca contra la pared derecha => Luego izquierda => Luego derecha => ...
@@ -114,7 +115,7 @@ public class MolecularDynamicSystem {
     private State testStaticInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, mass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), new Velocity(0, 0), staticRadius, mass);
         particleSet.add(staticParticle);
 
         // Choca contra particula estatica => Luego izquierda => Luego particula estatica => ...
@@ -128,7 +129,7 @@ public class MolecularDynamicSystem {
         Set<Particle> particleSet = new HashSet<>();
 
         // Movemos la partícula estática arriba para que no interfiera
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, mass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), new Velocity(0, 0), staticRadius, mass);
         particleSet.add(staticParticle);
 
         // Posicionamos las partículas móviles en el mismo eje Y, separadas horizontalmente
@@ -151,7 +152,7 @@ public class MolecularDynamicSystem {
         Random random = new Random();
         Set<Particle> particleSet = new HashSet<>();
 
-        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), staticRadius, staticMass);
+        StaticParticle staticParticle = new StaticParticle(0, new Position(l/2.0, l/2.0), new Velocity(0, 0), staticRadius, staticMass);
         particleSet.add(staticParticle);
 
         while (particleSet.size() < n) {
@@ -177,11 +178,26 @@ public class MolecularDynamicSystem {
         return new State(0, walls, particleSet, staticParticle);
     }
 
-    public void fixedSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
-        String directory = String.format(Locale.US, "fixed_solution/v_%.2f", velocity);
+    public void commonSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
+        String directory = String.format(Locale.US, "common_solution/v_%.2f", velocity);
 
 
         initial = initialState(velocity, mass, radius, staticRadius, staticMass);
+
+        Path staticPath = getFilePath(directory, "static.csv");
+        saveStatic(staticPath);
+
+        Path filepath = getFilePath(directory, "particles.csv");
+
+        Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
+        runSolution(iterator, directory, filepath, runSeconds);
+    }
+
+    public void fixedSolution(double velocity, double mass, double radius, double staticRadius, int runSeconds) {
+        String directory = String.format(Locale.US, "fixed_solution/v_%.2f", velocity);
+
+
+        initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
         
         Path staticPath = getFilePath(directory, "static.csv");
         saveStatic(staticPath);

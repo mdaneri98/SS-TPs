@@ -15,18 +15,26 @@ public class Main {
         double dt = 0.01;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, staticMass, 10);
+        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, 10);
         
         // === Ej. 1.2 ===
         
         velocity = 3.6;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, staticMass, 10);
+        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, 10);
         
         velocity = 10;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, staticMass, 10);
-        
+        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, 10);
+
+        // === Ej 1.4 ===
+
+        velocity = 1;
+        staticMass = 3;
+        molecularDynamic = new MolecularDynamicSystem(N, L, dt);
+        molecularDynamic.commonSolution(velocity, mass, radius, staticRadius, staticMass, 10);
+
+
 
     }
 

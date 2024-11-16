@@ -8,13 +8,13 @@ public class StaticParticle extends Particle {
 	private static final List<Integer> collisionCount = new ArrayList<>();
 	private static final List<Double> momentumCount = new ArrayList<>();
 	
-    public StaticParticle(int id, Position position, double radius, double mass) {
-        super(id, position, new Velocity(0,0), radius, mass);
+    public StaticParticle(int id, Position position, Velocity velocity, double radius, double mass) {
+        super(id, position, velocity, radius, mass);
     }
 
     @Override
     public StaticParticle clone() {
-        return new StaticParticle(getId(), new Position(getPosition().getX(),getPosition().getY()), getRadius(), getMass());
+        return new StaticParticle(getId(), new Position(getPosition().getX(),getPosition().getY()), new Velocity(getVelocity().getX(), getVelocity().getY()), getRadius(), getMass());
     }
 
     public Double getMomentum(Particle particle) {
