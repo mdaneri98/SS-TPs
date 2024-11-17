@@ -20,7 +20,7 @@ public class MolecularDynamicSystem {
     private final double l;
     private final double dt;
     private final int n;
-    
+
 
     private final Map<WallType, Wall> walls = new HashMap<>();
     private State initial;
@@ -29,7 +29,7 @@ public class MolecularDynamicSystem {
         this.l = l;
         this.n = n;
         this.dt = dt;
-        
+
         createWalls(l);
     }
 
@@ -52,15 +52,15 @@ public class MolecularDynamicSystem {
 
         return new State(0, walls, particleSet, staticParticle);
     }
-    
+
     private State testOblicuoInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
     	   Set<Particle> particleSet = new HashSet<>();
 
     	   // Movemos la partícula estática arriba para no interferir
-    	   StaticParticle staticParticle = new StaticParticle(0, 
+    	   StaticParticle staticParticle = new StaticParticle(0,
     	       new Position(l/2.0, l - 2*staticRadius),
                    new Velocity(0, 0),
-    	       staticRadius, 
+    	       staticRadius,
     	       staticMass);
     	   particleSet.add(staticParticle);
 
@@ -69,36 +69,36 @@ public class MolecularDynamicSystem {
     	   double p1y = p1x;    // Misma coordenada y para estar en la diagonal
 
     	   // Calcular el punto inicial en la diagonal para P2
-    	   double p2x = 3*l/4.0;  // A tres cuartos del ancho  
+    	   double p2x = 3*l/4.0;  // A tres cuartos del ancho
     	   double p2y = p2x;      // Misma coordenada y para estar en la diagonal
 
     	   // P1: moviéndose hacia arriba-derecha sobre la diagonal
-    	   Particle p1 = new Particle(1, 
+    	   Particle p1 = new Particle(1,
     	       new Position(p1x, p1y),
     	       new Velocity(velocity/Math.sqrt(2), velocity/Math.sqrt(2)),  // 45 grados (v/√2, v/√2)
-    	       radius, 
+    	       radius,
     	       mass);
     	   particleSet.add(p1);
 
     	   // P2: moviéndose hacia abajo-izquierda sobre la diagonal
-    	   Particle p2 = new Particle(2, 
+    	   Particle p2 = new Particle(2,
     	       new Position(p2x, p2y),
     	       new Velocity(-velocity/Math.sqrt(2), -velocity/Math.sqrt(2)),  // 225 grados (-v/√2, -v/√2)
-    	       radius, 
+    	       radius,
     	       mass);
     	   particleSet.add(p2);
 
     	   // P3: moviéndose paralelo a la diagonal pero desplazado
-    	   Particle p3 = new Particle(3, 
+    	   Particle p3 = new Particle(3,
     	       new Position(l/2.0, l/4.0),  // Desplazado del centro
     	       new Velocity(velocity/Math.sqrt(2), velocity/Math.sqrt(2)),  // Misma dirección que P1
-    	       radius, 
+    	       radius,
     	       mass);
     	   particleSet.add(p3);
 
     	   return new State(0, walls, particleSet, staticParticle);
     	}
-    
+
     private State testWallInclinadoInitial(double velocity, double mass, double radius, double staticRadius, double staticMass) {
         Set<Particle> particleSet = new HashSet<>();
 
@@ -199,7 +199,7 @@ public class MolecularDynamicSystem {
     }
 
     public void commonSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             String directory = String.format(Locale.US, "common_solution/v_%.2f/%d", velocity, i);
 
             initial = initialState(velocity, mass, radius, staticRadius, staticMass);
@@ -215,7 +215,7 @@ public class MolecularDynamicSystem {
     }
 
     public void fixedSolution(double velocity, double mass, double radius, double staticRadius, int runSeconds) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             String directory = String.format(Locale.US, "fixed_solution/v_%.2f/%d", velocity, i);
 
             initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
@@ -434,16 +434,10 @@ public class MolecularDynamicSystem {
                             (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
                 }
 
-                // Debug cada 1000 intervalos
-                if (i % 1000 == 0) {
-                    System.out.printf("Intervalo %d - Bottom: %.2f, Right: %.2f, Top: %.2f, Left: %.2f, Static: %.2f%n",
-                            i, bottomPressure, rightPressure, topPressure, leftPressure, staticPressure);
-                }
-
                 // Escribir solo si hay al menos un valor distinto de cero
                 if (bottomPressure != 0 || rightPressure != 0 || topPressure != 0 ||
-                        leftPressure != 0 || staticPressure != 0) {
-                    writer.write(String.format(Locale.US, "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
+                        leftPressure != 0) {
+                    writer.write(String.format(Locale.US, "%.12f,%.12f,%.12f,%.12f,%.12f,%.12f\n",
                             dt * i,
                             bottomPressure,
                             rightPressure,

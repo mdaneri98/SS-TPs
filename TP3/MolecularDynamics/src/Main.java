@@ -12,16 +12,20 @@ public class Main {
         double velocity = 1;
         double mass = 1;
         double staticMass;
-        double dt = 0.05;
+        double dt = 0.1;
 
-        int time = 10;
+        int time = 60;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, dt);
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
         
         // === Ej. 1.2 ===
         
-        velocity = 3.6;
+        velocity = 3;
+        molecularDynamic = new MolecularDynamicSystem(N, L, dt);
+        molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
+
+        velocity = 6;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
         

@@ -112,37 +112,43 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
         Map<WallType, Wall> walls = state.getWalls();
         StaticParticle staticParticle = state.getStaticParticle();
 
-        // Calcular intervalos actual y siguiente
         double collisionTime = state.getTime() + futureCollision.getTc();
         int currentInterval = (int)(state.getTime() / dt);
         int collisionInterval = (int)(collisionTime / dt);
 
-        // Agregar nuevos intervalos si es necesario
+        // Inicializar nuevos intervalos si es necesario
         if (collisionInterval > currentInterval) {
-            // Agregar todos los intervalos faltantes hasta el de la colisión
-            for (int i = currentInterval + 1; i <= collisionInterval; i++) {
-                // Inicializar contadores para paredes
-                for (Wall wall : walls.values()) {
-                    ensureIntervalExists(wall.collisionCount(), i, 0);
-                    ensureIntervalExists(wall.momentumCount(), i, 0.0);
-                }
-
-                // Inicializar contadores para partícula estática
-                ensureIntervalExists(staticParticle.collisionCount(), i, 0);
-                ensureIntervalExists(staticParticle.momentumCount(), i, 0.0);
-                ensureIntervalExists(staticParticle.uniqueCollisionCount(), i, 0);
-            }
+            initializeNewIntervals(walls, staticParticle, currentInterval + 1, collisionInterval);
         }
 
-        // Actualizar contador de colisiones según el tipo de obstáculo
-        if (futureCollision.getObstacle() instanceof Wall wall) {
-            updateCounts(wall, futureCollision.getParticle());
-        } else if (futureCollision.getObstacle() instanceof StaticParticle particle) {
-            updateCounts(particle, futureCollision.getParticle());
-        } else if (futureCollision.getParticle() instanceof StaticParticle particle) {
-            if (futureCollision.getObstacle() instanceof Particle p) {
-                updateCounts(particle, p);
-            }
+        // Actualizar contadores usando pattern matching
+        Obstacle obstacle = futureCollision.getObstacle();
+        Particle movingParticle = futureCollision.getParticle();
+
+        if (obstacle instanceof Wall wall) {
+            updateCounts(wall, movingParticle);
+        } else if (obstacle instanceof StaticParticle staticObstacle) {
+            updateCounts(staticObstacle, movingParticle);
+        } else if (movingParticle instanceof StaticParticle staticMoving &&
+                obstacle instanceof Particle particle) {
+            updateCounts(staticMoving, particle);
+        }
+    }
+
+    private void initializeNewIntervals(Map<WallType, Wall> walls, StaticParticle staticParticle,
+                                        int startInterval, int endInterval) {
+        for (int i = startInterval; i <= endInterval; i++) {
+            // Inicializar paredes
+            int finalI = i;
+            walls.values().forEach(wall -> {
+                ensureIntervalExists(wall.collisionCount(), finalI, 0);
+                ensureIntervalExists(wall.momentumCount(), finalI, 0.0);
+            });
+
+            // Inicializar partícula estática
+            ensureIntervalExists(staticParticle.collisionCount(), i, 0);
+            ensureIntervalExists(staticParticle.momentumCount(), i, 0.0);
+            ensureIntervalExists(staticParticle.uniqueCollisionCount(), i, 0);
         }
     }
 
@@ -193,6 +199,7 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
             sp.getCollidedParticles().add(p.getId());
         }
 
+        lastIndex = sp.momentumCount().size() - 1;
         sp.momentumCount().set(lastIndex, sp.momentumCount().getLast() + transferredMomentum);
     }
 
