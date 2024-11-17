@@ -39,8 +39,6 @@ public class State {
     private void updateCollisionsTimes() {
         collisionSet.clear(); // Limpiamos la lista antes de actualizarla
         for (Particle current : particleSet) {
-            if (current.getId() == 0)
-                continue;
             Pair<Double, Wall> wallCollision = timeUntilCollisionWithWall(current);
             double timeUntilWallCollision = wallCollision.getLeft();
             Wall collisionWall = wallCollision.getRight();

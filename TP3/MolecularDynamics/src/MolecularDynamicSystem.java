@@ -199,37 +199,40 @@ public class MolecularDynamicSystem {
     }
 
     public void commonSolution(double velocity, double mass, double radius, double staticRadius, double staticMass, int runSeconds) {
-        String directory = String.format(Locale.US, "common_solution/v_%.2f", velocity);
+        for (int i = 0; i < 2; i++) {
+            String directory = String.format(Locale.US, "common_solution/v_%.2f/%d", velocity, i);
 
+            initial = initialState(velocity, mass, radius, staticRadius, staticMass);
 
-        initial = initialState(velocity, mass, radius, staticRadius, staticMass);
+            Path staticPath = getFilePath(directory, "static.csv");
+            saveStatic(staticPath);
 
-        Path staticPath = getFilePath(directory, "static.csv");
-        saveStatic(staticPath);
+            Path filepath = getFilePath(directory, "particles.csv");
 
-        Path filepath = getFilePath(directory, "particles.csv");
-
-        Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
-        runSolution(iterator, directory, filepath, runSeconds);
+            Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
+            runSolution(iterator, directory, filepath, runSeconds);
+        }
     }
 
     public void fixedSolution(double velocity, double mass, double radius, double staticRadius, int runSeconds) {
-        String directory = String.format(Locale.US, "fixed_solution/v_%.2f", velocity);
+        for (int i = 0; i < 2; i++) {
+            String directory = String.format(Locale.US, "fixed_solution/v_%.2f/%d", velocity, i);
 
+            initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
 
-        initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
+            Path staticPath = getFilePath(directory, "static.csv");
+            saveStatic(staticPath);
 
-        Path staticPath = getFilePath(directory, "static.csv");
-        saveStatic(staticPath);
+            Path filepath = getFilePath(directory, "particles.csv");
 
-        Path filepath = getFilePath(directory, "particles.csv");
-
-        Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
-        runSolution(iterator, directory, filepath, runSeconds);
+            Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
+            runSolution(iterator, directory, filepath, runSeconds);
+        }
     }
 
     private void runSolution(Iterator<State> iterator, String directory, Path filepath, int runSeconds) {
         LinkedList<State> statesToSave = new LinkedList<>();
+        statesToSave.add(initial);
 
         int stateCounter = 0;
         int saveFrequency = 1; // Guarda cada 100 estados
@@ -377,6 +380,7 @@ public class MolecularDynamicSystem {
     }
 
     private void savePressures(String directory) {
+        System.out.println("Guardando presiones en: " + directory + "/pressure.csv");
         Path pressurePath = getFilePath(directory, "pressure.csv");
 
         try (BufferedWriter writer = Files.newBufferedWriter(pressurePath, StandardOpenOption.CREATE)) {
@@ -389,33 +393,67 @@ public class MolecularDynamicSystem {
             List<Double> leftMoments = walls.get(WallType.LEFT).momentumCount();
             List<Double> staticMoments = initial.getStaticParticle().momentumCount();
 
+            // Debug de tamaños
+            System.out.printf("Tamaños de listas - Bottom: %d, Right: %d, Top: %d, Left: %d, Static: %d%n",
+                    bottomMoments.size(), rightMoments.size(), topMoments.size(),
+                    leftMoments.size(), staticMoments.size());
+
             int maxIntervals = Math.max(
-                Math.max(
-                    Math.max(bottomMoments.size(), rightMoments.size()),
-                    Math.max(topMoments.size(), leftMoments.size())
-                ),
-                staticMoments.size()
+                    Math.max(
+                            Math.max(bottomMoments.size(), rightMoments.size()),
+                            Math.max(topMoments.size(), leftMoments.size())
+                    ),
+                    staticMoments.size()
             );
+
+            System.out.println("Número máximo de intervalos: " + maxIntervals);
 
             // Calcular presiones para cada intervalo
             for (int i = 0; i < maxIntervals; i++) {
-                // Presión = ΔP / (Δt * L) para paredes
-                // Presión = ΔP / (Δt * 2πr) para partícula estática
-                double bottomPressure = getValueOrZero(bottomMoments, i, 0d) / (dt * l);
-                double rightPressure = getValueOrZero(rightMoments, i, 0d) / (dt * l);
-                double topPressure = getValueOrZero(topMoments, i, 0d) / (dt * l);
-                double leftPressure = getValueOrZero(leftMoments, i, 0d) / (dt * l);
-                double staticPressure = getValueOrZero(staticMoments, i, 0d) / (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
+                double bottomPressure = 0;
+                double rightPressure = 0;
+                double topPressure = 0;
+                double leftPressure = 0;
+                double staticPressure = 0;
 
-                writer.write(String.format(Locale.US, "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
-                    dt * i,
-                    bottomPressure,
-                    rightPressure,
-                    topPressure,
-                    leftPressure,
-                    staticPressure
-                ));
+                // Cálculo con validación para cada presión
+                if (i < bottomMoments.size() && bottomMoments.get(i) != null) {
+                    bottomPressure = bottomMoments.get(i) / (dt * l);
+                }
+                if (i < rightMoments.size() && rightMoments.get(i) != null) {
+                    rightPressure = rightMoments.get(i) / (dt * l);
+                }
+                if (i < topMoments.size() && topMoments.get(i) != null) {
+                    topPressure = topMoments.get(i) / (dt * l);
+                }
+                if (i < leftMoments.size() && leftMoments.get(i) != null) {
+                    leftPressure = leftMoments.get(i) / (dt * l);
+                }
+                if (i < staticMoments.size() && staticMoments.get(i) != null) {
+                    staticPressure = staticMoments.get(i) /
+                            (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
+                }
+
+                // Debug cada 1000 intervalos
+                if (i % 1000 == 0) {
+                    System.out.printf("Intervalo %d - Bottom: %.2f, Right: %.2f, Top: %.2f, Left: %.2f, Static: %.2f%n",
+                            i, bottomPressure, rightPressure, topPressure, leftPressure, staticPressure);
+                }
+
+                // Escribir solo si hay al menos un valor distinto de cero
+                if (bottomPressure != 0 || rightPressure != 0 || topPressure != 0 ||
+                        leftPressure != 0 || staticPressure != 0) {
+                    writer.write(String.format(Locale.US, "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
+                            dt * i,
+                            bottomPressure,
+                            rightPressure,
+                            topPressure,
+                            leftPressure,
+                            staticPressure
+                    ));
+                }
             }
+            System.out.println("Finalizado guardado de presiones");
         } catch (IOException e) {
             System.out.println("Error al escribir el archivo de presiones: " + e.getMessage());
             e.printStackTrace();

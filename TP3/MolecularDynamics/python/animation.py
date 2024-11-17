@@ -154,7 +154,7 @@ if __name__ == "__main__":
             print(f"\nProcesando {base_dir} con velocidad {velocity}")
 
             vel_dir = f"v_{velocity:.2f}"
-            solution_dir = os.path.join("outputs", base_dir, vel_dir)
+            solution_dir = os.path.join("outputs", base_dir, vel_dir, "0")
 
             if not os.path.exists(solution_dir):
                 print(f"Directorio no encontrado: {solution_dir}")

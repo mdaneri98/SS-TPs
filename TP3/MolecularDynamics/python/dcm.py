@@ -1,155 +1,196 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import os
+import numpy as np
+from scipy import stats
+from pathlib import Path
 
-def calculate_msd_and_diffusion(base_dir, velocity=1.0, steady_state_time=None, sample_rate=100):
+# Tiempos fijos para el análisis
+FIXED_TIMES = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
+                        1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0])
+
+def calculate_dcm_for_iteration(df, static_df):
     """
-    Calcula el DCM y coeficiente de difusión para la partícula estática.
-    sample_rate: tomar 1 de cada sample_rate puntos para graficar
+    Calcula el DCM para una iteración en los tiempos fijos especificados
     """
-    # Leer archivo de partículas
-    path = os.path.join('outputs', base_dir, f"v_{velocity:.2f}", "particles.csv")
-    if not os.path.exists(path):
-        print(f"Error: No se encontró el archivo en {path}")
-        return
+    df_merged = pd.merge(df, static_df[['time', 'x', 'y']],
+                         on='time',
+                         suffixes=('', '_static'))
 
-    # Leer datos de la partícula estática
-    df = pd.read_csv(path)
-    df_static = df[df['id'] == 0].copy()
+    # Calcular desplazamiento respecto al centro (partícula estática)
+    df_merged['dx'] = df_merged['x'] - df_merged['x_static']
+    df_merged['dy'] = df_merged['y'] - df_merged['y_static']
+    df_merged['z2'] = df_merged['dx']**2 + df_merged['dy']**2
 
-    if df_static.empty:
-        print("No se encontraron datos de la partícula estática (id=0)")
-        print("IDs encontrados:", df['id'].unique())
-        return
+    # Calcular DCM solo para los tiempos fijos
+    dcm_values = []
+    for t in FIXED_TIMES:
+        z2_mean = df_merged[df_merged['time'] == t]['z2'].mean()
+        dcm_values.append(z2_mean)
 
-    # Ordenar por tiempo y resetear índice
-    df_static = df_static.sort_values('time').reset_index(drop=True)
+    return np.array(dcm_values)
 
-    # Si se especifica tiempo de estado estacionario, filtrar datos
-    if steady_state_time is not None:
-        df_static = df_static[df_static['time'] >= steady_state_time].reset_index(drop=True)
+def calculate_dcm_with_iterations(solution_type, velocity):
+    """
+    Calcula el DCM promediando todas las iteraciones
+    """
+    base_path = Path(f"outputs/{solution_type}")
+    velocity_path = base_path / f"v_{velocity:.2f}"
 
-    print("\nEstadísticas de la partícula estática:")
-    print(df_static[['x', 'y']].describe())
+    if not velocity_path.exists():
+        raise ValueError(f"No se encontró el directorio para velocidad {velocity}")
 
-    # Calcular desplazamientos consecutivos
-    displacements = np.sqrt(np.diff(df_static['x'])**2 + np.diff(df_static['y'])**2)
-    print("\nEstadísticas de desplazamientos consecutivos:")
-    print("Media:", displacements.mean())
-    print("Std:", displacements.std())
-    print("Max:", displacements.max())
+    iteration_dirs = [d for d in velocity_path.iterdir() if d.is_dir()]
+    iteration_dirs.sort(key=lambda x: int(x.name))
 
-    # Muestrear datos para graficar
-    df_plot = df_static.iloc[::sample_rate].copy()
+    if len(iteration_dirs) < 10:
+        raise ValueError(f"Se necesitan al menos 10 iteraciones, se encontraron {len(iteration_dirs)}")
 
-    # Configurar matplotlib para manejar muchos puntos
-    plt.rcParams['agg.path.chunksize'] = 10000
+    print(f"Procesando {len(iteration_dirs)} iteraciones para v = {velocity}")
+    print(f"Calculando DCM para {len(FIXED_TIMES)} puntos de tiempo")
 
-    # Visualizar la trayectoria
-    plt.figure(figsize=(10, 10))
-    plt.plot(df_plot['x'], df_plot['y'], 'b.-', alpha=0.5, label='Trayectoria')
-    plt.plot(df_static['x'].iloc[0], df_static['y'].iloc[0], 'go', label='Inicio')
-    plt.plot(df_static['x'].iloc[-1], df_static['y'].iloc[-1], 'ro', label='Fin')
-    plt.xlabel('X (m)')
-    plt.ylabel('Y (m)')
-    plt.title('Trayectoria de la partícula estática')
-    plt.grid(True)
-    plt.legend()
-    plt.axis('equal')
+    all_dcm = []
+    valid_iterations = 0
 
-    # Crear directorio para guardar análisis
-    output_dir = os.path.join('outputs', base_dir, "analysis")
-    os.makedirs(output_dir, exist_ok=True)
+    for iter_dir in iteration_dirs:
+        particles_file = iter_dir / "particles.csv"
+        if not particles_file.exists():
+            continue
 
-    # Guardar el gráfico de trayectoria
-    plt.savefig(os.path.join(output_dir, "trajectory.png"), dpi=300, bbox_inches='tight')
-    plt.close()
+        try:
+            df = pd.read_csv(particles_file)
+            static_df = df[df['id'] == 0].copy()
+            particles_df = df[df['id'] != 0].copy()
 
-    # Graficar posición vs tiempo
-    plt.figure(figsize=(12, 6))
-    plt.subplot(2, 1, 1)
-    plt.plot(df_plot['time'], df_plot['x'], 'b.-', label='X')
-    plt.ylabel('X (m)')
-    plt.grid(True)
-    plt.legend()
+            dcm = calculate_dcm_for_iteration(particles_df, static_df)
+            all_dcm.append(dcm)
+            valid_iterations += 1
+        except Exception as e:
+            print(f"Error procesando iteración {iter_dir}: {str(e)}")
+            continue
 
-    plt.subplot(2, 1, 2)
-    plt.plot(df_plot['time'], df_plot['y'], 'r.-', label='Y')
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Y (m)')
-    plt.grid(True)
-    plt.legend()
+    print(f"Procesadas {valid_iterations} iteraciones válidas")
+
+    if valid_iterations < 10:
+        raise ValueError("Se necesitan al menos 10 iteraciones válidas")
+
+    all_dcm = np.array(all_dcm)
+    mean_dcm = np.mean(all_dcm, axis=0)
+    std_dcm = np.std(all_dcm, axis=0) / np.sqrt(valid_iterations)
+
+    return FIXED_TIMES, mean_dcm, std_dcm
+
+def plot_dcm(times, dcm_values, dcm_errors, velocity, solution_type):
+    """
+    Genera el gráfico de DCM vs tiempo con ajuste lineal
+    """
+    # Realizar ajuste lineal
+    slope, intercept, r_value, p_value, std_err = stats.linregress(times, dcm_values)
+    D = slope / 2  # Coeficiente de difusión según la ecuación <z²> = 2Dt
+
+    plt.figure(figsize=(10, 8))
+
+    # Graficar cada iteración
+    plt.errorbar(times, dcm_values, yerr=dcm_errors, fmt='o-',
+                 label=f'DCM (v={velocity:.2f})', color='#1f77b4', capsize=5,
+                 markersize=6, linewidth=2)
+
+    # Plotear ajuste lineal
+    x_line = np.linspace(0, max(times), 100)
+    y_line = slope * x_line + intercept
+    plt.plot(x_line, y_line, '--', color='red',
+             label=f'Ajuste lineal (D={D:.3e})', linewidth=2)
+
+    plt.xlabel('Tiempo (s)', fontsize=12)
+    plt.ylabel('DCM (m²)', fontsize=12)
+    plt.title(f'DCM vs Tiempo - {solution_type.replace("_", " ").title()}', fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=10)
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "position_vs_time.png"), dpi=300, bbox_inches='tight')
+
+    output_dir = Path("outputs/analysis")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_dir / f"dcm_{solution_type}_v{velocity:.2f}.png",
+                dpi=300, bbox_inches='tight')
     plt.close()
 
-    # Calcular DCM para diferentes intervalos de tiempo
-    times = df_static['time'].values
-    positions = np.column_stack((df_static['x'], df_static['y']))
+    print(f"\nAnálisis de DCM para {solution_type}, v = {velocity:.2f}:")
+    print("-" * 40)
+    print(f"Puntos analizados: {len(times)}")
+    print(f"Tiempo máximo: {max(times):.3f} s")
+    print(f"Coeficiente de difusión (D): {D:.3e} m²/s")
+    print(f"R²: {r_value**2:.3f}")
+    print(f"Error estándar de la pendiente: {std_err:.3e}")
 
-    # Lista para almacenar resultados
-    msd_results = []
+    return D, r_value**2, std_err
 
-    # Calcular DCM para diferentes deltas de tiempo
-    max_delta_t = (times[-1] - times[0]) / 4  # Usamos hasta 1/4 del tiempo total
-    n_points = min(20, len(times) // 2)  # Número de puntos para el DCM
+def get_velocities(solution_type):
+    """
+    Obtiene todas las velocidades disponibles para un tipo de solución
+    """
+    base_path = Path(f"outputs/{solution_type}")
+    if not base_path.exists():
+        return []
 
-    for i in range(1, n_points):
-        # Tomar puntos separados por i intervalos
-        dx = positions[i:] - positions[:-i]
-        squared_displacement = np.sum(dx * dx, axis=1)
-        delta_t = times[i] - times[0]
+    velocities = []
+    for dir_path in base_path.iterdir():
+        if dir_path.is_dir() and dir_path.name.startswith("v_"):
+            try:
+                velocity = float(dir_path.name.split('_')[1])
+                velocities.append(velocity)
+            except:
+                continue
 
-        if delta_t > max_delta_t:
-            break
+    return sorted(velocities)
 
-        msd = np.mean(squared_displacement)
-        msd_std = np.std(squared_displacement)
+def main():
+    try:
+        solution_types = ["common_solution", "fixed_solution"]
 
-        msd_results.append({
-            'delta_t': delta_t,
-            'msd': msd,
-            'std': msd_std
-        })
+        for solution_type in solution_types:
+            print(f"\nProcesando {solution_type}...")
+            velocities = get_velocities(solution_type)
 
-    # Convertir resultados a arrays para el ajuste
-    delta_t = np.array([r['delta_t'] for r in msd_results])
-    msd = np.array([r['msd'] for r in msd_results])
-    msd_std = np.array([r['std'] for r in msd_results])
+            if not velocities:
+                print(f"No se encontraron velocidades para {solution_type}")
+                continue
 
-    # Ajuste lineal
-    p = np.polyfit(delta_t, msd, 1)
-    msd_fit = np.polyval(p, delta_t)
+            results = []
+            for velocity in velocities:
+                try:
+                    print(f"\nProcesando velocidad {velocity}...")
+                    times, mean_dcm, std_dcm = calculate_dcm_with_iterations(solution_type, velocity)
+                    D, R2, std_err = plot_dcm(times, mean_dcm, std_dcm, velocity, solution_type)
 
-    # Coeficiente de difusión y R²
-    D = p[0] / 4  # En 2D, D = pendiente/4
-    residuals = msd - msd_fit
-    ss_res = np.sum(residuals ** 2)
-    ss_tot = np.sum((msd - np.mean(msd)) ** 2)
-    r_squared = 1 - ss_res / ss_tot if ss_tot != 0 else 0
+                    results.append({
+                        'velocity': velocity,
+                        'D': D,
+                        'R2': R2,
+                        'std_err': std_err
+                    })
 
-    # Graficar DCM vs tiempo
-    plt.figure(figsize=(10, 6))
-    plt.errorbar(delta_t, msd, yerr=msd_std, fmt='o', capsize=5, label='Datos', color='b')
-    plt.plot(delta_t, msd_fit, 'r-', label=f'Ajuste lineal\nD = {D:.2e} m²/s')
-    plt.xlabel('Δt (s)')
-    plt.ylabel('DCM (m²)')
-    plt.title('Desplazamiento Cuadrático Medio vs Tiempo')
-    plt.grid(True)
-    plt.legend()
+                except Exception as e:
+                    print(f"Error procesando velocidad {velocity}: {str(e)}")
+                    continue
 
-    plt.savefig(os.path.join(output_dir, "msd_analysis.png"), dpi=300, bbox_inches='tight')
-    plt.close()
+            if results:
+                print(f"\nResumen de resultados para {solution_type}:")
+                print("-" * 60)
+                df_results = pd.DataFrame(results)
+                print(df_results.sort_values('velocity').to_string(index=False))
 
-    print("\nResultados del análisis de difusión:")
-    print(f"Coeficiente de difusión (D): {D:.2e} m²/s")
-    print(f"R² del ajuste: {r_squared:.3f}")
-    print(f"Ordenada al origen: {p[1]:.2e} m²")
+                output_dir = Path("outputs/analysis")
+                df_results.to_csv(output_dir / f"dcm_results_{solution_type}.csv", index=False)
+
+    except Exception as e:
+        print(f"Error en la ejecución: {str(e)}")
+        print("\nDetalles del error:")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+    return 0
 
 if __name__ == "__main__":
-    steady_state_time = 0  # Especifica aquí el tiempo de estado estacionario
-
-    # sample_rate -> mas alto -> menos detalle
-    calculate_msd_and_diffusion("common_solution", velocity=1.0, steady_state_time=steady_state_time, sample_rate=1)
+    exit(main())

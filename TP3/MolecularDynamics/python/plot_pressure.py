@@ -3,72 +3,100 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from scipy.signal import savgol_filter
-import os
-import glob
+from pathlib import Path
 
-def plot_smoothed_pressure(base_directory):
-    # Buscar todas las subcarpetas de velocidad
-    velocity_dirs = glob.glob(os.path.join(base_directory, "v_*"))
+def load_pressure_data(velocity_path):
+    """
+    Carga los datos de presión únicamente de la iteración 0
+    """
+    iter_path = velocity_path / "0"  # Solo iteración 0
+    pressure_file = iter_path / "pressure.csv"
 
-    if not velocity_dirs:
-        print(f"Error: No se encontraron directorios de velocidad en {base_directory}")
+    if pressure_file.exists():
+        return pd.read_csv(pressure_file)
+    return None
+
+def plot_smoothed_pressure(solution_type):
+    """
+    Genera gráficos de presión para la iteración 0 de cada velocidad
+    """
+    base_path = Path(f"outputs/{solution_type}")
+    if not base_path.exists():
+        print(f"Error: No se encontró el directorio {base_path}")
         return
 
-    # Configurar el estilo general
-    plt.style.use('default')
+    # Crear directorio de salida
+    output_dir = Path("outputs/analysis/pressures")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Buscar directorios de velocidad
+    velocity_dirs = [d for d in base_path.iterdir() if d.is_dir() and d.name.startswith("v_")]
+    velocity_dirs.sort(key=lambda x: float(x.name.split('_')[1]))
+
+    if not velocity_dirs:
+        print(f"Error: No se encontraron directorios de velocidad en {base_path}")
+        return
+
     colors = sns.color_palette("husl", 5)
-
-    # Crear un subplot para cada velocidad
-    n_velocities = len(velocity_dirs)
-    fig, axes = plt.subplots(n_velocities, 1, figsize=(12, 6*n_velocities))
-    if n_velocities == 1:
-        axes = [axes]
-
-    # Parámetros de suavizado
-    window = 51  # Debe ser impar
+    window = 51  # Ventana de suavizado (debe ser impar)
     poly_order = 3
 
-    # Procesar cada directorio de velocidad
-    for idx, vel_dir in enumerate(sorted(velocity_dirs)):
-        pressure_path = os.path.join(vel_dir, "pressure.csv")
+    # Procesar cada velocidad
+    for vel_dir in velocity_dirs:
+        try:
+            velocity = float(vel_dir.name.split('_')[1])
+            print(f"Procesando velocidad {velocity}...")
 
-        if not os.path.exists(pressure_path):
-            print(f"Error: Archivo no encontrado en {pressure_path}")
+            # Cargar datos de la iteración 0
+            pressure_df = load_pressure_data(vel_dir)
+            if pressure_df is None:
+                print(f"No se encontraron datos para velocidad {velocity}")
+                continue
+
+            # Crear figura para esta velocidad
+            plt.figure(figsize=(12, 6))
+
+            # Graficar cada componente
+            for col_idx, col in enumerate(['bottom', 'right', 'top', 'left', 'static']):
+                if len(pressure_df[col]) > window:
+                    smoothed_values = savgol_filter(pressure_df[col], window, poly_order)
+                else:
+                    smoothed_values = pressure_df[col]
+
+                # Plotear línea principal
+                plt.plot(pressure_df['time'], smoothed_values,
+                         label=col, color=colors[col_idx], linewidth=2)
+
+            plt.xlabel('Tiempo (s)', fontsize=12)
+            plt.ylabel('Presión', fontsize=12)
+            plt.title(f'Evolución de la Presión - {solution_type.replace("_", " ").title()}\nVelocidad: {velocity:.2f} (Iteración 0)',
+                      fontsize=14)
+            plt.legend(fontsize=10)
+            plt.grid(True, alpha=0.3)
+            plt.tight_layout()
+
+            # Guardar gráfico en el directorio específico
+            plt.savefig(output_dir / f"pressure_{solution_type}_v{velocity:.2f}.png",
+                        dpi=300, bbox_inches='tight')
+            plt.close()
+
+        except Exception as e:
+            print(f"Error procesando velocidad {velocity}: {str(e)}")
             continue
 
-        # Leer datos
-        pressure_df = pd.read_csv(pressure_path)
+def main():
+    try:
+        for solution_type in ["fixed_solution"]:
+            print(f"\nProcesando {solution_type}...")
+            plot_smoothed_pressure(solution_type)
 
-        # Obtener la velocidad del nombre del directorio
-        velocity = float(os.path.basename(vel_dir).split('_')[1])
+    except Exception as e:
+        print(f"Error en la ejecución: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
-        # Graficar en el subplot correspondiente
-        ax = axes[idx]
-
-        # Suavizar y graficar cada curva
-        for col_idx, col in enumerate(['bottom', 'right', 'top', 'left', 'static']):
-            # Aplicar filtro Savitzky-Golay para suavizar la curva
-            if len(pressure_df[col]) > window:
-                smoothed = savgol_filter(pressure_df[col], window, poly_order)
-            else:
-                smoothed = pressure_df[col]
-
-            ax.plot(pressure_df['time'], smoothed, label=col, color=colors[col_idx], linewidth=2)
-
-        ax.set_xlabel('Tiempo (s)')
-        ax.set_ylabel('Presión')
-        ax.set_title(f'Evolución de la Presión - Velocidad: {velocity:.2f}')
-        ax.legend()
-        ax.grid(True, alpha=0.3)
-
-    # Ajustar el espaciado entre subplots
-    plt.tight_layout()
-
-    # Guardar y mostrar
-    output_dir = os.path.join(base_directory, "plots")
-    os.makedirs(output_dir, exist_ok=True)
-    plt.savefig(os.path.join(output_dir, "pressure_curves.png"), dpi=300, bbox_inches='tight')
-    plt.show()
+    return 0
 
 if __name__ == "__main__":
-    plot_smoothed_pressure("outputs/fixed_solution")
+    exit(main())

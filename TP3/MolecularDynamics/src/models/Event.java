@@ -34,12 +34,10 @@ public class Event {
 	}
 
 	public static void applyCollision(Particle p1, Particle p2) {
-		System.out.printf("=== BEFORE === %n");
-		System.out.printf("%d(%.2f) -> %d(%.2f) %n", p1.getId(), p1.getMass(), p2.getId(), p2.getMass());
-		System.out.printf("P%d: %.6f %n", p1.getId(),
-				Math.sqrt(Math.pow(p1.getVelocity().getX(), 2) + Math.pow(p1.getVelocity().getY(), 2)));
-		System.out.printf("P%d: %.6f %n", p2.getId(),
-				Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));		
+		//System.out.printf("=== BEFORE === %n");
+		//System.out.printf("%d(%.2f) -> %d(%.2f) %n", p1.getId(), p1.getMass(), p2.getId(), p2.getMass());
+		//System.out.printf("P%d: %.6f %n", p1.getId(), Math.sqrt(Math.pow(p1.getVelocity().getX(), 2) + Math.pow(p1.getVelocity().getY(), 2)));
+		//System.out.printf("P%d: %.6f %n", p2.getId(), Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));
 		
 		// Calcular Δr y Δv
 		double deltaX = p2.getPosition().getX() - p1.getPosition().getX();
@@ -65,11 +63,11 @@ public class Event {
 		p2.setVelocity(
 				new Velocity(p2.getVelocity().getX() - Jx / p2.getMass(), p2.getVelocity().getY() - Jy / p2.getMass()));
 
-		System.out.printf("=== AFTER === %n");
-		System.out.printf("P%d: %.6f %n", p1.getId(),
-				Math.sqrt(Math.pow(p1.getVelocity().getX(), 2) + Math.pow(p1.getVelocity().getY(), 2)));
-		System.out.printf("P%d: %.6f %n", p2.getId(),
-				Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));
+		//System.out.printf("=== AFTER === %n");
+		//System.out.printf("P%d: %.6f %n", p1.getId(),
+		//		Math.sqrt(Math.pow(p1.getVelocity().getX(), 2) + Math.pow(p1.getVelocity().getY(), 2)));
+		//System.out.printf("P%d: %.6f %n", p2.getId(),
+		//		Math.sqrt(Math.pow(p2.getVelocity().getX(), 2) + Math.pow(p2.getVelocity().getY(), 2)));
 	}
 
 	public static void applyCollision(Particle p1, WallType type) {
