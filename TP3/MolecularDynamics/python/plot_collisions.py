@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 import sys
 
-SOLUTIONS = ["common_solution", "fixed_solution"]
+SOLUTIONS = ["fixed_solution"]
 
 def group_data_by_interval(df, dt):
     """Groups data into dt intervals"""
@@ -100,6 +100,27 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
     plt.legend(fontsize=12)
     plt.tight_layout()
     plt.savefig(output_dir / f"average_collision_rate_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    # 5. NEW: Time to maximum unique collisions vs Temperature
+    temperatures = [v**2 for v in velocity_data.keys()]
+    max_collision_times = []
+
+    for velocity, (_, df_unique) in velocity_data.items():
+        cumsum_collisions = df_unique['static'].cumsum()
+        max_collision_time = df_unique['time_bin'][cumsum_collisions.idxmax()]
+        max_collision_times.append(max_collision_time)
+
+    plt.figure(figsize=(15, 10), dpi=300)
+    plt.scatter(temperatures, max_collision_times, color='blue', s=100)
+    plt.plot(temperatures, max_collision_times, color='red', linestyle='--', alpha=0.7)
+
+    plt.xlabel('Temperatura (v²)', fontsize=14)
+    plt.ylabel('Tiempo de Máximas Colisiones Únicas (s)', fontsize=14)
+    plt.title(f'{title_prefix} - Tiempo de Máximas Colisiones vs Temperatura', fontsize=16)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.savefig(output_dir / f"max_collisions_time_vs_temperature_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
 def plot_collisions(dt=0.1):
