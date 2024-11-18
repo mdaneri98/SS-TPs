@@ -9,7 +9,8 @@ SOLUTIONS = ["common_solution", "fixed_solution"]
 def group_data_by_interval(df, dt):
     """Groups data into dt intervals"""
     df['time_bin'] = (df['time'] // dt) * dt
-    return df.groupby('time_bin').sum().reset_index()
+    grouped = df.groupby('time_bin').sum().reset_index()
+    return grouped.iloc[:-2]  # Remove last 2 rows
 
 def load_collision_data(count_path, unique_path, dt):
     try:
@@ -42,66 +43,52 @@ def load_collision_data(count_path, unique_path, dt):
         print(f"Error loading data: {str(e)}")
         return None, None
 
-def create_collision_plots(df_count, df_unique, output_dir, velocity, solution_type):
-    """Creates collision analysis plots"""
+def create_collision_plots(velocity_data, output_dir, solution_type):
     title_prefix = "Solución no estática" if "common" in solution_type else "Solución estática"
-    velocity_dir = output_dir / f"v_{velocity:.2f}"
-    velocity_dir.mkdir(parents=True, exist_ok=True)
+    colors = plt.cm.viridis(np.linspace(0, 1, len(velocity_data)))
 
-    # Wall collisions plot
-    plt.figure(figsize=(10, 6))
+    # Wall collisions - cada pared en un gráfico separado
     for wall in ['bottom', 'right', 'top', 'left']:
-        plt.plot(df_count['time_bin'], df_count[f'{wall}_cumsum'],
-                 label=f'Pared {wall}', linewidth=2)
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Colisiones Acumuladas')
-    plt.title(f'{title_prefix} - Colisiones con Paredes (v={velocity:.2f})')
+        plt.figure(figsize=(15, 10), dpi=300)
+        for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
+            plt.plot(df_count['time_bin'], df_count[f'{wall}_cumsum'],
+                     label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
+        plt.xlabel('Tiempo (s)', fontsize=14)
+        plt.ylabel('Colisiones Acumuladas', fontsize=14)
+        plt.title(f'{title_prefix} - Colisiones con Pared {wall}', fontsize=16)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(fontsize=12)
+        plt.tight_layout()
+        plt.savefig(output_dir / f"wall_collisions_{wall}_{solution_type}.png", dpi=300, bbox_inches='tight')
+        plt.close()
+
+    # Total static particle collisions
+    plt.figure(figsize=(15, 10), dpi=300)
+    for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
+        plt.plot(df_count['time_bin'], df_count['static_cumsum'],
+                 label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
+    plt.xlabel('Tiempo (s)', fontsize=14)
+    plt.ylabel('Colisiones Totales', fontsize=14)
+    plt.title(f'{title_prefix} - Colisiones Totales con Partícula Estática', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend()
-    plt.savefig(velocity_dir / f"wall_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.savefig(output_dir / f"static_total_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-    # Static particle total collisions
-    plt.figure(figsize=(10, 6))
-    plt.plot(df_count['time_bin'], df_count['static_cumsum'], color='blue', linewidth=2)
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Colisiones Acumuladas')
-    plt.title(f'{title_prefix} - Colisiones Totales con Partícula Estática (v={velocity:.2f})')
+    # Unique static particle collisions
+    plt.figure(figsize=(15, 10), dpi=300)
+    for vel_idx, (velocity, (_, df_unique)) in enumerate(velocity_data.items()):
+        plt.plot(df_unique['time_bin'], df_unique['static_cumsum'],
+                 label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
+    plt.xlabel('Tiempo (s)', fontsize=14)
+    plt.ylabel('Colisiones Únicas', fontsize=14)
+    plt.title(f'{title_prefix} - Colisiones Únicas con Partícula Estática', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.savefig(velocity_dir / f"static_total_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.savefig(output_dir / f"static_unique_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
-
-    # Static particle unique collisions
-    plt.figure(figsize=(10, 6))
-    plt.plot(df_unique['time_bin'], df_unique['static_cumsum'], color='green', linewidth=2)
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Colisiones Únicas Acumuladas')
-    plt.title(f'{title_prefix} - Colisiones Únicas con Partícula Estática (v={velocity:.2f})')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.savefig(velocity_dir / f"static_unique_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
-    plt.close()
-
-    # Combined collisions plot
-    plt.figure(figsize=(10, 6))
-    walls_total = df_count[['bottom_cumsum', 'right_cumsum', 'top_cumsum', 'left_cumsum']].sum(axis=1)
-    plt.plot(df_count['time_bin'], walls_total, label='Total Paredes', linewidth=2)
-    plt.plot(df_count['time_bin'], df_count['static_cumsum'], label='Total Partícula Estática', linewidth=2)
-    plt.plot(df_unique['time_bin'], df_unique['static_cumsum'], label='Únicas Partícula Estática', linewidth=2)
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Colisiones Acumuladas')
-    plt.title(f'{title_prefix} - Todas las Colisiones (v={velocity:.2f})')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend()
-    plt.savefig(velocity_dir / f"all_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
-    plt.close()
-
-    # Print statistics
-    print(f"\nEstadísticas para v={velocity:.2f} - {title_prefix}")
-    print("-" * 50)
-    print(f"Tiempo total de simulación: {df_count['time_bin'].iloc[-1]:.2f} s")
-    print(f"Colisiones totales con paredes: {walls_total.iloc[-1]:.0f}")
-    print(f"Colisiones totales con partícula estática: {df_count['static_cumsum'].iloc[-1]:.0f}")
-    print(f"Colisiones únicas con partícula estática: {df_unique['static_cumsum'].iloc[-1]:.0f}")
 
 def plot_collisions(dt=0.1):
     output_dir = Path("outputs/analysis/collisions_plots")
@@ -109,34 +96,32 @@ def plot_collisions(dt=0.1):
 
     for solution_type in SOLUTIONS:
         base_path = Path(f"outputs/{solution_type}")
-        if not base_path.exists():
-            print(f"No se encuentra el directorio: {base_path}")
+        if not base_path.exists() or not any(base_path.glob("v_*")):
             continue
 
-        velocity_dirs = [d for d in base_path.glob("v_*") if d.is_dir()]
-        if not velocity_dirs:
-            print(f"No se encontraron directorios de velocidad en {base_path}")
-            continue
-
-        velocity_dirs.sort(key=lambda x: float(x.name.split("_")[1]))
+        velocity_data = {}
+        velocity_dirs = sorted(base_path.glob("v_*"),
+                               key=lambda x: float(x.name.split("_")[1]))
 
         for vel_dir in velocity_dirs:
             try:
                 velocity = float(vel_dir.name.split("_")[1])
-                iter_dir = vel_dir / "0"
-
                 df_count, df_unique = load_collision_data(
-                    iter_dir / "count.csv",
-                    iter_dir / "unique_counts.csv",
+                    vel_dir / "0" / "count.csv",
+                    vel_dir / "0" / "unique_counts.csv",
                     dt
                 )
-
                 if df_count is not None and df_unique is not None:
-                    create_collision_plots(df_count, df_unique, output_dir, velocity, solution_type)
+                    df_count = df_count.iloc[:-2]  # Remove last two intervals
+                    df_unique = df_unique.iloc[:-2]  # Remove last two intervals
+                    velocity_data[velocity] = (df_count, df_unique)
 
             except Exception as e:
                 print(f"Error procesando velocidad {vel_dir.name}: {str(e)}")
                 continue
+
+        if velocity_data:
+            create_collision_plots(velocity_data, output_dir, solution_type)
 
 if __name__ == "__main__":
     try:
