@@ -33,11 +33,6 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
             wall.momentumCount().put(0.0, 0.0);
         }
 
-        // Initialize counters for static particle
-        StaticParticle staticParticle = initial.getStaticParticle();
-        staticParticle.collisionCount().put(0.0, 0);
-        staticParticle.momentumCount().put(0.0, 0.0);
-        staticParticle.uniqueCollisionCount().put(0.0, 0);
     }
 
     @Override

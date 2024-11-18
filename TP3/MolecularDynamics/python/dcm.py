@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 
-base_output_dir = "outputs/analysis"
+base_output_dir = "outputs/analysis/dcm_plots"
 
 def process_simulation(n, v, i, path):
     input_filename = f"{path}/v_{v}/{i}/particles.csv"

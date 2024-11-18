@@ -13,7 +13,7 @@ public class Main {
         double staticMass;
         double dt = 0.05;
 
-        int time = 60;
+        int time = 10;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, dt);
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
@@ -22,17 +22,14 @@ public class Main {
         
         velocity = 3;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        StaticParticle.newIteration();
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
 
         velocity = 6;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        StaticParticle.newIteration();
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
         
         velocity = 10;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        StaticParticle.newIteration();
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);
 
         // === Ej 1.4 ===
@@ -40,7 +37,6 @@ public class Main {
         velocity = 1;
         staticMass = 3;
         molecularDynamic = new MolecularDynamicSystem(N, L, dt);
-        StaticParticle.newIteration();
         molecularDynamic.commonSolution(velocity, mass, radius, staticRadius, staticMass, time);
 
 

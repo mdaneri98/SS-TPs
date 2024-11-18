@@ -209,6 +209,7 @@ public class MolecularDynamicSystem {
 
             Path filepath = getFilePath(directory, "particles.csv");
 
+            StaticParticle.newIteration();
             Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
             runSolution(iterator, directory, filepath, runSeconds);
         }
@@ -225,6 +226,7 @@ public class MolecularDynamicSystem {
 
             Path filepath = getFilePath(directory, "particles.csv");
 
+            StaticParticle.newIteration();
             Iterator<State> iterator = new MolecularDynamicWithObstacle(velocity, mass, radius, staticRadius, initial, dt);
             runSolution(iterator, directory, filepath, runSeconds);
         }
