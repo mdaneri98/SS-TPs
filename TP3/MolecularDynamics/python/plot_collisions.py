@@ -86,23 +86,23 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
     plt.savefig(output_dir / f"average_collisions_count_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-    # 4. Average collisions rate from count.csv
+    # 4. Sum of collisions per interval from count.csv (modified from average)
     plt.figure(figsize=(15, 10), dpi=300)
     for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
         all_collisions = df_count[['bottom', 'right', 'top', 'left', 'static']]
-        collision_rates = all_collisions.mean(axis=1)  # No cumsum for rate
-        plt.plot(df_count['time_bin'], collision_rates,
+        collision_sums = all_collisions.sum(axis=1)  # Changed from mean() to sum()
+        plt.plot(df_count['time_bin'], collision_sums,
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
-    plt.ylabel('Tasa Promedio de Choques', fontsize=14)
-    plt.title(f'{title_prefix} - Tasa Promedio de Choques (count.csv)', fontsize=16)
+    plt.ylabel('Suma de Choques por Intervalo', fontsize=14)  # Updated label
+    plt.title(f'{title_prefix} - Suma de Choques por Intervalo (count.csv)', fontsize=16)  # Updated title
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
-    plt.savefig(output_dir / f"average_collision_rate_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / f"collision_sum_rate_{solution_type}.png", dpi=300, bbox_inches='tight')  # Updated filename
     plt.close()
 
-    # 5. NEW: Time to maximum unique collisions vs Temperature
+    # 5. Time to maximum unique collisions vs Temperature
     temperatures = [v**2 for v in velocity_data.keys()]
     max_collision_times = []
 
@@ -123,7 +123,7 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
     plt.savefig(output_dir / f"max_collisions_time_vs_temperature_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-def plot_collisions(dt=0.1):
+def plot_collisions(dt=0.005):
     output_dir = Path("outputs/analysis/collisions_plots")
     output_dir.mkdir(parents=True, exist_ok=True)
 

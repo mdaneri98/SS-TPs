@@ -13,7 +13,7 @@ public class Main {
         double staticMass;
         double dt = 0.05;
 
-        int time = 10;
+        int time = 60;
 
         MolecularDynamicSystem molecularDynamic = new MolecularDynamicSystem(N, L, dt);
         molecularDynamic.fixedSolution(velocity, mass, radius, staticRadius, time);

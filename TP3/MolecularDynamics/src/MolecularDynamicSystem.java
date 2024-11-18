@@ -325,7 +325,7 @@ public class MolecularDynamicSystem {
             allTimes.addAll(walls.get(WallType.TOP).collisionCount().keySet());
             allTimes.addAll(walls.get(WallType.LEFT).collisionCount().keySet());
             allTimes.addAll(initial.getStaticParticle().collisionCount().keySet());
-
+/*
             if(allTimes.size() > 2) {
                 Iterator<Double> iterator = allTimes.iterator();
                 Double max = null;
@@ -340,7 +340,7 @@ public class MolecularDynamicSystem {
                 allTimes.remove(max);
                 allTimes.remove(secondMax);
             }
-
+*/
             // Write data for each time point
             for (Double time : allTimes) {
                 writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
