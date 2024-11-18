@@ -43,7 +43,7 @@ def create_collision_plots(df_count, df_unique, output_dir, velocity, solution_t
     """
     Crea los cuatro gráficos para una velocidad específica
     """
-    title_prefix = "Solución Común" if "common" in solution_type else "Solución Fija"
+    title_prefix = "Solución no estática" if "common" in solution_type else "Solución estática"
 
     # Crear subcarpeta para la velocidad
     velocity_dir = output_dir / f"v_{velocity:.2f}"
@@ -121,7 +121,7 @@ def create_collision_plots(df_count, df_unique, output_dir, velocity, solution_t
     print(f"Colisiones únicas con partícula estática: {df_unique['static_cumsum'].iloc[-1]:.0f}")
 
 def plot_collisions():
-    output_dir = Path("outputs/analysis")
+    output_dir = Path("outputs/analysis/collisions_plots")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for solution_type in SOLUTIONS:

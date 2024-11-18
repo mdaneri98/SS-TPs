@@ -4,9 +4,31 @@ import numpy as np
 from scipy import stats
 from pathlib import Path
 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import stats
+from pathlib import Path
+
+
+
 # Tiempos fijos para el análisis
 FIXED_TIMES = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
                         1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0])
+
+def find_nearest_time(available_times, target_time):
+    """
+    Encuentra el tiempo más cercano al objetivo entre los tiempos disponibles
+
+    Args:
+        available_times (array): Array de tiempos disponibles
+        target_time (float): Tiempo objetivo
+
+    Returns:
+        float: Tiempo más cercano disponible
+    """
+    idx = np.abs(available_times - target_time).argmin()
+    return available_times[idx]
 
 def calculate_dcm_for_iteration(df, static_df):
     """
@@ -21,13 +43,23 @@ def calculate_dcm_for_iteration(df, static_df):
     df_merged['dy'] = df_merged['y'] - df_merged['y_static']
     df_merged['z2'] = df_merged['dx']**2 + df_merged['dy']**2
 
-    # Calcular DCM solo para los tiempos fijos
-    dcm_values = []
-    for t in FIXED_TIMES:
-        z2_mean = df_merged[df_merged['time'] == t]['z2'].mean()
-        dcm_values.append(z2_mean)
+    # Obtener los tiempos disponibles únicos
+    available_times = np.sort(df_merged['time'].unique())
 
-    return np.array(dcm_values)
+    # Calcular DCM para los tiempos más cercanos a los fijos
+    dcm_values = []
+    used_times = []
+    for target_time in FIXED_TIMES:
+        nearest_time = find_nearest_time(available_times, target_time)
+        z2_mean = df_merged[df_merged['time'] == nearest_time]['z2'].mean()
+        dcm_values.append(z2_mean)
+        used_times.append(nearest_time)
+
+        # Imprimir información sobre la aproximación de tiempo
+        if abs(nearest_time - target_time) > 1e-6:  # Si hay diferencia significativa
+            print(f"Tiempo objetivo: {target_time:.3f}, tiempo más cercano usado: {nearest_time:.3f}")
+
+    return np.array(dcm_values), np.array(used_times)
 
 def calculate_dcm_with_iterations(solution_type, velocity):
     """
@@ -49,6 +81,7 @@ def calculate_dcm_with_iterations(solution_type, velocity):
     print(f"Calculando DCM para {len(FIXED_TIMES)} puntos de tiempo")
 
     all_dcm = []
+    actual_times = None
     valid_iterations = 0
 
     for iter_dir in iteration_dirs:
@@ -61,8 +94,12 @@ def calculate_dcm_with_iterations(solution_type, velocity):
             static_df = df[df['id'] == 0].copy()
             particles_df = df[df['id'] != 0].copy()
 
-            dcm = calculate_dcm_for_iteration(particles_df, static_df)
+            dcm, used_times = calculate_dcm_for_iteration(particles_df, static_df)
             all_dcm.append(dcm)
+
+            if actual_times is None:
+                actual_times = used_times
+
             valid_iterations += 1
         except Exception as e:
             print(f"Error procesando iteración {iter_dir}: {str(e)}")
@@ -77,7 +114,8 @@ def calculate_dcm_with_iterations(solution_type, velocity):
     mean_dcm = np.mean(all_dcm, axis=0)
     std_dcm = np.std(all_dcm, axis=0) / np.sqrt(valid_iterations)
 
-    return FIXED_TIMES, mean_dcm, std_dcm
+    return actual_times, mean_dcm, std_dcm
+
 
 def plot_dcm(times, dcm_values, dcm_errors, velocity, solution_type):
     """
@@ -109,7 +147,7 @@ def plot_dcm(times, dcm_values, dcm_errors, velocity, solution_type):
 
     plt.tight_layout()
 
-    output_dir = Path("outputs/analysis")
+    output_dir = Path("outputs/analysis/dcm_plots")
     output_dir.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_dir / f"dcm_{solution_type}_v{velocity:.2f}.png",
                 dpi=300, bbox_inches='tight')
@@ -146,7 +184,7 @@ def get_velocities(solution_type):
 
 def main():
     try:
-        solution_types = ["common_solution", "fixed_solution"]
+        solution_types = ["common_solution"]
 
         for solution_type in solution_types:
             print(f"\nProcesando {solution_type}...")

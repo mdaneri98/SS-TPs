@@ -1,8 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
-from scipy.signal import savgol_filter
 from pathlib import Path
 
 def load_pressure_data(velocity_path):
@@ -16,9 +14,9 @@ def load_pressure_data(velocity_path):
         return pd.read_csv(pressure_file)
     return None
 
-def plot_smoothed_pressure(solution_type):
+def plot_pressure(solution_type):
     """
-    Genera gráficos de presión para la iteración 0 de cada velocidad
+    Genera gráficos de presión para la iteración 0 de cada velocidad sin suavizado
     """
     base_path = Path(f"outputs/{solution_type}")
     if not base_path.exists():
@@ -38,8 +36,6 @@ def plot_smoothed_pressure(solution_type):
         return
 
     colors = sns.color_palette("husl", 5)
-    window = 51  # Ventana de suavizado (debe ser impar)
-    poly_order = 3
 
     # Procesar cada velocidad
     for vel_dir in velocity_dirs:
@@ -56,15 +52,9 @@ def plot_smoothed_pressure(solution_type):
             # Crear figura para esta velocidad
             plt.figure(figsize=(12, 6))
 
-            # Graficar cada componente
+            # Graficar cada componente directamente sin suavizado
             for col_idx, col in enumerate(['bottom', 'right', 'top', 'left', 'static']):
-                if len(pressure_df[col]) > window:
-                    smoothed_values = savgol_filter(pressure_df[col], window, poly_order)
-                else:
-                    smoothed_values = pressure_df[col]
-
-                # Plotear línea principal
-                plt.plot(pressure_df['time'], smoothed_values,
+                plt.plot(pressure_df['time'], pressure_df[col],
                          label=col, color=colors[col_idx], linewidth=2)
 
             plt.xlabel('Tiempo (s)', fontsize=12)
@@ -88,7 +78,7 @@ def main():
     try:
         for solution_type in ["fixed_solution"]:
             print(f"\nProcesando {solution_type}...")
-            plot_smoothed_pressure(solution_type)
+            plot_pressure(solution_type)
 
     except Exception as e:
         print(f"Error en la ejecución: {str(e)}")
