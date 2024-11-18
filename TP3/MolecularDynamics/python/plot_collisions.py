@@ -31,12 +31,6 @@ def load_collision_data(count_path, unique_path, dt):
         df_count = group_data_by_interval(df_count, dt)
         df_unique = group_data_by_interval(df_unique, dt)
 
-        # Calculate cumulative sums
-        for col in required_columns[1:]:
-            df_count[f'{col}_cumsum'] = df_count[col].fillna(0).cumsum()
-
-        df_unique['static_cumsum'] = df_unique['static'].fillna(0).cumsum()
-
         return df_count, df_unique
 
     except Exception as e:
@@ -47,47 +41,65 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
     title_prefix = "Solución no estática" if "common" in solution_type else "Solución estática"
     colors = plt.cm.viridis(np.linspace(0, 1, len(velocity_data)))
 
-    # Wall collisions - cada pared en un gráfico separado
-    for wall in ['bottom', 'right', 'top', 'left']:
-        plt.figure(figsize=(15, 10), dpi=300)
-        for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
-            plt.plot(df_count['time_bin'], df_count[f'{wall}_cumsum'],
-                     label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
-        plt.xlabel('Tiempo (s)', fontsize=14)
-        plt.ylabel('Colisiones Acumuladas', fontsize=14)
-        plt.title(f'{title_prefix} - Colisiones con Pared {wall}', fontsize=16)
-        plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(fontsize=12)
-        plt.tight_layout()
-        plt.savefig(output_dir / f"wall_collisions_{wall}_{solution_type}.png", dpi=300, bbox_inches='tight')
-        plt.close()
-
-    # Total static particle collisions
+    # 1. Total collisions from count.csv
     plt.figure(figsize=(15, 10), dpi=300)
     for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
-        plt.plot(df_count['time_bin'], df_count['static_cumsum'],
+        total_collisions = df_count[['bottom', 'right', 'top', 'left', 'static']].sum(axis=1).cumsum()
+        plt.plot(df_count['time_bin'], total_collisions,
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
-    plt.ylabel('Colisiones Totales', fontsize=14)
-    plt.title(f'{title_prefix} - Colisiones Totales con Partícula Estática', fontsize=16)
+    plt.ylabel('Cantidad Total de Choques', fontsize=14)
+    plt.title(f'{title_prefix} - Choques Totales (count.csv)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
-    plt.savefig(output_dir / f"static_total_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / f"total_collisions_count_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-    # Unique static particle collisions
+    # 2. Total collisions from unique_count.csv
     plt.figure(figsize=(15, 10), dpi=300)
     for vel_idx, (velocity, (_, df_unique)) in enumerate(velocity_data.items()):
-        plt.plot(df_unique['time_bin'], df_unique['static_cumsum'],
+        plt.plot(df_unique['time_bin'], df_unique['static'].cumsum(),
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
-    plt.ylabel('Colisiones Únicas', fontsize=14)
-    plt.title(f'{title_prefix} - Colisiones Únicas con Partícula Estática', fontsize=16)
+    plt.ylabel('Cantidad Total de Choques Únicos', fontsize=14)
+    plt.title(f'{title_prefix} - Choques Únicos (unique_count.csv)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
-    plt.savefig(output_dir / f"static_unique_collisions_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / f"total_collisions_unique_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    # 3. Average collisions from count.csv
+    plt.figure(figsize=(15, 10), dpi=300)
+    for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
+        all_collisions = df_count[['bottom', 'right', 'top', 'left', 'static']]
+        avg_collisions = all_collisions.mean(axis=1).cumsum()
+        plt.plot(df_count['time_bin'], avg_collisions,
+                 label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
+    plt.xlabel('Tiempo (s)', fontsize=14)
+    plt.ylabel('Promedio de Choques', fontsize=14)
+    plt.title(f'{title_prefix} - Promedio de Choques (count.csv)', fontsize=16)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.savefig(output_dir / f"average_collisions_count_{solution_type}.png", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    # 4. Average collisions rate from count.csv
+    plt.figure(figsize=(15, 10), dpi=300)
+    for vel_idx, (velocity, (df_count, _)) in enumerate(velocity_data.items()):
+        all_collisions = df_count[['bottom', 'right', 'top', 'left', 'static']]
+        collision_rates = all_collisions.mean(axis=1)  # No cumsum for rate
+        plt.plot(df_count['time_bin'], collision_rates,
+                 label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
+    plt.xlabel('Tiempo (s)', fontsize=14)
+    plt.ylabel('Tasa Promedio de Choques', fontsize=14)
+    plt.title(f'{title_prefix} - Tasa Promedio de Choques (count.csv)', fontsize=16)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.savefig(output_dir / f"average_collision_rate_{solution_type}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
 def plot_collisions(dt=0.1):
@@ -112,8 +124,6 @@ def plot_collisions(dt=0.1):
                     dt
                 )
                 if df_count is not None and df_unique is not None:
-                    df_count = df_count.iloc[:-2]  # Remove last two intervals
-                    df_unique = df_unique.iloc[:-2]  # Remove last two intervals
                     velocity_data[velocity] = (df_count, df_unique)
 
             except Exception as e:

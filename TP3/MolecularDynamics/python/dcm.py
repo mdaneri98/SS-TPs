@@ -2,8 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
+import os
 
 base_output_dir = "outputs/analysis/dcm_plots"
+
+def ensure_directory_exists(directory):
+    """Create directory if it doesn't exist"""
+    os.makedirs(directory, exist_ok=True)
 
 def process_simulation(n, v, i, path):
     input_filename = f"{path}/v_{v}/{i}/particles.csv"
@@ -13,6 +18,8 @@ def process_simulation(n, v, i, path):
     return collision_data
 
 def plot_dcm_over_time(iterations, big_particle_data):
+    ensure_directory_exists(base_output_dir)
+
     delta_t = 0.02
     initial_x = initial_y = 0.05000
     msd_values_all_runs = []
