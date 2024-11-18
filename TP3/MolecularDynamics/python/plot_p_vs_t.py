@@ -5,33 +5,27 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-def get_average_pressure(velocity_dir):
-    """
-    Calcula la presión promedio para una velocidad dada usando solo la iteración 0
-    """
+def get_average_pressure(velocity_dir, dt=0.05):
     pressure_file = velocity_dir / '0' / 'pressure.csv'
     if not pressure_file.exists():
         return None
 
     try:
-        # Leer el archivo de presión
         df = pd.read_csv(pressure_file)
-
-        # Verificar que tenemos las columnas necesarias
         required_cols = ['time', 'bottom', 'right', 'top', 'left']
         if not all(col in df.columns for col in required_cols):
             print(f"Advertencia: Faltan columnas en {pressure_file}")
             return None
 
-        # Calcular la presión en estado estacionario
-        start_time = 0  # Empezamos desde t=2s para evitar el transitorio
-        steady_state = df[df['time'] > start_time]
+        # Group by time intervals and sum pressures
+        df['time_bin'] = (df['time'] // dt) * dt
+        steady_state = df.groupby('time_bin').sum().reset_index()
 
         if steady_state.empty:
             print(f"Advertencia: No hay datos en estado estacionario para {velocity_dir}")
             return None
 
-        # Sumamos las presiones de todas las paredes
+        # Calculate average wall pressure
         wall_pressure = steady_state[['bottom', 'right', 'top', 'left']].sum(axis=1).mean()
         return wall_pressure
 
@@ -39,17 +33,14 @@ def get_average_pressure(velocity_dir):
         print(f"Error procesando {pressure_file}: {e}")
         return None
 
-def analyze_pressure_temperature():
+def analyze_pressure_temperature(dt=0.05):
     base_path = Path('outputs/fixed_solution')
-
-    # Almacenar resultados
     data = []
 
-    # Procesar cada directorio de velocidad
     for vel_dir in base_path.glob('v_*'):
         try:
             velocity = float(vel_dir.name.split('_')[1])
-            avg_pressure = get_average_pressure(vel_dir)
+            avg_pressure = get_average_pressure(vel_dir, dt)
 
             if avg_pressure is not None:
                 data.append({
@@ -64,32 +55,24 @@ def analyze_pressure_temperature():
         except Exception as e:
             print(f"Error procesando {vel_dir}: {e}")
 
-    # Crear DataFrame
     results_df = pd.DataFrame(data)
 
     if results_df.empty:
         print("No se encontraron datos válidos para analizar")
         return
 
-    # Ordenar por velocidad
     results_df.sort_values('velocity', inplace=True)
 
-    # Realizar ajuste lineal solo si tenemos suficientes puntos
     if len(results_df) > 1:
-        # Usar scipy.stats para el ajuste lineal (más robusto que np.polyfit)
         slope, intercept, r_value, p_value, std_err = stats.linregress(
             results_df['temperature'],
             results_df['pressure']
         )
         r_squared = r_value ** 2
 
-        # Crear el gráfico
         plt.figure(figsize=(10, 6))
-
-        # Scatter plot
         sns.scatterplot(data=results_df, x='temperature', y='pressure', s=100)
 
-        # Línea de ajuste
         x_line = np.array([results_df['temperature'].min(), results_df['temperature'].max()])
         y_line = slope * x_line + intercept
         plt.plot(x_line, y_line, "r--", alpha=0.8,
@@ -97,22 +80,19 @@ def analyze_pressure_temperature():
 
         plt.xlabel('Temperatura (v²)', fontsize=12)
         plt.ylabel('Presión promedio en paredes', fontsize=12)
-        plt.title('Relación entre Presión y Temperatura\n(Usando iteración 0)', fontsize=14)
+        plt.title('Relación entre Presión y Temperatura', fontsize=14)
         plt.grid(True, alpha=0.3)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
-        # Guardar el gráfico
         output_dir = Path('outputs/analysis/p_vs_t')
         output_dir.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_dir / 'pressure_vs_temperature_iter0.png',
+        plt.savefig(output_dir / 'pressure_vs_temperature.png',
                     dpi=300, bbox_inches='tight')
         plt.close()
 
-        # Guardar los datos procesados
-        results_df.to_csv(output_dir / 'pressure_temperature_data_iter0.csv',
+        results_df.to_csv(output_dir / 'pressure_temperature_data.csv',
                           index=False)
 
-        # Imprimir resultados
         print("\nResultados ordenados por velocidad:")
         print(results_df)
         print(f"\nAjuste lineal: P = {slope:.4f}T + {intercept:.4f}")
