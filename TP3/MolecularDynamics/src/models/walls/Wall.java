@@ -2,27 +2,28 @@ package models.walls;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import models.Obstacle;
 import models.particles.Particle;
 
 public abstract class Wall implements Obstacle {
-
     private final WallType type;
     private final double L;
-    
-    private final List<Integer> collisionCount;
-    private final List<Double> momentumCount;
+
+    private final TreeMap<Double, Integer> collisionCount;
+    private final TreeMap<Double, Double> momentumCount;
 
     public Wall(WallType type, double l) {
         this.type = type;
         L = l;
-        
-        collisionCount = new ArrayList<>();
-        collisionCount.add(0);
-        
-        momentumCount = new ArrayList<>();
-        momentumCount.add(0d);
+
+        collisionCount = new TreeMap<>();
+        collisionCount.put(0.0, 0);
+
+        momentumCount = new TreeMap<>();
+        momentumCount.put(0.0, 0.0);
     }
 
     public WallType getType() {
@@ -34,13 +35,12 @@ public abstract class Wall implements Obstacle {
     public double getL() {
         return L;
     }
-    
-    public List<Integer> collisionCount() {
-    	return collisionCount;
+
+    public TreeMap<Double, Integer> collisionCount() {
+        return collisionCount;
     }
-    
-    public List<Double> momentumCount() {
-    	return momentumCount;
+
+    public TreeMap<Double, Double> momentumCount() {
+        return momentumCount;
     }
-    
 }

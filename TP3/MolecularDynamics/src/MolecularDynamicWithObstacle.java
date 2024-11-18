@@ -28,17 +28,16 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
         this.states = new LinkedList<>();
         this.states.add(initial);
 
-        // Inicializar contadores para las paredes
         for (Wall wall : initial.getWalls().values()) {
-            wall.collisionCount().add(0);
-            wall.momentumCount().add(0.0);
+            wall.collisionCount().put(0.0, 0);
+            wall.momentumCount().put(0.0, 0.0);
         }
 
-        // Inicializar contadores para la partícula estática
+        // Initialize counters for static particle
         StaticParticle staticParticle = initial.getStaticParticle();
-        staticParticle.collisionCount().add(0);
-        staticParticle.momentumCount().add(0.0);
-        staticParticle.uniqueCollisionCount().add(0);
+        staticParticle.collisionCount().put(0.0, 0);
+        staticParticle.momentumCount().put(0.0, 0.0);
+        staticParticle.uniqueCollisionCount().put(0.0, 0);
     }
 
     @Override
@@ -57,7 +56,7 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
         FutureCollision nextCollision = collisionList.iterator().next();
 
         /* Calculo de presiones */
-        updateCounts(nextCollision);
+        updateCounts(currentState.getTime() + nextCollision.getTc(), nextCollision);
 
 
         /* Clonamos las particulas y avanzamos hacia la colisión. */
@@ -107,62 +106,26 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
         return new State(currentState.getTime() + nextCollision.getTc(), currentState.getWalls(), saveParticles, saveStaticParticle);
     }
 
-    private void updateCounts(FutureCollision futureCollision) {
-        State state = states.getLast();
-        Map<WallType, Wall> walls = state.getWalls();
-        StaticParticle staticParticle = state.getStaticParticle();
-
-        double collisionTime = state.getTime() + futureCollision.getTc();
-        int currentInterval = (int)(state.getTime() / dt);
-        int collisionInterval = (int)(collisionTime / dt);
-
-        // Inicializar nuevos intervalos si es necesario
-        if (collisionInterval > currentInterval) {
-            initializeNewIntervals(walls, staticParticle, currentInterval + 1, collisionInterval);
-        }
-
+    private void updateCounts(double time, FutureCollision futureCollision) {
         // Actualizar contadores usando pattern matching
         Obstacle obstacle = futureCollision.getObstacle();
         Particle movingParticle = futureCollision.getParticle();
 
         if (obstacle instanceof Wall wall) {
-            updateCounts(wall, movingParticle);
+            updateCounts(time, wall, movingParticle);
         } else if (obstacle instanceof StaticParticle staticObstacle) {
-            updateCounts(staticObstacle, movingParticle);
+            updateCounts(time, staticObstacle, movingParticle);
         } else if (movingParticle instanceof StaticParticle staticMoving &&
                 obstacle instanceof Particle particle) {
-            updateCounts(staticMoving, particle);
+            updateCounts(time, staticMoving, particle);
         }
     }
 
-    private void initializeNewIntervals(Map<WallType, Wall> walls, StaticParticle staticParticle,
-                                        int startInterval, int endInterval) {
-        for (int i = startInterval; i <= endInterval; i++) {
-            // Inicializar paredes
-            int finalI = i;
-            walls.values().forEach(wall -> {
-                ensureIntervalExists(wall.collisionCount(), finalI, 0);
-                ensureIntervalExists(wall.momentumCount(), finalI, 0.0);
-            });
+    private void updateCounts(double time, Wall wall, Particle p) {
+        int currentCollisions = wall.collisionCount().getOrDefault(time, 0);
+        double currentMomentum = wall.momentumCount().getOrDefault(time, 0d);
 
-            // Inicializar partícula estática
-            ensureIntervalExists(staticParticle.collisionCount(), i, 0);
-            ensureIntervalExists(staticParticle.momentumCount(), i, 0.0);
-            ensureIntervalExists(staticParticle.uniqueCollisionCount(), i, 0);
-        }
-    }
-
-    private <T> void ensureIntervalExists(List<T> list, int targetInterval, T defaultValue) {
-        while (list.size() <= targetInterval) {
-            list.add(defaultValue);
-        }
-    }
-
-    private void updateCounts(Wall wall, Particle p) {
-        int lastIndex = wall.collisionCount().size() - 1;
-        wall.collisionCount().set(lastIndex, wall.collisionCount().getLast() + 1);
-
-        // Calcular momento transferido según el tipo de pared
+        // Calculate new momentum
         double transferredMomentum;
         if (wall.getType() == WallType.LEFT || wall.getType() == WallType.RIGHT) {
             transferredMomentum = Math.abs(2 * p.getMass() * Math.abs(p.getVelocity().getX()));
@@ -170,37 +133,34 @@ public class MolecularDynamicWithObstacle implements Iterator<State> {
             transferredMomentum = Math.abs(2 * p.getMass() * Math.abs(p.getVelocity().getY()));
         }
 
-        wall.momentumCount().set(lastIndex, wall.momentumCount().getLast() + transferredMomentum);
+        // Update counts
+        wall.collisionCount().put(time, currentCollisions + 1);
+        wall.momentumCount().put(time, currentMomentum + transferredMomentum);
     }
 
-    private void updateCounts(StaticParticle sp, Particle p) {
-        int lastIndex = sp.collisionCount().size() - 1;
-        sp.collisionCount().set(lastIndex, sp.collisionCount().getLast() + 1);
+    private void updateCounts(double currentTime, StaticParticle sp, Particle p) {
+        int currentCollisions = sp.collisionCount().getOrDefault(currentTime, 0);
+        double currentMomentum = sp.momentumCount().getOrDefault(currentTime, 0d);
+        int currentUniqueCollisions = sp.uniqueCollisionCount().getOrDefault(currentTime, 0);
 
-        // Calcular momento transferido al obstáculo
+        // Calculate momentum transfer
         double deltaX = sp.getPosition().getX() - p.getPosition().getX();
         double deltaY = sp.getPosition().getY() - p.getPosition().getY();
-        double deltaVx = -p.getVelocity().getX();  // Velocidad relativa
+        double deltaVx = -p.getVelocity().getX();
         double deltaVy = -p.getVelocity().getY();
-
         double deltaVdeltaR = deltaVx * deltaX + deltaVy * deltaY;
         double sigma = p.getRadius() + sp.getRadius();
-        // Tomamos el valor absoluto del momento transferido
         double transferredMomentum = Math.abs((2 * p.getMass() * deltaVdeltaR) / sigma);
 
-        // Colisiones unicas
-        if (!sp.getCollidedParticles().contains(p.getId())) {  // Verificar si no ha colisionado previamente
-            lastIndex = sp.uniqueCollisionCount().size() - 1;
+        // Update collision counts
+        sp.collisionCount().put(currentTime, currentCollisions + 1);
+        sp.momentumCount().put(currentTime, currentMomentum + transferredMomentum);
 
-            // Incrementar el contador de colisiones únicas
-            sp.uniqueCollisionCount().set(lastIndex, sp.uniqueCollisionCount().get(lastIndex) + 1);
-
-            // Añadir el ID de la partícula al conjunto de partículas que han colisionado
+        // Handle unique collisions
+        if (!sp.getCollidedParticles().contains(p.getId())) {
+            sp.uniqueCollisionCount().put(currentTime, currentUniqueCollisions + 1);
             sp.getCollidedParticles().add(p.getId());
         }
-
-        lastIndex = sp.momentumCount().size() - 1;
-        sp.momentumCount().set(lastIndex, sp.momentumCount().getLast() + transferredMomentum);
     }
 
 }

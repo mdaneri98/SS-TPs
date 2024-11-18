@@ -3,31 +3,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-def load_pressure_data(velocity_path):
-    """
-    Carga los datos de presión únicamente de la iteración 0
-    """
-    iter_path = velocity_path / "0"  # Solo iteración 0
+def load_pressure_data(velocity_path, dt=0.05):
+    iter_path = velocity_path / "0"
     pressure_file = iter_path / "pressure.csv"
 
     if pressure_file.exists():
-        return pd.read_csv(pressure_file)
+        df = pd.read_csv(pressure_file)
+        df['time_bin'] = (df['time'] // dt) * dt
+        # Sum values within same time interval instead of averaging
+        return df.groupby('time_bin').sum().reset_index()
     return None
 
-def plot_pressure(solution_type):
-    """
-    Genera gráficos de presión para la iteración 0 de cada velocidad sin suavizado
-    """
+def plot_pressure(solution_type, dt):
     base_path = Path(f"outputs/{solution_type}")
     if not base_path.exists():
         print(f"Error: No se encontró el directorio {base_path}")
         return
 
-    # Crear directorio de salida
     output_dir = Path("outputs/analysis/pressures")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Buscar directorios de velocidad
     velocity_dirs = [d for d in base_path.iterdir() if d.is_dir() and d.name.startswith("v_")]
     velocity_dirs.sort(key=lambda x: float(x.name.split('_')[1]))
 
@@ -37,24 +32,20 @@ def plot_pressure(solution_type):
 
     colors = sns.color_palette("husl", 5)
 
-    # Procesar cada velocidad
     for vel_dir in velocity_dirs:
         try:
             velocity = float(vel_dir.name.split('_')[1])
             print(f"Procesando velocidad {velocity}...")
 
-            # Cargar datos de la iteración 0
-            pressure_df = load_pressure_data(vel_dir)
+            pressure_df = load_pressure_data(vel_dir, dt)
             if pressure_df is None:
                 print(f"No se encontraron datos para velocidad {velocity}")
                 continue
 
-            # Crear figura para esta velocidad
             plt.figure(figsize=(12, 6))
 
-            # Graficar cada componente directamente sin suavizado
             for col_idx, col in enumerate(['bottom', 'right', 'top', 'left', 'static']):
-                plt.plot(pressure_df['time'], pressure_df[col],
+                plt.plot(pressure_df['time_bin'], pressure_df[col],
                          label=col, color=colors[col_idx], linewidth=2)
 
             plt.xlabel('Tiempo (s)', fontsize=12)
@@ -65,7 +56,6 @@ def plot_pressure(solution_type):
             plt.grid(True, alpha=0.3)
             plt.tight_layout()
 
-            # Guardar gráfico en el directorio específico
             plt.savefig(output_dir / f"pressure_{solution_type}_v{velocity:.2f}.png",
                         dpi=300, bbox_inches='tight')
             plt.close()
@@ -75,17 +65,16 @@ def plot_pressure(solution_type):
             continue
 
 def main():
+    dt = 0.05
     try:
         for solution_type in ["fixed_solution"]:
-            print(f"\nProcesando {solution_type}...")
-            plot_pressure(solution_type)
-
+            print(f"\nProcessing {solution_type}...")
+            plot_pressure(solution_type, dt)
     except Exception as e:
-        print(f"Error en la ejecución: {str(e)}")
+        print(f"Execution error: {str(e)}")
         import traceback
         traceback.print_exc()
         return 1
-
     return 0
 
 if __name__ == "__main__":

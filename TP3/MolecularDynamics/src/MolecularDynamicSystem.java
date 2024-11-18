@@ -215,7 +215,7 @@ public class MolecularDynamicSystem {
     }
 
     public void fixedSolution(double velocity, double mass, double radius, double staticRadius, int runSeconds) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             String directory = String.format(Locale.US, "fixed_solution/v_%.2f/%d", velocity, i);
 
             initial = initialState(velocity, mass, radius, staticRadius, Integer.MAX_VALUE);
@@ -291,70 +291,6 @@ public class MolecularDynamicSystem {
         }
     }
 
-    private void saveCollisionCounts(String directory) {
-        Path countPath = getFilePath(directory, "count.csv");
-
-        try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
-            writer.write("time,bottom,right,top,left,static\n");
-
-            // Obtener las listas de contadores
-            List<Integer> bottomCounts = walls.get(WallType.BOTTOM).collisionCount();
-            List<Integer> rightCounts = walls.get(WallType.RIGHT).collisionCount();
-            List<Integer> topCounts = walls.get(WallType.TOP).collisionCount();
-            List<Integer> leftCounts = walls.get(WallType.LEFT).collisionCount();
-            List<Integer> staticCounts = initial.getStaticParticle().collisionCount();
-
-            // Encontrar el máximo número de intervalos
-            int maxIntervals = Math.max(
-                    Math.max(
-                            Math.max(bottomCounts.size(), rightCounts.size()),
-                            Math.max(topCounts.size(), leftCounts.size())
-                    ),
-                    staticCounts.size()
-            );
-
-            // Función auxiliar para obtener el valor o 0 si el índice está fuera de rango
-            for (int i = 0; i < maxIntervals; i++) {
-                writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
-                        dt * i,
-                        getValueOrZero(bottomCounts, i, 0),
-                        getValueOrZero(rightCounts, i, 0),
-                        getValueOrZero(topCounts, i, 0),
-                        getValueOrZero(leftCounts, i, 0),
-                        getValueOrZero(staticCounts, i, 0)
-                ));
-            }
-        } catch (IOException e) {
-            System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void saveUniqueCollisionCounts(String directory) {
-        Path countPath = getFilePath(directory, "unique_counts.csv");
-
-        try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
-            writer.write("time,static\n");
-
-            // Obtener las listas de contadores
-            List<Integer> staticCounts = initial.getStaticParticle().uniqueCollisionCount();
-
-            // Encontrar el máximo número de intervalos
-            int maxIntervals = staticCounts.size();
-
-            // Función auxiliar para obtener el valor o 0 si el índice está fuera de rango
-            for (int i = 0; i < maxIntervals; i++) {
-                writer.write(String.format(Locale.US, "%.6f,%d\n",
-                        dt * i,
-                        getValueOrZero(staticCounts, i, 0)
-                ));
-            }
-        } catch (IOException e) {
-            System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     // Save method
     public void save(List<State> states, Path filePath) {
         boolean fileExists = Files.exists(filePath);
@@ -374,9 +310,70 @@ public class MolecularDynamicSystem {
         }
     }
 
-    // Método auxiliar para obtener el valor de la lista o 0 si el índice está fuera de rango
-    private <T> T getValueOrZero(List<T> list, int index, T defaultValue) {
-        return index < list.size() ? list.get(index) : defaultValue;
+    private void saveCollisionCounts(String directory) {
+        Path countPath = getFilePath(directory, "count.csv");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
+            writer.write("time,bottom,right,top,left,static\n");
+
+            // Get all time points from all TreeMaps
+            Set<Double> allTimes = new TreeSet<>();
+            allTimes.addAll(walls.get(WallType.BOTTOM).collisionCount().keySet());
+            allTimes.addAll(walls.get(WallType.RIGHT).collisionCount().keySet());
+            allTimes.addAll(walls.get(WallType.TOP).collisionCount().keySet());
+            allTimes.addAll(walls.get(WallType.LEFT).collisionCount().keySet());
+            allTimes.addAll(initial.getStaticParticle().collisionCount().keySet());
+
+            if(allTimes.size() > 2) {
+                Iterator<Double> iterator = allTimes.iterator();
+                Double max = null;
+                Double secondMax = null;
+                while (iterator.hasNext()) {
+                    Double current = iterator.next();
+                    if (max == null || current > max) {
+                        secondMax = max;
+                        max = current;
+                    }
+                }
+                allTimes.remove(max);
+                allTimes.remove(secondMax);
+            }
+
+            // Write data for each time point
+            for (Double time : allTimes) {
+                writer.write(String.format(Locale.US, "%.6f,%d,%d,%d,%d,%d\n",
+                        time,
+                        getValueOrZero(walls.get(WallType.BOTTOM).collisionCount(), time, 0),
+                        getValueOrZero(walls.get(WallType.RIGHT).collisionCount(), time, 0),
+                        getValueOrZero(walls.get(WallType.TOP).collisionCount(), time, 0),
+                        getValueOrZero(walls.get(WallType.LEFT).collisionCount(), time, 0),
+                        getValueOrZero(initial.getStaticParticle().collisionCount(), time, 0)
+                ));
+            }
+        } catch (IOException e) {
+            System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void saveUniqueCollisionCounts(String directory) {
+        Path countPath = getFilePath(directory, "unique_counts.csv");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(countPath, StandardOpenOption.CREATE)) {
+            writer.write("time,static\n");
+
+            TreeMap<Double, Integer> staticCounts = initial.getStaticParticle().uniqueCollisionCount();
+
+            for (Map.Entry<Double, Integer> entry : staticCounts.entrySet()) {
+                writer.write(String.format(Locale.US, "%.6f,%d\n",
+                        entry.getKey(),
+                        entry.getValue()
+                ));
+            }
+        } catch (IOException e) {
+            System.out.println("Error al escribir el archivo de contadores: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void savePressures(String directory) {
@@ -386,72 +383,56 @@ public class MolecularDynamicSystem {
         try (BufferedWriter writer = Files.newBufferedWriter(pressurePath, StandardOpenOption.CREATE)) {
             writer.write("time,bottom,right,top,left,static\n");
 
-            // Obtener las listas de momentos
-            List<Double> bottomMoments = walls.get(WallType.BOTTOM).momentumCount();
-            List<Double> rightMoments = walls.get(WallType.RIGHT).momentumCount();
-            List<Double> topMoments = walls.get(WallType.TOP).momentumCount();
-            List<Double> leftMoments = walls.get(WallType.LEFT).momentumCount();
-            List<Double> staticMoments = initial.getStaticParticle().momentumCount();
+            // Get all time points from all momentum TreeMaps
+            Set<Double> allTimes = new TreeSet<>();
+            allTimes.addAll(walls.get(WallType.BOTTOM).momentumCount().keySet());
+            allTimes.addAll(walls.get(WallType.RIGHT).momentumCount().keySet());
+            allTimes.addAll(walls.get(WallType.TOP).momentumCount().keySet());
+            allTimes.addAll(walls.get(WallType.LEFT).momentumCount().keySet());
+            allTimes.addAll(initial.getStaticParticle().momentumCount().keySet());
 
-            // Debug de tamaños
-            System.out.printf("Tamaños de listas - Bottom: %d, Right: %d, Top: %d, Left: %d, Static: %d%n",
-                    bottomMoments.size(), rightMoments.size(), topMoments.size(),
-                    leftMoments.size(), staticMoments.size());
+            if(allTimes.size() > 2) {
+                Iterator<Double> iterator = allTimes.iterator();
+                Double max = null;
+                Double secondMax = null;
+                while (iterator.hasNext()) {
+                    Double current = iterator.next();
+                    if (max == null || current > max) {
+                        secondMax = max;
+                        max = current;
+                    }
+                }
+                allTimes.remove(max);
+                allTimes.remove(secondMax);
+            }
 
-            int maxIntervals = Math.max(
-                    Math.max(
-                            Math.max(bottomMoments.size(), rightMoments.size()),
-                            Math.max(topMoments.size(), leftMoments.size())
-                    ),
-                    staticMoments.size()
-            );
+            for (Double time : allTimes) {
+                double bottomPressure = getValueOrZero(walls.get(WallType.BOTTOM).momentumCount(), time, 0.0) / (dt * l);
+                double rightPressure = getValueOrZero(walls.get(WallType.RIGHT).momentumCount(), time, 0.0) / (dt * l);
+                double topPressure = getValueOrZero(walls.get(WallType.TOP).momentumCount(), time, 0.0) / (dt * l);
+                double leftPressure = getValueOrZero(walls.get(WallType.LEFT).momentumCount(), time, 0.0) / (dt * l);
+                double staticPressure = getValueOrZero(initial.getStaticParticle().momentumCount(), time, 0.0) /
+                        (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
 
-            System.out.println("Número máximo de intervalos: " + maxIntervals);
-
-            // Calcular presiones para cada intervalo
-            for (int i = 0; i < maxIntervals; i++) {
-                double bottomPressure = 0;
-                double rightPressure = 0;
-                double topPressure = 0;
-                double leftPressure = 0;
-                double staticPressure = 0;
-
-                // Cálculo con validación para cada presión
-                if (i < bottomMoments.size() && bottomMoments.get(i) != null) {
-                    bottomPressure = bottomMoments.get(i) / (dt * l);
-                }
-                if (i < rightMoments.size() && rightMoments.get(i) != null) {
-                    rightPressure = rightMoments.get(i) / (dt * l);
-                }
-                if (i < topMoments.size() && topMoments.get(i) != null) {
-                    topPressure = topMoments.get(i) / (dt * l);
-                }
-                if (i < leftMoments.size() && leftMoments.get(i) != null) {
-                    leftPressure = leftMoments.get(i) / (dt * l);
-                }
-                if (i < staticMoments.size() && staticMoments.get(i) != null) {
-                    staticPressure = staticMoments.get(i) /
-                            (dt * 2 * Math.PI * initial.getStaticParticle().getRadius());
-                }
-
-                // Escribir solo si hay al menos un valor distinto de cero
-                if (bottomPressure != 0 || rightPressure != 0 || topPressure != 0 ||
-                        leftPressure != 0) {
-                    writer.write(String.format(Locale.US, "%.12f,%.12f,%.12f,%.12f,%.12f,%.12f\n",
-                            dt * i,
-                            bottomPressure,
-                            rightPressure,
-                            topPressure,
-                            leftPressure,
-                            staticPressure
-                    ));
-                }
+                writer.write(String.format(Locale.US, "%.12f,%.12f,%.12f,%.12f,%.12f,%.12f\n",
+                        time,
+                        bottomPressure,
+                        rightPressure,
+                        topPressure,
+                        leftPressure,
+                        staticPressure
+                ));
             }
             System.out.println("Finalizado guardado de presiones");
         } catch (IOException e) {
             System.out.println("Error al escribir el archivo de presiones: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Updated helper method for TreeMap
+    private <T> T getValueOrZero(TreeMap<Double, T> map, Double time, T defaultValue) {
+        return map.getOrDefault(time, defaultValue);
     }
 
 }
