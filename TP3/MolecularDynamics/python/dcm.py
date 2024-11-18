@@ -1,202 +1,126 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import stats
-from pathlib import Path
+import matplotlib.ticker as ticker
 import pandas as pd
 
-# Tiempos fijos para el análisis
-INITIAL_TIMES = np.arange(0, 0.3 + 0.05, 0.05)
-FIXED_TIMES = np.arange(1, 5 + 0.05, 0.5)
+base_output_dir = "outputs/analysis"
 
-def load_and_process_data(solution_type, velocity, iteration):
-    """
-    Carga y procesa los datos de una iteración específica
-    """
-    base_path = Path(f"outputs/{solution_type}/v_{velocity:.2f}/{iteration}")
-    particles_file = base_path / "particles.csv"
+def process_simulation(n, v, i, path):
+    input_filename = f"{path}/v_{v}/{i}/particles.csv"
+    df = pd.read_csv(input_filename)
+    df = df[df['id'] == 0]
+    collision_data = {row['time']: row for _, row in df.iterrows()}
+    return collision_data
 
-    df = pd.read_csv(particles_file)
-    static_df = df[df['id'] == 0].copy()
-    particles_df = df[df['id'] != 0].copy()
+def plot_dcm_over_time(iterations, big_particle_data):
+    delta_t = 0.02
+    initial_x = initial_y = 0.05000
+    msd_values_all_runs = []
 
-    return particles_df, static_df
+    for i in range(iterations):
+        iteration_data = big_particle_data[i]
+        times = sorted(iteration_data.keys())
+        filtered_times = []
+        current_time = times[0]
+        while current_time <= times[-1]:
+            closest_time = min(times, key=lambda x: abs(x - current_time))
+            filtered_times.append(closest_time)
+            current_time += delta_t
 
-def calculate_dcm_values(times, solution_type, velocity):
-    """
-    Calcula los valores DCM para los tiempos dados
-    """
-    all_dcm = []
-    valid_iterations = 0
+        msd_values = []
+        for t in filtered_times:
+            collision = iteration_data[t]
+            x = collision['x']
+            y = collision['y']
+            msd = (x - initial_x)**2 + (y - initial_y)**2
+            msd_values.append(msd)
 
-    for iteration in range(10):  # Asumimos 10 iteraciones
-        try:
-            particles_df, static_df = load_and_process_data(solution_type, velocity, iteration)
+        msd_values_all_runs.append(msd_values)
 
-            # Calcular DCM para esta iteración
-            iteration_dcm = []
-            for t in times:
-                # Encontrar el tiempo más cercano en los datos
-                closest_time = particles_df['time'].values[
-                    np.abs(particles_df['time'].values - t).argmin()
-                ]
+        lengths = [len(sublist) for sublist in msd_values_all_runs]
+        if len(set(lengths)) != 1:
+            min_length = min(lengths)
+            msd_values_all_runs = [sublist[:min_length] for sublist in msd_values_all_runs]
+            filtered_times = filtered_times[:min_length]
 
-                # Filtrar datos para el tiempo más cercano
-                current_particles = particles_df[particles_df['time'] == closest_time]
-                current_static = static_df[static_df['time'] == closest_time]
+    msd_array = np.array(msd_values_all_runs)
+    msd_mean = np.mean(msd_array, axis=0)
+    msd_std = np.std(msd_array, axis=0)
 
-                # Calcular desplazamiento cuadrático medio
-                dx = current_particles['x'].values - current_static['x'].values[0]
-                dy = current_particles['y'].values - current_static['y'].values[0]
-                z2 = dx**2 + dy**2
-                dcm = np.mean(z2)
-
-                iteration_dcm.append(dcm)
-
-            all_dcm.append(iteration_dcm)
-            valid_iterations += 1
-
-        except Exception as e:
-            print(f"Error en iteración {iteration}: {str(e)}")
-            continue
-
-    if valid_iterations < 1:
-        raise ValueError("No se encontraron iteraciones válidas")
-
-    all_dcm = np.array(all_dcm)
-    mean_dcm = np.mean(all_dcm, axis=0)
-    std_dcm = np.std(all_dcm, axis=0) / np.sqrt(valid_iterations)
-
-    return mean_dcm, std_dcm
-
-def analyze_initial_times(solution_type, velocity):
-    """
-    Realiza el análisis con INITIAL_TIMES
-    """
-    dcm_values, dcm_errors = calculate_dcm_values(INITIAL_TIMES, solution_type, velocity)
-
-    # Ajuste lineal
-    slope, intercept, r_value, p_value, std_err = stats.linregress(INITIAL_TIMES, dcm_values)
-    D = slope / 2
-
-    plt.figure(figsize=(10, 8))
-
-    plt.errorbar(INITIAL_TIMES, dcm_values, yerr=dcm_errors, fmt='o-',
-                 label=f'DCM (v={velocity:.2f})', color='#1f77b4', capsize=5,
-                 markersize=6, linewidth=2)
-
-    x_line = np.linspace(0, max(INITIAL_TIMES), 100)
-    y_line = slope * x_line + intercept
-    plt.plot(x_line, y_line, '--', color='red',
-             label=f'Ajuste lineal (D={D:.3e})', linewidth=2)
-
-    plt.xlabel('Tiempo (s)', fontsize=12)
-    plt.ylabel('DCM (m²)', fontsize=12)
-    plt.title(f'DCM vs Tiempo (Initial Times) - {solution_type.replace("_", " ").title()}')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(fontsize=10)
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-
-    output_dir = Path("outputs/analysis/dcm_plots")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_dir / f"dcm_initial_{solution_type}_v{velocity:.2f}.png",
-                dpi=300, bbox_inches='tight')
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(filtered_times, msd_mean, fmt='o-', capsize=3, label='DCM')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('DCM ($m^{2}$)')
+    ax = plt.gca()
+    ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+    ax.yaxis.get_offset_text().set_fontsize(12)
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(-2, 2))
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(f'{base_output_dir}/dcm_over_time.png')
     plt.close()
 
-    return D, r_value**2
+    return msd_mean[:15], msd_std[:15], filtered_times[:15]
 
-def analyze_fixed_times(solution_type, velocity):
-    """
-    Realiza el análisis con FIXED_TIMES
-    """
-    dcm_values, dcm_errors = calculate_dcm_values(FIXED_TIMES, solution_type, velocity)
-
-    plt.figure(figsize=(10, 8))
-
-    plt.errorbar(FIXED_TIMES, dcm_values, yerr=dcm_errors, fmt='o-',
-                 label=f'DCM (v={velocity:.2f})', color='#1f77b4', capsize=5,
-                 markersize=6, linewidth=2)
-
-    plt.xlabel('Tiempo (s)', fontsize=12)
-    plt.ylabel('DCM (m²)', fontsize=12)
-    plt.title(f'DCM vs Tiempo (Fixed Times) - {solution_type.replace("_", " ").title()}')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(fontsize=10)
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-
-    output_dir = Path("outputs/analysis/dcm_plots")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_dir / f"dcm_fixed_{solution_type}_v{velocity:.2f}.png",
-                dpi=300, bbox_inches='tight')
-    plt.close()
-
-    return dcm_values, dcm_errors
-
-def find_optimal_coefficient(times, dcm_values, velocity, solution_type):
-    """
-    Encuentra el coeficiente óptimo que minimiza el error E(c)
-    según la teoría de regresión lineal
-    """
-    c_values = np.linspace(0.001, 0.01, 200)
+def plot_min_error_for_msd(times, msd_mean):
     errors = []
+    c_values = np.arange(0.000, 0.006, 0.0000001)
 
-    # E(c) = Σ[yi - f(xi,c)]²
     for c in c_values:
-        model_predictions = c * times  # f(xi,c) = c*xi para modelo lineal
-        squared_errors = (dcm_values - model_predictions)**2
-        total_error = np.sum(squared_errors)
-        errors.append(total_error)
+        fc = np.array([c*t for t in times])
+        error = np.sum((msd_mean - fc) ** 2)
+        errors.append(error)
 
-    min_error_idx = np.argmin(errors)
-    c_optimal = c_values[min_error_idx]
+    min_error = min(errors)
+    min_c = c_values[np.argmin(errors)]
 
-    plt.figure(figsize=(10, 8))
+    print(f"El valor óptimo de c es c={min_c} con un error de ajuste E={min_error}")
 
-    # Graficar error vs coeficiente (curva parabólica como en teoría)
-    plt.plot(c_values, errors, 'r-', linewidth=2)
-    plt.plot(c_optimal, errors[min_error_idx], 'bo',
-             label=f'Mínimo en c* = {c_optimal:.6f}')
-
-    plt.axvline(x=c_optimal, color='black', linestyle='--', alpha=0.5)
-    plt.axhline(y=errors[min_error_idx], color='black', linestyle='--', alpha=0.5)
-
-    plt.xlabel('Coeficiente c', fontsize=12)
-    plt.ylabel('Error E(c)', fontsize=12)
-    plt.title('Función de Error del Modelo Lineal')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(fontsize=10)
-
-    output_dir = Path("outputs/analysis/dcm_plots")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_dir / f"error_minimization_{solution_type}_v{velocity:.2f}.png",
-                dpi=300, bbox_inches='tight')
+    plt.figure(figsize=(10, 6))
+    plt.plot(c_values, errors, color='r')
+    plt.scatter(min_c, min_error, color='b', zorder=5, label=f'Error mínimo en c={min_c:.5f}')
+    plt.xlabel('c', fontsize=14)
+    plt.ylabel('E(c)', fontsize=14)
+    plt.grid(True, linestyle='--', linewidth=0.5)
+    plt.legend()
+    plt.savefig(f'{base_output_dir}/min_error.png')
     plt.close()
 
-    return c_optimal
+    return min_c
+
+def plot_msd_with_linear_fit(times, msd_mean, msd_std, min_c):
+    continuous_times = np.linspace(0.0, max(times), 15)
+    model_msd = min_c * continuous_times
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(times, model_msd, '--', color='red', label=f'Ajuste lineal (D={round(min_c*1e3, 3)}x$10^{{-3}}$)')
+    plt.errorbar(times, msd_mean, yerr=msd_std, fmt='o-', capsize=3, label='DCM')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('DCM ($m^{2}$)')
+    ax = plt.gca()
+    ax.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+    ax.yaxis.get_offset_text().set_fontsize(12)
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(-2, 2))
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(f'{base_output_dir}/msd_with_linear_fit.png')
+    plt.close()
 
 def main():
-    solution_type = "common_solution"
-    velocity = 1.0  # Ejemplo de velocidad
+    N = 200
+    V = "1.00"
+    ITERATIONS = 10
+    base_path = "outputs/common_solution"
 
-    try:
-        # Análisis con INITIAL_TIMES
-        D, r_squared = analyze_initial_times(solution_type, velocity)
-        print(f"\nAnálisis con INITIAL_TIMES:")
-        print(f"Coeficiente de difusión (D): {D:.3e}")
-        print(f"R²: {r_squared:.3f}")
+    big_particle_data = []
 
-        # Análisis con FIXED_TIMES
-        dcm_values, dcm_errors = analyze_fixed_times(solution_type, velocity)
+    for i in range(0, ITERATIONS):
+        sim_dict = process_simulation(N, V, i, base_path)
+        big_particle_data.append(sim_dict)
 
-        # Encontrar coeficiente óptimo
-        c_optimal = find_optimal_coefficient(FIXED_TIMES, dcm_values, velocity, solution_type)
-        print(f"\nAnálisis de minimización de error:")
-        print(f"Coeficiente óptimo: {c_optimal:.6f}")
-
-    except Exception as e:
-        print(f"Error en la ejecución: {str(e)}")
-        return 1
-
-    return 0
+    msd_mean, msd_std, times = plot_dcm_over_time(ITERATIONS, big_particle_data)
+    min_c = plot_min_error_for_msd(times, msd_mean)
+    plot_msd_with_linear_fit(times, msd_mean, msd_std, min_c)
 
 if __name__ == "__main__":
     main()
