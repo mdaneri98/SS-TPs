@@ -10,8 +10,8 @@ def load_pressure_data(velocity_path, dt=0.05):
     if pressure_file.exists():
         df = pd.read_csv(pressure_file)
         df['time_bin'] = (df['time'] // dt) * dt
-        # Sum values within same time interval instead of averaging
-        return df.groupby('time_bin').sum().reset_index()
+        grouped = df.groupby('time_bin').sum().reset_index()
+        return grouped.iloc[:-2]  # Remove last 2 rows
     return None
 
 def plot_pressure(solution_type, dt):
