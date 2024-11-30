@@ -49,7 +49,7 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
     plt.ylabel('Cantidad Total de Choques', fontsize=14)
-    plt.title(f'{title_prefix} - Choques Totales (count.csv)', fontsize=16)
+    #plt.title(f'{title_prefix} - Choques Totales (count.csv)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
@@ -63,7 +63,7 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
     plt.ylabel('Cantidad Total de Choques Únicos', fontsize=14)
-    plt.title(f'{title_prefix} - Choques Únicos (unique_count.csv)', fontsize=16)
+    #plt.title(f'{title_prefix} - Choques Únicos (unique_count.csv)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
@@ -79,7 +79,7 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
     plt.ylabel('Promedio de Choques', fontsize=14)
-    plt.title(f'{title_prefix} - Promedio de Choques (count.csv)', fontsize=16)
+    #plt.title(f'{title_prefix} - Promedio de Choques (count.csv)', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
@@ -95,7 +95,7 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
                  label=f'v={velocity:.2f}', color=colors[vel_idx], linewidth=2)
     plt.xlabel('Tiempo (s)', fontsize=14)
     plt.ylabel('Suma de Choques por Intervalo', fontsize=14)  # Updated label
-    plt.title(f'{title_prefix} - Suma de Choques por Intervalo (count.csv)', fontsize=16)  # Updated title
+    #plt.title(f'{title_prefix} - Suma de Choques por Intervalo (count.csv)', fontsize=16)  # Updated title
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(fontsize=12)
     plt.tight_layout()
@@ -115,9 +115,9 @@ def create_collision_plots(velocity_data, output_dir, solution_type):
     plt.scatter(temperatures, max_collision_times, color='blue', s=100)
     plt.plot(temperatures, max_collision_times, color='red', linestyle='--', alpha=0.7)
 
-    plt.xlabel('Temperatura (v²)', fontsize=14)
+    plt.xlabel('Temperatura', fontsize=14)
     plt.ylabel('Tiempo de Máximas Colisiones Únicas (s)', fontsize=14)
-    plt.title(f'{title_prefix} - Tiempo de Máximas Colisiones vs Temperatura', fontsize=16)
+    #plt.title(f'{title_prefix} - Tiempo de Máximas Colisiones vs Temperatura', fontsize=16)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
     plt.savefig(output_dir / f"max_collisions_time_vs_temperature_{solution_type}.png", dpi=300, bbox_inches='tight')

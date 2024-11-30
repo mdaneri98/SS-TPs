@@ -11,6 +11,11 @@ def load_pressure_data(velocity_path, dt=0.05):
         df = pd.read_csv(pressure_file)
         df['time_bin'] = (df['time'] // dt) * dt
         grouped = df.groupby('time_bin').sum().reset_index()
+
+        # Calcular el promedio de las presiones en las paredes
+        wall_columns = ['bottom', 'right', 'top', 'left']
+        grouped['average_pressure'] = grouped[wall_columns].mean(axis=1)
+
         return grouped.iloc[:-2]  # Remove last 2 rows
     return None
 
@@ -30,7 +35,7 @@ def plot_pressure(solution_type, dt):
         print(f"Error: No se encontraron directorios de velocidad en {base_path}")
         return
 
-    colors = sns.color_palette("husl", 5)
+    colors = sns.color_palette("husl", 6)  # Agregamos un color más para el promedio
 
     for vel_dir in velocity_dirs:
         try:
@@ -44,14 +49,16 @@ def plot_pressure(solution_type, dt):
 
             plt.figure(figsize=(12, 6))
 
-            for col_idx, col in enumerate(['bottom', 'right', 'top', 'left', 'static']):
+            for col_idx, col in enumerate(['static']):
                 plt.plot(pressure_df['time_bin'], pressure_df[col],
-                         label=col, color=colors[col_idx], linewidth=2)
+                         label=col, color=colors[col_idx], linewidth=1, alpha=1)
+
+            # Agregar la curva del promedio
+            plt.plot(pressure_df['time_bin'], pressure_df['average_pressure'],
+                     label='Promedio de las paredes', color=colors[5], linewidth=1)
 
             plt.xlabel('Tiempo (s)', fontsize=12)
-            plt.ylabel('Presión', fontsize=12)
-            plt.title(f'Evolución de la Presión - {solution_type.replace("_", " ").title()}\nVelocidad: {velocity:.2f} (Iteración 0)',
-                      fontsize=14)
+            plt.ylabel('Presión (N/m)', fontsize=12)
             plt.legend(fontsize=10)
             plt.grid(True, alpha=0.3)
             plt.tight_layout()

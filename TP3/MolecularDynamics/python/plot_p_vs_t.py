@@ -78,9 +78,9 @@ def analyze_pressure_temperature(dt=0.05):
         plt.plot(x_line, y_line, "r--", alpha=0.8,
                  label=f'Ajuste lineal:\nP = {slope:.2f}T + {intercept:.2f}\nR² = {r_squared:.4f}')
 
-        plt.xlabel('Temperatura (v²)', fontsize=12)
-        plt.ylabel('Presión promedio en paredes', fontsize=12)
-        plt.title('Relación entre Presión y Temperatura', fontsize=14)
+        plt.xlabel('Temperatura', fontsize=12)
+        plt.ylabel('Presión promedio en paredes (N/m)', fontsize=12)
+        #plt.title('Relación entre Presión y Temperatura', fontsize=14)
         plt.grid(True, alpha=0.3)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
