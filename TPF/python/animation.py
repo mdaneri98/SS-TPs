@@ -184,8 +184,7 @@ def animate_particles(data, output_dir):
     frames = len(data.frames_data)
     logging.debug(f"Creando animación con {frames} frames")
 
-    ani = animation.FuncAnimation(fig, update, frames=frames,
-                                  interval=50, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=frames, interval=300, blit=True)
 
     try:
         ani.save(output_dir / 'animation.gif', writer='pillow')

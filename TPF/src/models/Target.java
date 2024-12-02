@@ -9,8 +9,6 @@ public class Target {
     private double secondsMustTry;
     private double secondsTrying;
 
-
-
     public Target(int doorNumber, double secondsMustTry) {
         this.doorNumber = doorNumber;
         this.secondsMustTry = secondsMustTry;
@@ -18,20 +16,20 @@ public class Target {
         door = Field.getInstance().getDoors().get(doorNumber);
     }
 
-    public void addSecondsElapsed(double secondsElapsed) {
-        this.secondsTrying -= secondsElapsed;
-
-        if (secondsTrying <= 0) {
-            secondsTrying = secondsMustTry;
-            lookForAnotherDoor();
-        }
+    public void step(double secondsElapsed) {
+        secondsTrying -= secondsElapsed;
     }
 
-    private void lookForAnotherDoor() {
-        Random random = new Random();
-        doorNumber = random.nextInt(3);
-        door = Field.getInstance().getDoors().get(doorNumber);
-        secondsTrying = secondsMustTry;
+    public boolean needsRecalculate() {
+        return secondsTrying <= 0;
+    }
+
+    public void recalculate(double secondsElapsed, int bestPossibleDoorNumber) {
+        if (secondsTrying <= 0) {
+            secondsTrying = secondsMustTry;
+            doorNumber = bestPossibleDoorNumber;
+            door = Field.getInstance().getDoors().get(doorNumber);
+        }
     }
 
     public Door getDoor() {

@@ -19,6 +19,7 @@ public class SimulationRunner {
 
 
     private final int N;
+    private final double p;
     private final Field field;
     private final double maxVelocity;
     private final double tau;
@@ -31,8 +32,9 @@ public class SimulationRunner {
 
     private State initial;
 
-    public SimulationRunner(int N, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp) {
+    public SimulationRunner(int N, double p, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp) {
         this.N = N;
+        this.p = p;
         this.field = Field.getInstance();
         this.maxVelocity = maxVelocity;
         this.tau = tau;
@@ -68,7 +70,7 @@ public class SimulationRunner {
                 double y = startY + (j * spacing);
 
                 int doorNumber = random.nextInt(3);
-                int secondsMustTry = random.nextInt(15) + 5;
+                int secondsMustTry = random.nextInt(100) + 50;
 
                 Particle blue = new Particle(
                         particleCount + 1,

@@ -40,6 +40,7 @@ public class SimulationApp {
         	bps.add((double) i * 0.4);
         }*/
 
+        double p = 1;
         
         for (double ap : aps) {
 	        for (double bp : bps) {
@@ -50,7 +51,7 @@ public class SimulationApp {
 	                    Path dirPath = Paths.get("python", "outputs", directory);
 	                    Files.createDirectories(dirPath);
 	                    
-	                    SimulationRunner tm = new SimulationRunner(N, maxVelocity, tau, minRadius, maxRadius, ap, bp);
+	                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp);
 	                    tm.setOutputDirectory(directory);
 	                    tm.run();
 	                    
@@ -69,7 +70,8 @@ public class SimulationApp {
         for (int i = 5; i <= 100; i+= 5)
         	playersCount.add(i);
         
-        
+        double p = 0.7;
+
         double ap = 6.0;  // Usar el mejor parámetro encontrado en el análisis anterior
         double bp = 1.6;
         for (int j = 0; j < playersCount.size(); j++) {
@@ -81,7 +83,7 @@ public class SimulationApp {
                     Path dirPath = Paths.get("python", "outputs", directory);
                     Files.createDirectories(dirPath);
                     
-                    SimulationRunner tm = new SimulationRunner(N, maxVelocity, tau, minRadius, maxRadius, ap, bp);
+                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp);
                     tm.setOutputDirectory(directory);
                     tm.run();
                     

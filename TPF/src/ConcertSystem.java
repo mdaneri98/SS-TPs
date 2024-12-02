@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ public class ConcertSystem implements Iterator<State> {
 	private final double beta = 0.9;
 
 	// ====== Parameters ======
+	private final double p;
 	private final double maxVelocity;
 	private final double tau;
 	private final double minRadius;
@@ -29,7 +31,8 @@ public class ConcertSystem implements Iterator<State> {
 	// ====== ... ======
 	private State state;
 
-	public ConcertSystem(int N, Field field, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp, State initial) {
+	public ConcertSystem(double p, Field field, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp, State initial) {
+		this.p = p;
 		this.field = field;
 		this.tau = tau;
 		this.maxVelocity = maxVelocity;
@@ -75,7 +78,11 @@ public class ConcertSystem implements Iterator<State> {
 		double newModule = updateModule(p, newRadius);
 		Vector<Double> newDirection = updateDirection(p, contacts);
 		Position newPosition = updatePosition(p, dt);
-		p.getTarget().addSecondsElapsed(dt);
+
+		p.getTarget().step(dt);
+		if (p.getTarget().needsRecalculate()) {
+			p.getTarget().recalculate(dt, bestNextDoor(p));
+		}
 
 		return new Particle(p.getId(), newPosition, p.getTarget(), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
 	}
@@ -130,6 +137,31 @@ public class ConcertSystem implements Iterator<State> {
 		}
 		return newDirection;
 	}
+
+	public int bestNextDoor(Particle particle) {
+		int doorNumber = 0;
+		double performance = p * relativeDistance(doorNumber, particle.getPosition()) + (1-p) * relativeDensity(doorNumber);
+		for (int i = 1; i < 3; i++) {
+			double aux = p * relativeDistance(i, particle.getPosition()) + (1-p) * relativeDensity(i);
+			if (aux > performance) {
+				performance = aux;
+				doorNumber = i;
+			}
+		}
+		System.out.println("Choosing " + doorNumber);
+		return doorNumber;
+	}
+
+	private double relativeDistance(int doorNumber, Position position) {
+		Field f = Field.getInstance();
+		return f.getDoors().get(doorNumber).distanceFrom(position);
+	}
+
+	private double relativeDensity(int doorNumber) {
+		Field f = Field.getInstance();
+		return f.getDoors().get(doorNumber).density(state.getParticles());
+	}
+
 
 	public boolean hasEscaped(Particle p) {
 		return Field.getInstance().getDoors().get(0).isInside(p.getPosition())
