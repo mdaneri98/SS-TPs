@@ -18,6 +18,25 @@ class ParticleData:
         self.static_params = {}
         self.frames_data = []
         self.doors = []
+        # Add a color map for doors
+        self.door_colors = [
+            '#FF0000',  # Red
+            '#00FF00',  # Green
+            '#0000FF',  # Blue
+            '#FFA500',  # Orange
+            '#800080',  # Purple
+            '#FFD700',  # Gold
+            '#00FFFF',  # Cyan
+            '#FF00FF',  # Magenta
+            '#008000',  # Dark Green
+            '#000080',  # Navy
+        ]
+
+    def get_door_color(self, door_number):
+        """Get color for a specific door number"""
+        if door_number < 0:
+            return '#808080'  # Gray for invalid door numbers
+        return self.door_colors[door_number % len(self.door_colors)]
 
     def load_doors(self, filename):
         """Carga las coordenadas de las puertas desde un archivo CSV"""
@@ -98,7 +117,7 @@ class ParticleData:
                         pass
 
                     parts = line.split(',')
-                    if len(parts) == 6:
+                    if len(parts) == 7:  # Actualizado para incluir doorNumber
                         try:
                             particle_data = {
                                 'id': int(parts[0]),
@@ -106,7 +125,8 @@ class ParticleData:
                                 'y': float(parts[2]),
                                 'vx': float(parts[3]),
                                 'vy': float(parts[4]),
-                                'radius': float(parts[5])
+                                'radius': float(parts[5]),
+                                'doorNumber': int(parts[6])
                             }
                             current_frame["particles"].append(particle_data)
                         except ValueError as e:
@@ -128,7 +148,6 @@ def animate_particles(data, output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(10, 8))
-
     scale_factor = 0.1
 
     def update(frame_idx):
@@ -145,20 +164,23 @@ def animate_particles(data, output_dir):
 
         artists = []
 
-        # Dibujar las puertas usando las coordenadas cargadas
-        for door in data.doors:
+        # Dibujar las puertas usando colores específicos
+        for i, door in enumerate(data.doors):
+            door_color = data.get_door_color(i)
             door_line = plt.Line2D([door['x1'], door['x2']],
                                    [door['y1'], door['y2']],
-                                   color='green',
-                                   linewidth=5)
+                                   color=door_color,
+                                   linewidth=5,
+                                   label=f'Puerta {i}')
             ax.add_artist(door_line)
             artists.append(door_line)
 
-        # Dibujar cada partícula en el frame actual
+        # Dibujar cada partícula con el color de su puerta asignada
         for particle in frame_data["particles"]:
+            particle_color = data.get_door_color(particle['doorNumber'])
             circle = plt.Circle((particle['x'], particle['y']),
                                 particle['radius'],
-                                color='blue',
+                                color=particle_color,
                                 alpha=0.5)
             ax.add_artist(circle)
             artists.append(circle)
@@ -171,13 +193,17 @@ def animate_particles(data, output_dir):
                                color='black')
             artists.append(quiver)
 
+        # Añadir leyenda para las puertas
+        ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+
         # Añadir contador de partículas
         ax.text(0.02, 0.98,
                 f'Partículas: {len(frame_data["particles"])}',
                 transform=ax.transAxes, verticalalignment='top')
         ax.set_title(f'Tiempo: {frame_data["time"]:.2f}s')
 
-        plt.savefig(output_dir / f'frame_{frame_idx:04d}.png')
+        plt.tight_layout()
+        plt.savefig(output_dir / f'frame_{frame_idx:04d}.png', bbox_inches='tight')
 
         return artists
 

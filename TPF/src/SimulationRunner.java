@@ -70,7 +70,7 @@ public class SimulationRunner {
                 double y = startY + (j * spacing);
 
                 int doorNumber = random.nextInt(3);
-                int secondsMustTry = random.nextInt(100) + 50;
+                int secondsMustTry = random.nextInt(30) + 10;
 
                 Particle blue = new Particle(
                         particleCount + 1,
@@ -103,7 +103,7 @@ public class SimulationRunner {
 
         Path filepath = getFilePath(outputDirectory, "dynamic.txt");
 
-        ConcertSystem tms = new ConcertSystem(N, field, maxVelocity, tau, minRadius, maxRadius, ap, bp, this.initial);
+        ConcertSystem tms = new ConcertSystem(p, field, maxVelocity, tau, minRadius, maxRadius, ap, bp, this.initial);
         runSolution(tms, filepath);
     }
 
@@ -113,7 +113,7 @@ public class SimulationRunner {
         statesToSave.add(initialState);  // Guardamos el estado inicial
 
         int stateCounter = 0;
-        int saveFrequency = 50;
+        int saveFrequency = 1;
         int maxStatesToSave = 100;
 
         State lastState = initialState;  // Guardamos referencia al último estado
@@ -211,12 +211,13 @@ public class SimulationRunner {
                 // Nothing
             }
             for (State state : states) {
+                System.out.println("Time: " + state.getTime());
                 writer.write(String.format(Locale.US, "%.6f\n", state.getTime()));
 
                 for (Particle blue : state.getParticles()) {
                     double velX = blue.getVelocity().getDirection().getFirst() * blue.getVelocity().getMod();
                     double velY = blue.getVelocity().getDirection().getLast() * blue.getVelocity().getMod();
-                    writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f\n", blue.getId(), blue.getPosition().getX(), blue.getPosition().getY(), velX, velY, blue.getActualRadius()));
+                    writer.write(String.format(Locale.US, "%d,%.6f,%.6f,%.6f,%.6f,%.6f,%d\n", blue.getId(), blue.getPosition().getX(), blue.getPosition().getY(), velX, velY, blue.getActualRadius(), blue.getTarget().getDoor().getNumber()));
                 }
             }
         } catch (IOException e) {

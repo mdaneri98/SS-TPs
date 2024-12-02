@@ -9,10 +9,12 @@ public class Target {
     private double secondsMustTry;
     private double secondsTrying;
 
+    private boolean isFirst;
+
     public Target(int doorNumber, double secondsMustTry) {
         this.doorNumber = doorNumber;
         this.secondsMustTry = secondsMustTry;
-
+        this.isFirst = false;
         door = Field.getInstance().getDoors().get(doorNumber);
     }
 
@@ -20,11 +22,12 @@ public class Target {
         secondsTrying -= secondsElapsed;
     }
 
-    public boolean needsRecalculate() {
-        return secondsTrying <= 0;
+    public boolean needsChange() {
+        return secondsTrying <= 0 || isFirst;
     }
 
-    public void recalculate(double secondsElapsed, int bestPossibleDoorNumber) {
+    public void change(int bestPossibleDoorNumber) {
+        isFirst = false;
         if (secondsTrying <= 0) {
             secondsTrying = secondsMustTry;
             doorNumber = bestPossibleDoorNumber;

@@ -27,7 +27,7 @@ public class SimulationApp {
     
     private static void runHeuristicAnalysis(double maxVelocity, double tau, double minRadius, double maxRadius, int numIteraciones) {
         
-        int N = 500;  // Número fijo de jugadores
+        int N = 50;  // Número fijo de jugadores
         List<Double> aps = new ArrayList<>();
         List<Double> bps = new ArrayList<>();
         aps.add(6.0);
@@ -40,7 +40,7 @@ public class SimulationApp {
         	bps.add((double) i * 0.4);
         }*/
 
-        double p = 1;
+        double p = 0.5;
         
         for (double ap : aps) {
 	        for (double bp : bps) {
@@ -70,7 +70,7 @@ public class SimulationApp {
         for (int i = 5; i <= 100; i+= 5)
         	playersCount.add(i);
         
-        double p = 0.7;
+        double p = 1;
 
         double ap = 6.0;  // Usar el mejor parámetro encontrado en el análisis anterior
         double bp = 1.6;
@@ -78,17 +78,17 @@ public class SimulationApp {
         	int N = playersCount.get(j);
             for (int i = 0; i < numIteraciones; i++) {
                 String directory = String.format(Locale.US, "players_analysis/N_%d/sim_%03d", N, i);
-                
+
                 try {
                     Path dirPath = Paths.get("python", "outputs", directory);
                     Files.createDirectories(dirPath);
-                    
+
                     SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp);
                     tm.setOutputDirectory(directory);
                     tm.run();
-                    
+
                 } catch (Exception e) {
-                    System.err.printf("Error en simulación %d jugadores, realización %d: %s%n", 
+                    System.err.printf("Error en simulación %d jugadores, realización %d: %s%n",
                             N, i, e.getMessage());
                 }
             }

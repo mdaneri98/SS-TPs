@@ -6,11 +6,13 @@ import java.util.stream.Collectors;
 
 public class Door {
 
+    private int number;
     private Position initial;
     private Position end;
     private boolean isVertical;
 
-    public Door(Position initial, Position end) {
+    public Door(int number, Position initial, Position end) {
+        this.number = number;
         this.initial = initial;
         this.end = end;
 
@@ -89,5 +91,9 @@ public class Door {
 
     public Position getEnd() {
         return end;
+    }
+
+    public int getNumber() {
+        return number;
     }
 }

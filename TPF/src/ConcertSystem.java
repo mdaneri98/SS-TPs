@@ -1,10 +1,5 @@
 import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import models.*;
 import utils.Utils;
@@ -80,8 +75,8 @@ public class ConcertSystem implements Iterator<State> {
 		Position newPosition = updatePosition(p, dt);
 
 		p.getTarget().step(dt);
-		if (p.getTarget().needsRecalculate()) {
-			p.getTarget().recalculate(dt, bestNextDoor(p));
+		if (p.getTarget().needsChange()) {
+			p.getTarget().change(bestNextDoor(p));
 		}
 
 		return new Particle(p.getId(), newPosition, p.getTarget(), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
@@ -139,36 +134,60 @@ public class ConcertSystem implements Iterator<State> {
 	}
 
 	public int bestNextDoor(Particle particle) {
-		int doorNumber = 0;
-		double performance = p * relativeDistance(doorNumber, particle.getPosition()) + (1-p) * relativeDensity(doorNumber);
-		for (int i = 1; i < 3; i++) {
-			double aux = p * relativeDistance(i, particle.getPosition()) + (1-p) * relativeDensity(i);
-			if (aux > performance) {
-				performance = aux;
-				doorNumber = i;
+		int bestDoor = 0;
+		double bestScore = Double.NEGATIVE_INFINITY;
+
+		// Evaluar cada puerta
+		for (int doorNumber = 0; doorNumber < field.getDoors().size(); doorNumber++) {
+			double score = p * relativeDistance(doorNumber, particle.getPosition())
+					+ (1-p) * relativeDensity(doorNumber);
+
+			if (score > bestScore) {
+				bestScore = score;
+				bestDoor = doorNumber;
 			}
 		}
-		System.out.println("Choosing " + doorNumber);
-		return doorNumber;
+
+		return bestDoor;
 	}
 
 	private double relativeDistance(int doorNumber, Position position) {
 		Field f = Field.getInstance();
-		return f.getDoors().get(doorNumber).distanceFrom(position);
+
+		double[] distances = new double[field.getDoors().size()];
+		for (int i = 0; i < field.getDoors().size(); i++) {
+			distances[i] = f.getDoors().get(i).distanceFrom(position);
+		}
+		double max = Arrays.stream(distances).max().orElse(0);
+
+		// Invertimos el valor para que distancias menores den scores más altos
+		System.out.printf("Distancia relativa: %.6f%n", 1 - (distances[doorNumber]/max));
+		return 1 - (distances[doorNumber]/max);
 	}
 
 	private double relativeDensity(int doorNumber) {
 		Field f = Field.getInstance();
-		return f.getDoors().get(doorNumber).density(state.getParticles());
+
+		double[] densities = new double[field.getDoors().size()];
+		for (int i = 0; i < field.getDoors().size(); i++) {
+			densities[i] = f.getDoors().get(i).density(state.getParticles());
+		}
+		double max = Arrays.stream(densities).max().orElse(0);
+
+		// Invertimos el valor para que distancias menores den scores más altos
+		System.out.printf("Densidad relativa: %.6f%n", 1 - (densities[doorNumber]/max));
+		return 1 - (densities[doorNumber]/max);
 	}
 
 
 	public boolean hasEscaped(Particle p) {
-		return Field.getInstance().getDoors().get(0).isInside(p.getPosition())
-				|| Field.getInstance().getDoors().get(1).isInside(p.getPosition())
-				|| Field.getInstance().getDoors().get(2).isInside(p.getPosition());
+		for (Door door : field.getDoors()) {
+			if (door.isInside(p.getPosition())) {
+				return true;
+			}
+		}
+		return false;
 	}
-
 	
 	// ============ SAME ============
 	private Vector<Double> unitDirectionVector(Position d1, Position d2) {
