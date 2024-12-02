@@ -1,0 +1,13 @@
+
+
+La idea es implementar un modelo basado en el modelo de partículas contráctiles, simulando un recinto cerrado de 30x30 con 5 puertas sobre la derecha del mismo.
+	1. Dos de las puertas estarán a los 21m sobre la pared superior e inferior, y las demás en el equidistanciadas en la pared derecha. Las puertas tendrán un ancho de 0.5m
+	2. Las particulas comenzarán ordenadas a la izquierda del recinto, y comenzada la simulación, irán a la puerta mas próxima.
+	3. Las particulas podrán variar su decisión entre un tiempo de x a x' segundos(elegido al azar para c/u), tiempo en el cual podrán al menos llegar hasta un lugar próximo de la puerta.
+	4. La elección de cada particular hacia cual puerta ir estará basada en la siguiente ecuación: p.(puerta_con_menor_distancia_relativa) + (1-p).(puerta_con_menor_densidad_relativa), donde la puerta con mejor valor obtenido será la elegida.
+	5. La densidad de cada puerta estará calculada como k/((pi.r_k^2)/2) siendo k=5 y r_k la distancia hasta la quinta particular mas cercana. 
+
+Posibles observables:
+    1. Tiempos de evacuación en función de p.
+    2. Flujo de partículas por cada puerta (partículas/segundo) en función de p.
+    3. Evolución temporal de la densidad cerca de cada puerta(semicircunferencia de radio 4*largo de la puerta)
