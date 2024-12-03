@@ -14,7 +14,7 @@ public class Target {
     public Target(int doorNumber, double secondsMustTry) {
         this.doorNumber = doorNumber;
         this.secondsMustTry = secondsMustTry;
-        this.isFirst = false;
+        this.isFirst = true;
         door = Field.getInstance().getDoors().get(doorNumber);
     }
 

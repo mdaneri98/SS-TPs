@@ -70,7 +70,10 @@ public class SimulationRunner {
                 double y = startY + (j * spacing);
 
                 int doorNumber = random.nextInt(3);
-                int secondsMustTry = random.nextInt(30) + 10;
+
+                // Añadir un valor aleatorio entre 0 y N segundos
+                //int randomSeconds = random.nextInt(0);
+                int secondsMustTry = (int) (4 * Field.getInstance().getWidth() / maxVelocity);
 
                 Particle blue = new Particle(
                         particleCount + 1,
@@ -113,7 +116,7 @@ public class SimulationRunner {
         statesToSave.add(initialState);  // Guardamos el estado inicial
 
         int stateCounter = 0;
-        int saveFrequency = 1;
+        int saveFrequency = 50;
         int maxStatesToSave = 100;
 
         State lastState = initialState;  // Guardamos referencia al último estado

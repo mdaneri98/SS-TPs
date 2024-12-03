@@ -79,6 +79,8 @@ public class ConcertSystem implements Iterator<State> {
 			p.getTarget().change(bestNextDoor(p));
 		}
 
+		//System.out.println("Door " + p.getTarget().getDoor().getNumber() + " center: " + p.getTarget().getDoor().getCenter());
+
 		return new Particle(p.getId(), newPosition, p.getTarget(), new Velocity(newDirection, newModule), p.getMaxVelocity(), p.getMinRadius(), p.getMaxRadius(), newRadius, p.getTau());
 	}
 	
@@ -116,7 +118,8 @@ public class ConcertSystem implements Iterator<State> {
 
 		if (contacts.isEmpty()) {
 			// Cálculo de e_t = (r_i - T_i)/|r_i - T_i|
-			newDirection = unitDirectionVector(p.getTarget().getDoor().getInitial(), p.getPosition());
+			newDirection = unitDirectionVector(p.getTarget().getDoor().getCenter(), p.getPosition());
+			//p.getTarget().getDoor().getClosestPosition(p.getPosition());
 		} else {
 			Particle contact = contacts.iterator().next();
 	
@@ -161,7 +164,7 @@ public class ConcertSystem implements Iterator<State> {
 		double max = Arrays.stream(distances).max().orElse(0);
 
 		// Invertimos el valor para que distancias menores den scores más altos
-		System.out.printf("Distancia relativa: %.6f%n", 1 - (distances[doorNumber]/max));
+		//System.out.printf("Distancia relativa: %.6f%n", 1 - (distances[doorNumber]/max));
 		return 1 - (distances[doorNumber]/max);
 	}
 
@@ -175,7 +178,7 @@ public class ConcertSystem implements Iterator<State> {
 		double max = Arrays.stream(densities).max().orElse(0);
 
 		// Invertimos el valor para que distancias menores den scores más altos
-		System.out.printf("Densidad relativa: %.6f%n", 1 - (densities[doorNumber]/max));
+		//System.out.printf("Densidad relativa: %.6f%n", 1 - (densities[doorNumber]/max));
 		return 1 - (densities[doorNumber]/max);
 	}
 

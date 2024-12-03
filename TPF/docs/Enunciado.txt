@@ -8,6 +8,13 @@ La idea es implementar un modelo basado en el modelo de partículas contráctile
 	5. La densidad de cada puerta estará calculada como k/((pi.r_k^2)/2) siendo k=5 y r_k la distancia hasta la quinta particular mas cercana. 
 
 Posibles observables:
-    1. Tiempos de evacuación en función de p.
-    2. Flujo de partículas por cada puerta (partículas/segundo) en función de p.
-    3. Evolución temporal de la densidad cerca de cada puerta(semicircunferencia de radio 4*largo de la puerta)
+    1. Tiempos de evacuación.
+        * Calcular los tiempos medios de evacuación para diferentes valores de probabilidad (p)
+    2. Flujo de partículas por cada puerta (partículas/segundo).
+        * Calcular cuántas partículas salen del sistema en intervalos de tiempo específicos para diferentes valores de probabilidad (p).
+    3. Distribución espacial de la densidad de las partículas en el recinto.
+        * Calcular la densidad promedio de partículas para diferentes valores de probabilidad (p),
+            generando un mapa de calor que muestra dónde se concentran más las partículas durante la simulación.
+        * Calcular cómo varía la densidad de partículas a lo largo del tiempo, generando dos gráficos:
+            Uno que muestre la densidad media de partículas por celda en función del tiempo,
+            y otro que muestra la desviación estándar de la densidad, indicando qué tan uniformemente distribuidas están las partículas en cada momento.

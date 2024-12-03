@@ -1,0 +1,41 @@
+Density:
+
+Los dos gráficos muestran aspectos complementarios de la dinámica de las partículas:
+
+### Densidad Media vs Tiempo:
+
+
+Calcula el promedio de partículas en todas las celdas del sistema
+Muestra cómo varía la cantidad total de partículas en el campo
+Un descenso en esta gráfica indicaría que las partículas están abandonando el sistema
+
+
+### Desviación Estándar vs Tiempo:
+
+
+Mide qué tan dispersas están las partículas respecto a la media
+Valor alto: las partículas están agrupadas en ciertas regiones
+Valor bajo: las partículas están distribuidas uniformemente
+Ayuda a identificar si hay formación de clusters o si las partículas tienden a dispersarse
+
+Las fórmulas principales son:
+
+### Densidad Media (ρ):
+
+ρ(t) = (1/M) * Σ n(i,j,t)
+Donde:
+
+M es el número total de celdas (nx × ny)
+n(i,j,t) es el número de partículas en la celda (i,j) en tiempo t
+Σ suma sobre todas las celdas
+
+
+### Desviación Estándar (σ):
+
+σ(t) = √[(1/M) * Σ(n(i,j,t) - ρ(t))²]
+Donde:
+
+ρ(t) es la densidad media calculada anteriormente
+El resto de variables mantienen el mismo significado
+
+En el código, estas fórmulas se implementan usando np.mean() y np.std() respectivamente.

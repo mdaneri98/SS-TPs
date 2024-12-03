@@ -31,6 +31,11 @@ public class Door {
         }
     }
 
+    public Position getCenter() {
+        return new Position((initial.getX() + end.getX()) / 2,
+                (initial.getY() + end.getY()) / 2);
+    }
+
     public Position getClosestPosition(Position position) {
         double x = position.getX();
         double y = position.getY();

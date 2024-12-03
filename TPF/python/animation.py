@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 import logging
 import csv
+import argparse
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -18,44 +19,41 @@ class ParticleData:
         self.static_params = {}
         self.frames_data = []
         self.doors = []
-        # Add a color map for doors
         self.door_colors = [
-            '#FF0000',  # Red
-            '#00FF00',  # Green
-            '#0000FF',  # Blue
-            '#FFA500',  # Orange
-            '#800080',  # Purple
-            '#FFD700',  # Gold
-            '#00FFFF',  # Cyan
-            '#FF00FF',  # Magenta
-            '#008000',  # Dark Green
-            '#000080',  # Navy
+            '#FF0000', '#00FF00', '#0000FF', '#FFA500', '#800080',
+            '#FFD700', '#00FFFF', '#FF00FF', '#008000', '#000080'
         ]
+        self.door_color_map = {}  # Map to store consistent door colors
 
     def get_door_color(self, door_number):
-        """Get color for a specific door number"""
+        """Get consistent color for a specific door number"""
         if door_number < 0:
             return '#808080'  # Gray for invalid door numbers
-        return self.door_colors[door_number % len(self.door_colors)]
+        if door_number not in self.door_color_map:
+            self.door_color_map[door_number] = self.door_colors[len(self.door_color_map) % len(self.door_colors)]
+        return self.door_color_map[door_number]
 
     def load_doors(self, filename):
-        """Carga las coordenadas de las puertas desde un archivo CSV"""
-        logging.debug(f"Leyendo archivo de puertas: {filename}")
+        """Load door coordinates from CSV file"""
+        logging.debug(f"Reading doors file: {filename}")
         try:
             with open(filename, 'r') as f:
                 reader = csv.DictReader(f)
                 self.doors = []
-                for row in reader:
+                for i, row in enumerate(reader):
                     door = {
                         'x1': float(row['initial_x'].strip()),
                         'y1': float(row['initial_y'].strip()),
                         'x2': float(row['end_x'].strip()),
-                        'y2': float(row['end_y'].strip())
+                        'y2': float(row['end_y'].strip()),
+                        'id': i  # Add door ID for consistent coloring
                     }
                     self.doors.append(door)
-                logging.debug(f"Puertas cargadas: {len(self.doors)}")
+                    # Pre-assign colors to doors
+                    self.get_door_color(i)
+                logging.debug(f"Doors loaded: {len(self.doors)}")
         except Exception as e:
-            logging.error(f"Error al cargar archivo de puertas: {e}")
+            logging.error(f"Error loading doors file: {e}")
             raise
 
     def load_static(self, filename):
@@ -142,8 +140,8 @@ class ParticleData:
             logging.error(f"Error al cargar archivo dinámico: {e}")
             raise
 
-def animate_particles(data, output_dir):
-    logging.debug(f"Iniciando animación. Total frames: {len(data.frames_data)}")
+def animate_particles(data, output_dir, save_frames=True):
+    logging.info(f"Starting animation. Total frames: {len(data.frames_data)}")
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -151,31 +149,28 @@ def animate_particles(data, output_dir):
     scale_factor = 0.1
 
     def update(frame_idx):
-        logging.debug(f"Procesando frame {frame_idx}")
         if frame_idx >= len(data.frames_data):
-            logging.error(f"Índice de frame ({frame_idx}) fuera de rango")
             return []
 
         frame_data = data.frames_data[frame_idx]
-
         ax.clear()
         ax.set_xlim(0, data.static_params['width'])
         ax.set_ylim(0, data.static_params['height'])
 
         artists = []
 
-        # Dibujar las puertas usando colores específicos
-        for i, door in enumerate(data.doors):
-            door_color = data.get_door_color(i)
+        # Draw doors with consistent colors
+        for door in data.doors:
+            door_color = data.get_door_color(door['id'])
             door_line = plt.Line2D([door['x1'], door['x2']],
                                    [door['y1'], door['y2']],
                                    color=door_color,
                                    linewidth=5,
-                                   label=f'Puerta {i}')
+                                   label=f'Door {door["id"]}')
             ax.add_artist(door_line)
             artists.append(door_line)
 
-        # Dibujar cada partícula con el color de su puerta asignada
+        # Draw particles with their assigned door colors
         for particle in frame_data["particles"]:
             particle_color = data.get_door_color(particle['doorNumber'])
             circle = plt.Circle((particle['x'], particle['y']),
@@ -193,37 +188,51 @@ def animate_particles(data, output_dir):
                                color='black')
             artists.append(quiver)
 
-        # Añadir leyenda para las puertas
-        ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+        # Add unique door colors to legend
+        handles = [plt.Line2D([0], [0], color=color, linewidth=5)
+                   for color in data.door_color_map.values()]
+        labels = [f'Door {door_id}' for door_id in data.door_color_map.keys()]
+        ax.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.15, 1))
 
-        # Añadir contador de partículas
         ax.text(0.02, 0.98,
-                f'Partículas: {len(frame_data["particles"])}',
+                f'Particles: {len(frame_data["particles"])}',
                 transform=ax.transAxes, verticalalignment='top')
-        ax.set_title(f'Tiempo: {frame_data["time"]:.2f}s')
+        ax.set_title(f'Time: {frame_data["time"]:.2f}s')
 
         plt.tight_layout()
-        plt.savefig(output_dir / f'frame_{frame_idx:04d}.png', bbox_inches='tight')
+
+        if save_frames:
+            plt.savefig(output_dir / f'frame_{frame_idx:04d}.png', bbox_inches='tight')
 
         return artists
 
     frames = len(data.frames_data)
-    logging.debug(f"Creando animación con {frames} frames")
-
-    ani = animation.FuncAnimation(fig, update, frames=frames, interval=300, blit=True)
+    ani = animation.FuncAnimation(fig, update, frames=frames, interval=10, blit=True)
 
     try:
-        ani.save(output_dir / 'animation.gif', writer='pillow')
-        logging.debug("Animación guardada exitosamente")
+        writer = animation.PillowWriter(fps=30)
+        ani.save(output_dir / 'animation.gif', writer=writer)
+        logging.info("Animation saved successfully")
     except Exception as e:
-        logging.error(f"Error al guardar la animación: {e}")
+        logging.error(f"Error saving animation: {e}")
 
     plt.close()
 
 def main():
+    # Configurar el parser de argumentos
+    parser = argparse.ArgumentParser(description='Visualización de partículas')
+    parser.add_argument('--save-frames', action='store_true',
+                        help='Guardar cada frame como imagen PNG además del GIF')
+    args = parser.parse_args()
+
+    if not args.save_frames:
+        respuesta = input("¿Desea guardar todos los frames individuales además del GIF? (s/n): ").lower()
+        args.save_frames = respuesta.startswith('s')
+
     base_paths = [
         Path('outputs/heuristic_analysis'),
-        Path('outputs/players_analysis')
+        Path('outputs/velocity_analysis'),
+        Path('outputs/probabilistic_analysis')
     ]
 
     for base_dir in base_paths:
@@ -233,7 +242,7 @@ def main():
 
         logging.info(f"Procesando directorio base: {base_dir}")
 
-        pattern = 'ap_*_bp_*' if 'heuristic_analysis' in str(base_dir) else 'N_*'
+        pattern = 'ap_*_bp_*' if 'heuristic_analysis' in str(base_dir) else 'v_*' if 'velocity_analysis' in str(base_dir) else 'p_*'
 
         for analysis_dir in base_dir.glob(pattern):
             if not analysis_dir.is_dir():
@@ -262,7 +271,7 @@ def main():
                     data.load_dynamic(dynamic_file)
 
                     frames_dir = sim_dir / 'frames'
-                    animate_particles(data, frames_dir)
+                    animate_particles(data, frames_dir, save_frames=args.save_frames)
 
                     logging.info(f"Procesamiento completado para {sim_dir}")
 

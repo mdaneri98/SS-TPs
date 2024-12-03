@@ -1,0 +1,31 @@
+Buenas tardes,
+
+Si, lo charlamos en la última clase de consulta presencial, el mismo día del recuperatorio.
+
+Los inputs a variar son:
+    i. Factor p que influye en la elección entre la puerta mas cercana o con menor densidad de particulas, según la ecuación anteriormente mencionada.
+        Tal fórmula, mas detallada, sería la siguiente:
+            S(d) = p × RD(d) + (1-p) × Rρ(d)
+        Donde
+            S(d) es el score de la puerta d
+            RD(d) es la distancia relativa a la puerta d:  RD(d) = 1 - (Dist(d)/max(Dist))
+            Rρ(d) es la densidad relativa a la puerta d: Rρ(d) = 1 - (ρ(d)/max(ρ))
+        Finalmente, la puerta elegida será la que tenga el mayor score.
+    ii. Tiempo de re-decisión x. Cada cierto tiempo x se re-evaluará la elección de la puerta a la que se dirigirá la partícula, puede ser la misma o una distinta, según el calculo anterior.
+En el punto 5. del email anterior, se refiere a la quinta partícula más cercana a la puerta d, teniendo en cuenta el punto medio de la misma. Es decir, se calcula la distancia de cada partícula al centro(1-dimensión-) de la puerta, se ordenan de menor a mayor y se toma la distancia hasta la quinta particula como radio de la semicircunferencia, área donde se calculará la densidad para tal puerta.
+
+Puntos sobre los observables:
+En el punto 2. del mail anterior, el observable 'caudal' sería:
+    i. Caudal total (C): C(t) = N(t) - N(t + Δt) donde:
+            C(t) es el caudal en el tiempo t
+            N(t) es el número total de partículas en el tiempo t
+            N(t + Δt) es el número total de partículas en el tiempo t + Δt
+            Δt es un intervalo de tiempo fijo (dt=1 segundo)
+    ii. También calcularemos el caudal por puerta de manera análoga.
+En el punto 3. del mail anterior, el observable sería:
+    i. Densidad Media (ρ): ρ(t) = (1/N) * Σ (n_i(t) / A_c) donde:
+              N es el número total de circunferencias (número de puertas + 1 para el centroide)
+              n_i(t) es el número de partículas en la circunferencia i en tiempo t
+              A_c es el área de cada circunferencia (πr²)
+              Σ suma sobre todas las circunferencias
+    Cada circunferencia tendrá centro en cada puerta y una última en el centroide de todas las puertas.
