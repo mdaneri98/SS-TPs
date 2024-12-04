@@ -27,12 +27,14 @@ public class SimulationRunner {
     private final double maxRadius;
     private final double ap;
     private final double bp;
-
+    private final int ct;
     private String outputDirectory = "recital";
+
+    private final static int SECONDS_LIMIT = 600;
 
     private State initial;
 
-    public SimulationRunner(int N, double p, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp) {
+    public SimulationRunner(int N, double p, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp, int ct) {
         this.N = N;
         this.p = p;
         this.field = Field.getInstance();
@@ -42,6 +44,7 @@ public class SimulationRunner {
         this.maxRadius = maxRadius;
         this.ap = ap;
         this.bp = bp;
+        this.ct = ct;
 
         this.initial = initialState();
     }
@@ -73,7 +76,7 @@ public class SimulationRunner {
 
                 // Añadir un valor aleatorio entre 0 y N segundos
                 //int randomSeconds = random.nextInt(0);
-                int secondsMustTry = (int) (4 * Field.getInstance().getWidth() / maxVelocity);
+                int secondsMustTry = ct;//(int) (4 * Field.getInstance().getWidth() / maxVelocity);
 
                 Particle blue = new Particle(
                         particleCount + 1,
@@ -125,6 +128,10 @@ public class SimulationRunner {
             State currentState = iterator.next();
             stateCounter++;
             lastState = currentState;  // Actualizamos el último estado
+
+            if (currentState.getTime() > SECONDS_LIMIT) {
+                break;
+            }
 
             if (stateCounter % saveFrequency == 0) {
                 statesToSave.add(currentState);

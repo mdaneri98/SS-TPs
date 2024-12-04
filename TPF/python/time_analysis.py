@@ -15,12 +15,12 @@ def get_evacuation_time(dynamic_file):
         return max(times) if times else 0
 
 def analyze_p_values():
-    base_dir = Path('outputs/probabilistic_analysis')
+    base_dir = Path('outputs/times_analysis')
     p_times = {}
-    output_dir = Path('times')
+    output_dir = Path('outputs/times')
     output_dir.mkdir(exist_ok=True)
 
-    for p_dir in base_dir.glob('p_*'):
+    for p_dir in base_dir.glob('t_*'):
         try:
             p_value = float(p_dir.name.split('_')[1])
             times = []
@@ -48,9 +48,9 @@ def analyze_p_values():
     stds = [np.std(p_times[p]) for p in p_values]
 
     ax.errorbar(p_values, means, yerr=stds, fmt='o-', capsize=5)
-    ax.set_xlabel('p value')
+    ax.set_xlabel('ct value')
     ax.set_ylabel('Evacuation Time (s)')
-    ax.set_title('Average Evacuation Time vs p Value')
+    ax.set_title('Average Evacuation Time vs ct Value')
     ax.grid(True)
 
     plt.savefig(output_dir / 'evacuation_times.png')

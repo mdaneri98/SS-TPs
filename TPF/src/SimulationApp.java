@@ -8,6 +8,8 @@ import java.util.Locale;
 import models.Field;
 
 public class SimulationApp {
+
+
     public static void main(String[] args) {
         // Parámetros constantes
         double maxVelocity = 1.0;
@@ -17,30 +19,28 @@ public class SimulationApp {
 
         // Parámetros configurables
         int numIteraciones = 1;
-        
-        // Primer análisis: variación del parámetro de heurística
-        runHeuristicAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
-        
-        // Segundo análisis: variación de la velocidad de los jugadores
-        runVelocityAnalysis(tau, minRadius, maxRadius, numIteraciones);
+
+        // Primer análisis: variación de la velocidad de los jugadores
+        //runTAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
 
         // Tercer análisis: variación de p
-        runProbabilityAnalysis(3.0, tau, minRadius, maxRadius, numIteraciones);
+        runProbabilityAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
+
+        // Segundo análisis: variación del parámetro de heurística
+        //runHeuristicAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
+
+
 
     }
     
     private static void runHeuristicAnalysis(double maxVelocity, double tau, double minRadius, double maxRadius, int numIteraciones) {
-        
-        int N = 1000;  // Número fijo de jugadores
+        int N = 500;  // Número fijo de jugadores
+        int ct = 60;
+
         List<Double> aps = new ArrayList<>();
         List<Double> bps = new ArrayList<>();
-        for (int i = 8; i < 14; i += 2) {
-        	aps.add((double) i);
-        }
-
-        for (int i = 1; i < 5; i++) {
-        	bps.add((double) i * 0.4);
-        }
+        aps.add(1.0);
+        bps.add(0.8);
 
         double p = 0.5;
         
@@ -53,7 +53,7 @@ public class SimulationApp {
 	                    Path dirPath = Paths.get("python", "outputs", directory);
 	                    Files.createDirectories(dirPath);
 	                    
-	                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp);
+	                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
 	                    tm.setOutputDirectory(directory);
 	                    tm.run();
 	                    
@@ -67,25 +67,30 @@ public class SimulationApp {
     }
 
     private static void runProbabilityAnalysis(double maxVelocity, double tau, double minRadius, double maxRadius, int numIteraciones) {
-        int N = 1000;  // Número fijo de jugadores
+        int N = 500;  // Número fijo de jugadores
 
         List<Double> ps = new ArrayList<>();
         for (int i = 0; i <= 10; i += 1) {
             ps.add((double) i * 0.1);
         }
 
+        List<Integer> cts = new ArrayList<>();
+        for (int i = 20; i <= 600; i += 10)
+            cts.add(i);
+
         double ap = 1.0;
         double bp = 0.8;
 
-        for (double p : ps) {
+        for (int ct : cts) {
+            for (double p : ps) {
                 for (int i = 0; i < numIteraciones; i++) {
-                    String directory = String.format(Locale.US, "probabilistic_analysis/p_%.2f/sim_%03d", p, i);
+                    String directory = String.format(Locale.US, "probabilistic_analysis/t_%d_&_p_%.2f/sim_%03d", ct, p, i);
 
                     try {
                         Path dirPath = Paths.get("python", "outputs", directory);
                         Files.createDirectories(dirPath);
 
-                        SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp);
+                        SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
                         tm.setOutputDirectory(directory);
                         tm.run();
 
@@ -94,30 +99,31 @@ public class SimulationApp {
                                 ap, i, e.getMessage());
                     }
                 }
+            }
         }
     }
     
-    private static void runVelocityAnalysis(double tau, double minRadius, double maxRadius, int numIteraciones) {
-        int N = 1000;  // Número fijo de jugadores
+    private static void runTAnalysis(double maxVelocity, double tau, double minRadius, double maxRadius, int numIteraciones) {
+        int N = 500;  // Número fijo de jugadores
 
-        List<Integer> velocities = new ArrayList<>();
-        for (int i = 1; i <= 5; i += 1)
-            velocities.add(i);
+        List<Integer> cts = new ArrayList<>();
+        for (int i = 20; i <= 600; i += 10)
+            cts.add(i);
         
         double p = 0.5;
 
-        double ap = 10.0;  // Usar el mejor parámetro encontrado en el análisis anterior
-        double bp = 1.0;
-        for (int j = 0; j < velocities.size(); j++) {
-        	int velocity = velocities.get(j);
+        double ap = 1.0;
+        double bp = 0.8;
+        for (int j = 0; j < cts.size(); j++) {
+        	int ct = cts.get(j);
             for (int i = 0; i < numIteraciones; i++) {
-                String directory = String.format(Locale.US, "velocity_analysis/v_%d/sim_%03d", velocity, i);
+                String directory = String.format(Locale.US, "times_analysis/t_%d/sim_%03d", ct, i);
 
                 try {
                     Path dirPath = Paths.get("python", "outputs", directory);
                     Files.createDirectories(dirPath);
 
-                    SimulationRunner tm = new SimulationRunner(N, p, velocity, tau, minRadius, maxRadius, ap, bp);
+                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
                     tm.setOutputDirectory(directory);
                     tm.run();
 
