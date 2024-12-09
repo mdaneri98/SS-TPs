@@ -18,7 +18,7 @@ public class SimulationApp {
         double maxRadius = 0.35;
 
         // Parámetros configurables
-        int numIteraciones = 1;
+        int numIteraciones = 5;
 
         // Primer análisis: variación de la velocidad de los jugadores
         //runTAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
@@ -75,7 +75,7 @@ public class SimulationApp {
         }
 
         List<Integer> cts = new ArrayList<>();
-        for (int i = 20; i <= 600; i += 10)
+        for (int i = 5; i <= 250; i += 5)
             cts.add(i);
 
         double ap = 1.0;

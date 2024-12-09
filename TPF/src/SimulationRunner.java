@@ -53,6 +53,32 @@ public class SimulationRunner {
         Random random = new Random();
         Set<Particle> particles = new HashSet<>();
 
+        while (particles.size() < N) {
+            // Posición x aleatoria dentro del área L x L
+            double x = maxRadius + random.nextDouble() * (field.getWidth() - 2 * maxRadius);
+            double y = maxRadius + random.nextDouble() * (field.getHeight() - 2 * maxRadius);
+            int doorNumber = random.nextInt(2);
+            double ctVariation = ct * (1 + (random.nextDouble() * 0.2 - 0.1));
+
+            Particle blue = new Particle(particles.size(), new Position(x, y), new Target(doorNumber, ct + ctVariation), new Velocity(new Vector<Double>(List.of(0.0, 0.0)), maxVelocity), maxVelocity, minRadius, maxRadius, maxRadius, tau);
+
+            boolean match = false;
+            for (Particle particle : particles) {
+                match = blue.isInsidePersonalSpace(particle);
+                if (match)
+                    break;
+            }
+            if (!match)
+                particles.add(blue);
+        }
+
+        return new State(0.0, particles);
+    }
+
+    public State orderedState() {
+        Random random = new Random();
+        Set<Particle> particles = new HashSet<>();
+
         // Calculamos el espacio entre partículas (diámetro máximo)
         double spacing = 2 * maxRadius;
 

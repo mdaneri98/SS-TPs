@@ -41,7 +41,6 @@ public class ConcertSystem implements Iterator<State> {
 		this.dt = minRadius / (2 * maxVelocity);
 	}
 
-
 	@Override
 	public boolean hasNext() {
 		return !state.getParticles().isEmpty();
