@@ -89,7 +89,7 @@ class FlowRateAnalyzer:
 
         return results
 
-    def plot_all_combinations(self, results, output_dir="plots"):
+    def plot_all_combinations(self, results, output_dir="plots/caudal"):
         """Genera gráficos para todas las combinaciones analizadas"""
         os.makedirs(output_dir, exist_ok=True)
 
@@ -156,7 +156,7 @@ def main():
 
     # Definir parámetros a analizar
     ct_values = [5, 10, 15, 20, 25, 30]  # Valores de tiempo de redecisión
-    p_values = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # Valores de probabilidad
+    p_values = [0.5]  # Valores de probabilidad
 
     # Analizar todas las combinaciones
     print("Iniciando análisis de caudales...")

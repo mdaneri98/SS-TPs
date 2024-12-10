@@ -134,7 +134,7 @@ class DensityAnalyzer:
 
         return results
 
-    def plot_densities(self, results, output_dir="plots"):
+    def plot_densities(self, results, output_dir="plots/density"):
         """Genera gráficos de densidad vs tiempo"""
         os.makedirs(output_dir, exist_ok=True)
 
@@ -172,8 +172,8 @@ def main():
     analyzer = DensityAnalyzer()
 
     # Definir parámetros a analizar
-    t_values = [5, 20, 40]  # Valores de tiempo de redecisión
-    p_values = [0.0, 0.5, 1.0]  # Valores de probabilidad
+    t_values = [5, 10, 15, 20, 25, 30]  # Valores de tiempo de redecisión
+    p_values = [0.5]  # Valores de probabilidad
 
     # Analizar densidades
     print("Analizando densidades...")
