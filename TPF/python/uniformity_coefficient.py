@@ -12,7 +12,7 @@ class UniformityAnalyzer:
         """Lee el archivo dynamic.txt y detecta las salidas de partículas"""
         particles_path = sim_path / "dynamic.txt"
         particles_data = []
-        current_particles = set()  # Conjunto de IDs de partículas actuales
+        current_particles = set()
         current_time = None
 
         try:
@@ -23,17 +23,13 @@ class UniformityAnalyzer:
                         continue
 
                     try:
-                        # Si es una línea de tiempo
                         new_time = float(line)
-
-                        # Si tenemos un tiempo anterior, verificamos las partículas que salieron
                         if current_time is not None and current_particles:
-                            # Las partículas que estaban antes y ya no están han salido
                             for particle_id in current_particles:
                                 particles_data.append({
                                     'time': current_time,
                                     'id': particle_id,
-                                    'exit_door': np.random.randint(1, 5),  # Asignamos una puerta aleatoria 1-4
+                                    'exit_door': np.random.randint(1, 5),
                                     'exited': True
                                 })
                             current_particles.clear()
@@ -42,19 +38,17 @@ class UniformityAnalyzer:
                         continue
 
                     except ValueError:
-                        # Es una línea de partícula
                         values = line.split(',')
                         if len(values) >= 7:
                             particle_id = int(float(values[0]))
                             current_particles.add(particle_id)
 
-            # Procesar las últimas partículas si quedan
             if current_time is not None and current_particles:
                 for particle_id in current_particles:
                     particles_data.append({
                         'time': current_time,
                         'id': particle_id,
-                        'exit_door': np.random.randint(1, 5),  # Asignamos una puerta aleatoria 1-4
+                        'exit_door': np.random.randint(1, 5),
                         'exited': True
                     })
 
@@ -66,22 +60,16 @@ class UniformityAnalyzer:
             return pd.DataFrame()
 
     def calculate_uniformity(self, particles_data, time_window=1.0):
-        """
-        Calcula el coeficiente de uniformidad a lo largo del tiempo
-        U = 1 - (σ / μ), donde σ es la desviación estándar y μ es la media
-        """
+        """Calcula el coeficiente de uniformidad a lo largo del tiempo"""
         if len(particles_data) == 0:
             return None
 
-        # Obtener el tiempo máximo de simulación
         max_time = particles_data['time'].max()
         time_bins = np.arange(0, max_time + time_window, time_window)
-
         uniformity_over_time = []
         times = []
 
         for t_start, t_end in zip(time_bins[:-1], time_bins[1:]):
-            # Filtrar partículas que salieron en la ventana de tiempo
             window_data = particles_data[
                 (particles_data['time'] >= t_start) &
                 (particles_data['time'] < t_end) &
@@ -89,18 +77,11 @@ class UniformityAnalyzer:
                 ]
 
             if len(window_data) > 0:
-                # Contar partículas por puerta en esta ventana
                 exit_counts = window_data['exit_door'].value_counts()
-
                 if len(exit_counts) > 0:
                     mean_density = exit_counts.mean()
-                    std_density = exit_counts.std()
-
-                    if mean_density > 0:
-                        uniformity = 1 - (std_density / mean_density)
-                    else:
-                        uniformity = 1
-
+                    std_density = exit_counts.std() if len(exit_counts) > 1 else 0
+                    uniformity = 1 - (std_density / mean_density) if mean_density > 0 else 1
                     uniformity_over_time.append(uniformity)
                     times.append(t_start)
 
@@ -112,7 +93,6 @@ class UniformityAnalyzer:
     def analyze_multiple_parameters(self, ct_values, p_values):
         """Analiza la uniformidad para múltiples valores de ct y p"""
         results = {}
-
         total_combinations = len(ct_values) * len(p_values)
         current_combination = 0
 
@@ -127,132 +107,80 @@ class UniformityAnalyzer:
 
                 if len(particles_data) > 0:
                     uniformity_data = self.calculate_uniformity(particles_data)
-                    if uniformity_data:
+                    if uniformity_data is not None and len(uniformity_data['uniformity']) > 0:
                         results[ct][p] = uniformity_data
 
         return results
 
-    def plot_all_combinations(self, results, output_dir="plots/uniformidad"):
-        """Genera gráficos para todas las combinaciones analizadas"""
+    def plot_average_curves(self, ct_values, p_values, results, output_dir="plots/uniformidad"):
+        """Genera gráficos con las curvas promedio"""
         os.makedirs(output_dir, exist_ok=True)
 
-        # Gráficos originales por cada ct con diferentes p
-        for ct in results.keys():
-            plt.figure(figsize=(12, 8))
-            colors = plt.cm.viridis(np.linspace(0, 1, len(results[ct])))
-
-            for (p, data), color in zip(results[ct].items(), colors):
-                plt.plot(data['times'], data['uniformity'],
-                         label=f'p = {p:.2f}',
-                         color=color)
-
-            plt.title(f'Coeficiente de Uniformidad vs Tiempo (ct = {ct})')
-            plt.xlabel('Tiempo (s)')
-            plt.ylabel('Coeficiente de Uniformidad')
-            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-            plt.grid(True, linestyle='--', alpha=0.7)
-            plt.ylim(0, 1)
-            plt.tight_layout()
-            plt.savefig(f"{output_dir}/uniformity_ct{ct}.png", bbox_inches='tight', dpi=300)
-            plt.close()
-
-        # Gráficos originales por cada p con diferentes ct
-        p_results = self._reorganize_results_by_p(results)
-        for p in p_results.keys():
-            plt.figure(figsize=(12, 8))
-            colors = plt.cm.viridis(np.linspace(0, 1, len(p_results[p])))
-
-            for (ct, data), color in zip(p_results[p].items(), colors):
-                plt.plot(data['times'], data['uniformity'],
-                         label=f'ct = {ct}',
-                         color=color)
-
-            plt.title(f'Coeficiente de Uniformidad vs Tiempo (p = {p:.2f})')
-            plt.xlabel('Tiempo (s)')
-            plt.ylabel('Coeficiente de Uniformidad')
-            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-            plt.grid(True, linestyle='--', alpha=0.7)
-            plt.ylim(0, 1)
-            plt.tight_layout()
-            plt.savefig(f"{output_dir}/uniformity_p{p:.2f}.png", bbox_inches='tight', dpi=300)
-            plt.close()
-
-        # Nuevo gráfico: Promedio de uniformidad vs ct para cada p
+        # Gráfico 1: Promedio vs ct
         plt.figure(figsize=(12, 8))
-        ct_values = sorted(results.keys())
-        p_values = sorted(list(results[ct_values[0]].keys()))
+        ct_averages = []
+        valid_cts = []
+
+        for ct in ct_values:
+            if ct in results:
+                p_values_for_ct = []
+                for p in p_values:
+                    if p in results[ct] and len(results[ct][p]['uniformity']) > 0:
+                        avg_uniformity = np.mean(results[ct][p]['uniformity'])
+                        p_values_for_ct.append(avg_uniformity)
+
+                if p_values_for_ct:
+                    ct_averages.append(np.mean(p_values_for_ct))
+                    valid_cts.append(ct)
+
+        if valid_cts:
+            plt.plot(valid_cts, ct_averages, 'b-', linewidth=2)
+            plt.title('Promedio Global del Coeficiente de Uniformidad vs ct')
+            plt.xlabel('ct')
+            plt.ylabel('Promedio del Coeficiente de Uniformidad')
+            plt.grid(True)
+            plt.ylim(0, 1)
+            plt.savefig(f"{output_dir}/avg_uniformity_vs_ct_global.png", bbox_inches='tight', dpi=300)
+        plt.close()
+
+        # Gráfico 2: Promedio vs p
+        plt.figure(figsize=(12, 8))
+        p_averages = []
+        valid_ps = []
 
         for p in p_values:
-            avg_uniformities = []
+            ct_values_for_p = []
             for ct in ct_values:
-                if p in results[ct]:
+                if ct in results and p in results[ct] and len(results[ct][p]['uniformity']) > 0:
                     avg_uniformity = np.mean(results[ct][p]['uniformity'])
-                    avg_uniformities.append(avg_uniformity)
-            plt.plot(ct_values, avg_uniformities, 'o-', label=f'p = {p:.2f}')
+                    ct_values_for_p.append(avg_uniformity)
 
-        plt.title('Promedio del Coeficiente de Uniformidad vs ct')
-        plt.xlabel('ct')
-        plt.ylabel('Promedio del Coeficiente de Uniformidad')
-        plt.legend()
-        plt.grid(True)
-        plt.ylim(0, 1)
-        plt.savefig(f"{output_dir}/avg_uniformity_vs_ct.png", bbox_inches='tight', dpi=300)
+            if ct_values_for_p:
+                p_averages.append(np.mean(ct_values_for_p))
+                valid_ps.append(p)
+
+        if valid_ps:
+            plt.plot(valid_ps, p_averages, 'r-', linewidth=2)
+            plt.title('Promedio Global del Coeficiente de Uniformidad vs p')
+            plt.xlabel('p')
+            plt.ylabel('Promedio del Coeficiente de Uniformidad')
+            plt.grid(True)
+            plt.ylim(0, 1)
+            plt.savefig(f"{output_dir}/avg_uniformity_vs_p_global.png", bbox_inches='tight', dpi=300)
         plt.close()
-
-        # Nuevo gráfico: Promedio de uniformidad vs p para cada ct
-        plt.figure(figsize=(12, 8))
-        for ct in ct_values:
-            avg_uniformities = []
-            p_values_sorted = sorted(results[ct].keys())
-            for p in p_values_sorted:
-                if p in results[ct]:
-                    avg_uniformity = np.mean(results[ct][p]['uniformity'])
-                    avg_uniformities.append(avg_uniformity)
-            plt.plot(p_values_sorted, avg_uniformities, 'o-', label=f'ct = {ct}')
-
-        plt.title('Promedio del Coeficiente de Uniformidad vs p')
-        plt.xlabel('p')
-        plt.ylabel('Promedio del Coeficiente de Uniformidad')
-        plt.legend()
-        plt.grid(True)
-        plt.ylim(0, 1)
-        plt.savefig(f"{output_dir}/avg_uniformity_vs_p.png", bbox_inches='tight', dpi=300)
-        plt.close()
-
-    def _reorganize_results_by_p(self, results):
-        """Reorganiza los resultados por valor de p para facilitar el plotting"""
-        p_results = {}
-
-        # Obtener todos los valores únicos de p
-        all_p_values = set()
-        for ct_data in results.values():
-            all_p_values.update(ct_data.keys())
-
-        # Reorganizar datos
-        for p in all_p_values:
-            p_results[p] = {}
-            for ct in results.keys():
-                if p in results[ct]:
-                    p_results[p][ct] = results[ct][p]
-
-        return p_results
 
 def main():
-    # Crear el analizador
     analyzer = UniformityAnalyzer()
 
-    # Definir parámetros a analizar
-    ct_values = list(range(5, 61))  # De 5 a 60 con paso de 1
+    # Definir parámetros a analizar con los rangos correctos
+    ct_values = list(range(5, 60))  # De 30 a 55
     p_values = [round(p/10, 1) for p in range(0, 11)]  # De 0.0 a 1.0 con paso de 0.1
 
-
-    # Analizar todas las combinaciones
     print("Iniciando análisis de uniformidad...")
     results = analyzer.analyze_multiple_parameters(ct_values, p_values)
 
-    # Generar gráficos
-    print("Generando gráficos...")
-    analyzer.plot_all_combinations(results)
+    print("Generando gráficos promedio...")
+    analyzer.plot_average_curves(ct_values, p_values, results)
     print("¡Análisis completado!")
 
 if __name__ == "__main__":
