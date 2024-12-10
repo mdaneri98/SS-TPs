@@ -102,16 +102,22 @@ def create_evacuation_heatmap():
     plt.xlabel('Probability (p)')
     plt.ylabel('Critical Time (ct)')
 
-    # Save plot
-    output_dir = current_dir / 'outputs'
-    output_dir.mkdir(exist_ok=True)
+    # Create output directories
+    output_dir = current_dir / 'plots' / 'p_vs_ct'
+    output_dir.mkdir(parents=True, exist_ok=True)  # Crear toda la estructura de directorios
 
-    output_path = output_dir / 'p_vs_ct' / 'evacuation_heatmap.png'
+    # Save plot
+    output_path = output_dir / 'evacuation_heatmap.png'
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     print(f"Heatmap saved to: {output_path}")
+
+    # También guardar los datos en CSV para referencia
+    csv_path = output_dir / 'evacuation_times.csv'
+    df.to_csv(csv_path, index=False)
+    print(f"Data saved to: {csv_path}")
 
 if __name__ == "__main__":
     create_evacuation_heatmap()

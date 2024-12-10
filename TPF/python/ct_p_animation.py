@@ -201,7 +201,7 @@ def animate_particles(data, output_dir, save_frames=True):
 
     try:
         writer = animation.PillowWriter(fps=30)
-        ani.save(output_dir / 'animation.gif', writer=writer)
+        ani.save(output_dir / f'animation.gif', writer=writer)
         logging.info("Animation saved successfully")
     except Exception as e:
         logging.error(f"Error saving animation: {e}")
@@ -218,6 +218,7 @@ def main():
 
     # Construct the specific directory path
     base_dir = Path('outputs/probabilistic_analysis')
+    output_dir = Path('animations') / f't_{args.ct}_&_p_{args.p:.2f}'
     target_dir = base_dir / f't_{args.ct}_&_p_{args.p:.2f}'
 
     if not target_dir.exists():
@@ -227,7 +228,7 @@ def main():
     logging.info(f"Processing directory: {target_dir}")
 
     # Process each simulation in the target directory
-    for sim_dir in target_dir.glob('sim_*'):
+    for sim_dir in target_dir.glob('sim_000'):
         if not sim_dir.is_dir():
             continue
 
@@ -247,8 +248,7 @@ def main():
             data.load_static(static_file)
             data.load_dynamic(dynamic_file)
 
-            frames_dir = sim_dir / 'frames'
-            animate_particles(data, frames_dir, save_frames=args.save_frames)
+            animate_particles(data, output_dir, save_frames=args.save_frames)
 
             logging.info(f"Processing completed for {sim_dir}")
 
