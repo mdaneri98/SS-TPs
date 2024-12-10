@@ -9,7 +9,7 @@ def read_doors(file_path):
 
 def calculate_door_specific_flow(ct_value, p_value, dt):
     input_path = Path('outputs/probabilistic_analysis') / f't_{ct_value}_&_p_{p_value:.2f}'
-    output_path = Path('outputs/door_flows') / f't_{ct_value}_&_p_{p_value:.2f}'
+    output_path = Path('plots/door_flows') / f't_{ct_value}_&_p_{p_value:.2f}'
     output_path.mkdir(parents=True, exist_ok=True)
 
     all_door_flows = {}

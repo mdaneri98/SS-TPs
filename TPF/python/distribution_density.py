@@ -9,7 +9,7 @@ def read_doors(file_path):
 
 def calculate_circular_density(p_value, radius=3):
     input_path = Path('outputs/probabilistic_analysis') / f'p_{p_value:.2f}' / 'sim_000'
-    output_path = Path('outputs/circular_density') / f'p_{p_value:.2f}'
+    output_path = Path('plots/circular_density') / f'p_{p_value:.2f}'
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Read door positions using the provided function
