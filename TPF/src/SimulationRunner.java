@@ -25,8 +25,6 @@ public class SimulationRunner {
     private final double tau;
     private final double minRadius;
     private final double maxRadius;
-    private final double ap;
-    private final double bp;
     private final int ct;
     private String outputDirectory = "recital";
 
@@ -34,7 +32,7 @@ public class SimulationRunner {
 
     private State initial;
 
-    public SimulationRunner(int N, double p, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp, int ct) {
+    public SimulationRunner(int N, double p, double maxVelocity, double tau, double minRadius, double maxRadius, int ct) {
         this.N = N;
         this.p = p;
         this.field = Field.getInstance();
@@ -42,8 +40,6 @@ public class SimulationRunner {
         this.tau = tau;
         this.minRadius = minRadius;
         this.maxRadius = maxRadius;
-        this.ap = ap;
-        this.bp = bp;
         this.ct = ct;
 
         this.initial = initialState();
@@ -135,7 +131,7 @@ public class SimulationRunner {
 
         Path filepath = getFilePath(outputDirectory, "dynamic.txt");
 
-        ConcertSystem tms = new ConcertSystem(p, field, maxVelocity, tau, minRadius, maxRadius, ap, bp, this.initial);
+        ConcertSystem tms = new ConcertSystem(p, field, maxVelocity, tau, minRadius, maxRadius, this.initial);
         runSolution(tms, filepath);
     }
 

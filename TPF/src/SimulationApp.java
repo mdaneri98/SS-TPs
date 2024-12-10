@@ -18,7 +18,7 @@ public class SimulationApp {
         double maxRadius = 0.35;
 
         // Parámetros configurables
-        int numIteraciones = 5;
+        int numIteraciones = 15;
 
         // Primer análisis: variación de la velocidad de los jugadores
         //runTAnalysis(maxVelocity, tau, minRadius, maxRadius, numIteraciones);
@@ -53,7 +53,7 @@ public class SimulationApp {
 	                    Path dirPath = Paths.get("python", "outputs", directory);
 	                    Files.createDirectories(dirPath);
 	                    
-	                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
+	                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ct);
 	                    tm.setOutputDirectory(directory);
 	                    tm.run();
 	                    
@@ -75,7 +75,7 @@ public class SimulationApp {
         }
 
         List<Integer> cts = new ArrayList<>();
-        for (int i = 5; i <= 250; i += 5)
+        for (int i = 5; i <= 60; i += 1)
             cts.add(i);
 
         double ap = 1.0;
@@ -90,13 +90,12 @@ public class SimulationApp {
                         Path dirPath = Paths.get("python", "outputs", directory);
                         Files.createDirectories(dirPath);
 
-                        SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
+                        SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ct);
                         tm.setOutputDirectory(directory);
                         tm.run();
 
                     } catch (Exception e) {
-                        System.err.printf("Error en simulación parámetro %.2f, realización %d: %s%n",
-                                ap, i, e.getMessage());
+                        System.err.printf("Error en la somulación, realización %d: %s%n", i, e.getMessage());
                     }
                 }
             }
@@ -123,7 +122,7 @@ public class SimulationApp {
                     Path dirPath = Paths.get("python", "outputs", directory);
                     Files.createDirectories(dirPath);
 
-                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ap, bp, ct);
+                    SimulationRunner tm = new SimulationRunner(N, p, maxVelocity, tau, minRadius, maxRadius, ct);
                     tm.setOutputDirectory(directory);
                     tm.run();
 

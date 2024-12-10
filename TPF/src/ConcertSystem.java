@@ -17,8 +17,6 @@ public class ConcertSystem implements Iterator<State> {
 	private final double maxRadius;
 
 	// ====== FIXED VALUES ======
-	private final double ap;
-	private final double bp;
 	private final double dt;
 
 	private final Field field;
@@ -26,7 +24,7 @@ public class ConcertSystem implements Iterator<State> {
 	// ====== ... ======
 	private State state;
 
-	public ConcertSystem(double p, Field field, double maxVelocity, double tau, double minRadius, double maxRadius, double ap, double bp, State initial) {
+	public ConcertSystem(double p, Field field, double maxVelocity, double tau, double minRadius, double maxRadius, State initial) {
 		this.p = p;
 		this.field = field;
 		this.tau = tau;
@@ -34,9 +32,6 @@ public class ConcertSystem implements Iterator<State> {
 		this.minRadius = minRadius;
 		this.maxRadius = maxRadius;
 
-		this.ap = ap;
-		this.bp = bp;
-		
 		this.state = initial;
 		this.dt = minRadius / (2 * maxVelocity);
 	}
