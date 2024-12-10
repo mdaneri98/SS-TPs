@@ -7,7 +7,15 @@ def read_doors(file_path):
     df = pd.read_csv(file_path, skiprows=1, header=None)
     return df.astype(float).values.tolist()
 
-def calculate_circular_density(ct_value, p_value, radius=3):
+def calculate_rk(positions, center, k=5):
+    """
+    Calculate r_k as the distance to the k-th nearest particle from the center
+    """
+    distances = np.sqrt(np.sum((positions - center)**2, axis=1))
+    distances.sort()  # Sort distances in ascending order
+    return distances[k-1] if len(distances) >= k else np.inf
+
+def calculate_circular_density(ct_value, p_value):
     input_path = Path('outputs/probabilistic_analysis') / f't_{ct_value}_&_p_{p_value:.2f}'
     output_path = Path('plots/circular_density') / f't_{ct_value}_&_p_{p_value:.2f}'
     output_path.mkdir(parents=True, exist_ok=True)
@@ -19,14 +27,15 @@ def calculate_circular_density(ct_value, p_value, radius=3):
         print(f"Directory not found: {input_path}")
         return None, None
 
-    # Almacenar datos de todas las simulaciones
+    # Store data from all simulations
     all_sims_densities = []
     all_sims_times = []
+    k = 5  # Constante k según la fórmula
 
-    # Procesar cada simulación
+    # Process each simulation
     for sim_dir in input_path.glob('sim_*'):
         try:
-            # Read door positions (usar la primera simulación como referencia)
+            # Read door positions (use first simulation as reference)
             if len(all_sims_densities) == 0:
                 doors = read_doors(sim_dir / 'doors.csv')
                 door_centers = []
@@ -36,7 +45,6 @@ def calculate_circular_density(ct_value, p_value, radius=3):
                     door_centers.append([center_x, center_y])
                 door_centers = np.array(door_centers)
                 centroid = np.mean(door_centers, axis=0)
-                all_centers = np.vstack([door_centers, centroid])
 
             # Read dynamic data
             dynamic_data = []
@@ -56,20 +64,37 @@ def calculate_circular_density(ct_value, p_value, radius=3):
                 if particles:
                     dynamic_data.append({'time': current_time, 'particles': particles})
 
-            # Calculate densities for each circle
+            # Calculate densities for each circle/semicircle
             times = []
-            circle_densities = [[] for _ in range(len(all_centers))]
+            circle_densities = [[] for _ in range(len(door_centers) + 1)]  # +1 for centroid
+            rk_values = [[] for _ in range(len(door_centers) + 1)]  # Store r_k values for analysis
 
             for state in dynamic_data:
                 times.append(state['time'])
                 positions = np.array([[p[1], p[2]] for p in state['particles']])
 
-                for i, center in enumerate(all_centers):
-                    distances = np.sqrt(np.sum((positions - center)**2, axis=1))
-                    particles_in_circle = np.sum(distances <= radius)
-                    circle_area = np.pi * radius**2
-                    density = particles_in_circle / circle_area
+                # Calculate densities for doors (semicircles)
+                for i, door_center in enumerate(door_centers):
+                    rk = calculate_rk(positions, door_center, k)
+                    rk_values[i].append(rk)
+
+                    if rk != np.inf:
+                        # Usando la fórmula ρ(d) = k/(πr_k²/2) para puertas (semicircunferencia)
+                        density = k / (np.pi * rk**2 / 2)
+                    else:
+                        density = 0
                     circle_densities[i].append(density)
+
+                # Calculate density for centroid (full circle)
+                rk_centroid = calculate_rk(positions, centroid, k)
+                rk_values[-1].append(rk_centroid)
+
+                if rk_centroid != np.inf:
+                    # Para el centroide usamos el área completa: ρ(d) = k/(πr_k²)
+                    density_centroid = k / (np.pi * rk_centroid**2)
+                else:
+                    density_centroid = 0
+                circle_densities[-1].append(density_centroid)
 
             all_sims_densities.append(circle_densities)
             all_sims_times.append(times)
@@ -82,22 +107,22 @@ def calculate_circular_density(ct_value, p_value, radius=3):
         print(f"No valid simulations found for ct={ct_value}, p={p_value}")
         return None, None
 
-    # Encontrar la longitud mínima de tiempo para alinear las simulaciones
+    # Find minimum time length to align simulations
     min_time_len = min(len(t) for t in all_sims_times)
     reference_times = all_sims_times[0][:min_time_len]
 
-    # Alinear todas las simulaciones a la misma longitud
+    # Align all simulations to same length
     aligned_densities = []
     for sim_densities in all_sims_densities:
         aligned_sim = [door_density[:min_time_len] for door_density in sim_densities]
         aligned_densities.append(aligned_sim)
 
-    # Convertir a array para facilitar cálculos
-    densities_array = np.array(aligned_densities)  # [n_sims, n_doors, n_times]
+    # Convert to array for calculations
+    densities_array = np.array(aligned_densities)  # [n_sims, n_doors+1, n_times]
 
-    # Calcular promedio y desviación estándar entre simulaciones
-    mean_densities = np.mean(densities_array, axis=0)  # [n_doors, n_times]
-    std_densities = np.std(densities_array, axis=0)    # [n_doors, n_times]
+    # Calculate mean and standard deviation across simulations
+    mean_densities = np.mean(densities_array, axis=0)  # [n_doors+1, n_times]
+    std_densities = np.std(densities_array, axis=0)    # [n_doors+1, n_times]
 
     # Plot densities over time with error bands
     plt.figure(figsize=(12, 8))
@@ -115,7 +140,7 @@ def calculate_circular_density(ct_value, p_value, radius=3):
                      mean_densities[-1] + std_densities[-1],
                      alpha=0.2)
 
-    plt.title(f'Average Particle Density in Circles\n(ct={ct_value}, p={p_value:.2f}, r={radius})')
+    plt.title(f'Average Particle Density (k={k})\n(ct={ct_value}, p={p_value:.2f})')
     plt.xlabel('Time (s)')
     plt.ylabel('Density (particles/unit area)')
     plt.legend()
@@ -123,7 +148,7 @@ def calculate_circular_density(ct_value, p_value, radius=3):
     plt.savefig(output_path / 'circular_density.png', bbox_inches='tight', dpi=300)
     plt.close()
 
-    # Guardar datos en CSV
+    # Save data to CSV
     data_dict = {'Time': reference_times}
     for i in range(len(door_centers)):
         data_dict[f'Door_{i+1}_Mean'] = mean_densities[i]
@@ -136,11 +161,11 @@ def calculate_circular_density(ct_value, p_value, radius=3):
 
     return reference_times, mean_densities, std_densities
 
-def analyze_circular_density_variation(ct_value, p_value, radius=3):
+def analyze_circular_density_variation(ct_value, p_value):
     output_path = Path('plots/circular_density_variation') / f't_{ct_value}_&_p_{p_value:.2f}'
     output_path.mkdir(parents=True, exist_ok=True)
 
-    times, mean_densities, std_densities = calculate_circular_density(ct_value, p_value, radius)
+    times, mean_densities, std_densities = calculate_circular_density(ct_value, p_value)
     if times is None:
         return
 
@@ -155,7 +180,7 @@ def analyze_circular_density_variation(ct_value, p_value, radius=3):
                      mean_across_circles - std_across_circles,
                      mean_across_circles + std_across_circles,
                      alpha=0.2)
-    plt.title(f'Mean Circular Density over Time\n(ct={ct_value}, p={p_value:.2f}, r={radius})')
+    plt.title(f'Mean Density over Time (k=5)\n(ct={ct_value}, p={p_value:.2f})')
     plt.xlabel('Time (s)')
     plt.ylabel('Average Density')
     plt.grid(True)
@@ -171,11 +196,10 @@ def analyze_circular_density_variation(ct_value, p_value, radius=3):
     stats_df.to_csv(output_path / 'density_variation_stats.csv', index=False)
 
 if __name__ == "__main__":
-    ct_values = [10, 20, 30]  # Valores de ct para analizar
-    p_values = [0.0, 0.5, 1.0]  # Valores de p para analizar
-    radius = 3  # Radio de las circunferencias
+    ct_values = [10, 20, 30]  # ct values to analyze
+    p_values = [0.0, 0.5, 1.0]  # p values to analyze
 
     for ct in ct_values:
         for p in p_values:
-            calculate_circular_density(ct, p, radius)
-            analyze_circular_density_variation(ct, p, radius)
+            calculate_circular_density(ct, p)
+            analyze_circular_density_variation(ct, p)
