@@ -50,8 +50,9 @@ def calculate_door_specific_flow(ct_value, p_value, dt):
             times = []
 
             def get_door_id(particle):
-                # El último valor en particle es el número de puerta
                 return int(particle[6])
+
+            cumulative_counts = {i: 0 for i in range(len(doors))}
 
             for t in time_windows:
                 states_before = [s for s in dynamic_data if s['time'] <= t]
@@ -63,26 +64,20 @@ def calculate_door_specific_flow(ct_value, p_value, dt):
                 state1 = states_before[-1]
                 state2 = states_after[0]
 
-                # Crear conjuntos de IDs de partículas para cada estado
                 particles1 = set(tuple(p) for p in state1['particles'])
                 particles2 = set(tuple(p) for p in state2['particles'])
 
-                # Encontrar partículas que desaparecieron
                 disappeared_particles = particles1 - particles2
 
-                # Contar por puerta
-                door_counts = {i: 0 for i in range(len(doors))}
                 for particle in disappeared_particles:
                     door_id = get_door_id(particle)
-                    door_counts[door_id] += 1
+                    cumulative_counts[door_id] += 1
 
-                # Guardar conteos
                 for door_id in door_flows.keys():
-                    door_flows[door_id].append(door_counts[door_id])
+                    door_flows[door_id].append(cumulative_counts[door_id])
 
                 times.append(t)
 
-            # Store results for this simulation
             for door_id, flows in door_flows.items():
                 if door_id not in all_door_flows:
                     all_door_flows[door_id] = []
@@ -111,22 +106,62 @@ def calculate_door_specific_flow(ct_value, p_value, dt):
                              avg_flow + std_flow,
                              alpha=0.2)
 
-            flow_data[f'Door_{door_id}_Avg_Flow'] = avg_flow
-            flow_data[f'Door_{door_id}_Std_Flow'] = std_flow
+            flow_data[f'Door_{door_id}_Cumulative_Avg'] = avg_flow
+            flow_data[f'Door_{door_id}_Cumulative_Std'] = std_flow
 
         plt.xlabel('Time (s)')
-        plt.ylabel('Number of particles exiting per interval')
-        plt.title(f'Door-Specific Exit Flow\n(ct={ct_value}, p={p_value:.2f}, dt={dt})')
+        plt.ylabel('Cumulative number of particles exited')
+        plt.title(f'Cumulative Door-Specific Exit Flow\n(ct={ct_value}, p={p_value:.2f}, dt={dt})')
         plt.legend()
         plt.grid(True)
-        plt.savefig(output_path / 'door_specific_flows.png', dpi=300, bbox_inches='tight')
+        plt.savefig(output_path / 'cumulative_door_flows.png', dpi=300, bbox_inches='tight')
         plt.close()
 
         flow_df = pd.DataFrame(flow_data)
-        flow_df.to_csv(output_path / 'door_specific_flows.csv', index=False)
+        flow_df.to_csv(output_path / 'cumulative_door_flows.csv', index=False)
+
+    return output_path
+
+def process_multiple_parameters(ct_values, p_values, dt):
+    # Create a figure for comparing all combinations
+    plt.figure(figsize=(15, 10))
+
+    line_styles = ['-', '--', ':', '-.']
+    colors = plt.cm.tab10(np.linspace(0, 1, 10))
+
+    for ct in ct_values:
+        for p in p_values:
+            output_path = calculate_door_specific_flow(ct, p, dt)
+
+            # Read the data for this combination
+            data = pd.read_csv(output_path / 'cumulative_door_flows.csv')
+
+            # Plot only the average values for each door
+            door_columns = [col for col in data.columns if 'Avg' in col]
+            for i, col in enumerate(door_columns):
+                door_id = col.split('_')[1]
+                style_idx = ct_values.index(ct) % len(line_styles)
+                color_idx = p_values.index(p) % len(colors)
+
+                plt.plot(data['Time'], data[col],
+                         linestyle=line_styles[style_idx],
+                         color=colors[color_idx],
+                         label=f'Door {door_id} (ct={ct}, p={p:.2f})')
+
+    plt.xlabel('Time (s)')
+    plt.ylabel('Cumulative number of particles exited')
+    plt.title('Comparison of Cumulative Door-Specific Exit Flows\nfor Different Parameters')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True)
+
+    comparison_path = Path('outputs/door_flows/parameter_comparison')
+    comparison_path.mkdir(parents=True, exist_ok=True)
+    plt.savefig(comparison_path / 'combined_flows_comparison.png',
+                dpi=300, bbox_inches='tight')
+    plt.close()
 
 if __name__ == "__main__":
     dt = 1
-    ct_value = 280  # Especifica el valor de ct que quieres analizar
-    p_value = 0.5  # Especifica el valor de p que quieres analizar
-    calculate_door_specific_flow(ct_value, p_value, dt)
+    ct_values = [10, 20, 30, 40, 50, 60]  # Lista de valores de ct para analizar
+    p_values = [0.0, 0.5, 1.0]  # Lista de valores de p para analizar
+    process_multiple_parameters(ct_values, p_values, dt)
