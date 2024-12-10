@@ -3,15 +3,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
+import re
 
-def analyze_flow_metrics(base_dir='outputs/exits'):
+def extract_params_from_dirname(dirname):
     """
-    Analyze flow metrics for all ct and p combinations and create heatmaps.
-    Returns a dictionary of DataFrames for different metrics.
+    Extrae los valores de ct y p del nombre del directorio usando expresiones regulares.
+    """
+    # Buscar patrones t_X_&_p_Y.ZZ
+    match = re.match(r't_(\d+)_&_p_(\d*\.?\d+)', dirname)
+    if match:
+        ct = int(match.group(1))
+        p = float(match.group(2))
+        return ct, p
+    return None, None
+
+def analyze_flow_metrics(base_dir='outputs/probabilistic_analysis'):
+    """
+    Analiza las métricas de flujo para todas las combinaciones de ct y p encontradas.
     """
     base_path = Path(base_dir)
 
-    # Initialize data storage
+    # Almacenar datos para el análisis
     data = {
         'ct': [],
         'p': [],
@@ -19,95 +31,164 @@ def analyze_flow_metrics(base_dir='outputs/exits'):
         'avg_flow': [],
         'time_to_peak': [],
         'total_time': [],
-        'early_flow': []  # Flow acumulado en primeros 60 segundos
+        'early_flow': []
     }
 
-    # Process each ct & p combination
+    # Procesar cada directorio de simulación
     for combo_dir in base_path.glob('t_*_&_p_*'):
         try:
-            # Extract ct and p from directory name
-            dir_parts = combo_dir.name.split('_')
-            ct = int(dir_parts[1])
-            p = float(dir_parts[3])
-
-            # Find CSV file
-            csv_files = list(combo_dir.glob('door_flow_rates*.csv'))
-            if not csv_files:
+            # Extraer ct y p del nombre del directorio usando el nuevo método
+            ct, p = extract_params_from_dirname(combo_dir.name)
+            if ct is None or p is None:
+                print(f"No se pudieron extraer parámetros del directorio: {combo_dir.name}")
                 continue
 
-            # Read flow data
-            df = pd.read_csv(csv_files[0])
+            print(f"Procesando ct={ct}, p={p:.2f}")
 
-            # Calculate metrics
-            peak_flow = df['Average_Flow'].max()
-            avg_flow = df['Average_Flow'].mean()
-            time_to_peak = df.loc[df['Average_Flow'].idxmax(), 'Time']
-            total_time = df['Time'].max()
+            # Procesar cada simulación en el directorio
+            flow_metrics = []
+            for sim_dir in combo_dir.glob('sim_*'):
+                try:
+                    # Leer datos de partículas
+                    dynamic_file = sim_dir / 'dynamic.txt'
+                    if not dynamic_file.exists():
+                        continue
 
-            # Calculate early flow (first 60 seconds or less if simulation is shorter)
-            early_mask = df['Time'] <= 60
-            early_flow = df.loc[early_mask, 'Average_Flow'].sum()
+                    # Leer y procesar el archivo
+                    times = []
+                    particles = []
+                    current_time = None
 
-            # Store data
-            data['ct'].append(ct)
-            data['p'].append(p)
-            data['peak_flow'].append(peak_flow)
-            data['avg_flow'].append(avg_flow)
-            data['time_to_peak'].append(time_to_peak)
-            data['total_time'].append(total_time)
-            data['early_flow'].append(early_flow)
+                    with open(dynamic_file, 'r') as f:
+                        for line in f:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            try:
+                                # Intentar convertir a timestamp
+                                t = float(line)
+                                if current_time is not None:
+                                    times.append(current_time)
+                                    particles.append(len(current_particles))
+                                current_time = t
+                                current_particles = []
+                            except ValueError:
+                                # Es una línea de partícula
+                                if current_time is not None:
+                                    current_particles.append(line)
+
+                        # Añadir el último conjunto de datos
+                        if current_time is not None and current_particles:
+                            times.append(current_time)
+                            particles.append(len(current_particles))
+
+                    if not times or not particles:
+                        print(f"No se encontraron datos válidos en {sim_dir.name}")
+                        continue
+
+                    # Convertir a arrays de numpy
+                    times = np.array(times)
+                    particles = np.array(particles)
+
+                    # Calcular métricas de flujo
+                    if len(times) > 1:  # Asegurar que hay suficientes puntos para calcular flujos
+                        flows = -np.diff(particles) / np.diff(times)  # Negativo para obtener flujo de salida
+                        if len(flows) > 0:
+                            peak_flow = np.max(flows)
+                            avg_flow = np.mean(flows)
+                            time_to_peak = times[:-1][np.argmax(flows)]
+                            total_time = times[-1]
+
+                            # Calcular flujo temprano (primeros 60s)
+                            early_mask = times[:-1] <= 60
+                            early_flow = np.sum(flows[early_mask]) if any(early_mask) else 0
+
+                            flow_metrics.append({
+                                'peak_flow': peak_flow,
+                                'avg_flow': avg_flow,
+                                'time_to_peak': time_to_peak,
+                                'total_time': total_time,
+                                'early_flow': early_flow
+                            })
+
+                except Exception as e:
+                    print(f"Error procesando simulación {sim_dir.name}: {str(e)}")
+                    continue
+
+            # Si tenemos métricas válidas, calcular promedios y guardar
+            if flow_metrics:
+                data['ct'].append(ct)
+                data['p'].append(p)
+                data['peak_flow'].append(np.mean([m['peak_flow'] for m in flow_metrics]))
+                data['avg_flow'].append(np.mean([m['avg_flow'] for m in flow_metrics]))
+                data['time_to_peak'].append(np.mean([m['time_to_peak'] for m in flow_metrics]))
+                data['total_time'].append(np.mean([m['total_time'] for m in flow_metrics]))
+                data['early_flow'].append(np.mean([m['early_flow'] for m in flow_metrics]))
+            else:
+                print(f"No se encontraron métricas válidas para ct={ct}, p={p:.2f}")
 
         except Exception as e:
-            print(f"Error processing {combo_dir.name}: {str(e)}")
+            print(f"Error procesando directorio {combo_dir.name}: {str(e)}")
+            continue
 
-    # Convert to DataFrame
-    metrics_df = pd.DataFrame(data)
+    # Verificar si tenemos datos
+    if not data['ct']:
+        print("No se encontraron datos válidos para analizar")
+        return None
 
-    # Create heatmaps for each metric
-    metrics = {
-        'peak_flow': 'Peak Flow Rate',
-        'avg_flow': 'Average Flow Rate',
-        'time_to_peak': 'Time to Peak Flow (s)',
-        'total_time': 'Total Evacuation Time (s)',
-        'early_flow': 'Cumulative Flow (60s)'
+    # Crear DataFrame
+    df = pd.DataFrame(data)
+
+    # Crear gráficos
+    metrics = ['peak_flow', 'avg_flow', 'time_to_peak', 'total_time', 'early_flow']
+    titles = {
+        'peak_flow': 'Flujo Máximo (part/s)',
+        'avg_flow': 'Flujo Promedio (part/s)',
+        'time_to_peak': 'Tiempo hasta Flujo Máximo (s)',
+        'total_time': 'Tiempo Total de Evacuación (s)',
+        'early_flow': 'Flujo Acumulado 60s (part)'
     }
 
+    # Crear subplots
     fig, axes = plt.subplots(2, 3, figsize=(15, 10))
     axes = axes.flatten()
 
-    for idx, (metric, title) in enumerate(metrics.items()):
+    for idx, metric in enumerate(metrics):
         if idx >= len(axes):
             break
 
-        # Reshape data for heatmap
-        pivot_data = metrics_df.pivot(index='ct', columns='p', values=metric)
+        # Crear pivot table para el heatmap
+        pivot_data = df.pivot(index='ct', columns='p', values=metric)
 
-        # Create heatmap
+        # Verificar si hay datos válidos
+        if pivot_data.empty or pivot_data.isnull().all().all():
+            print(f"No hay datos válidos para el heatmap de {metric}")
+            continue
+
+        # Crear heatmap
         sns.heatmap(pivot_data,
                     ax=axes[idx],
-                    cmap='viridis',
+                    cmap='viridis' if 'time' not in metric else 'viridis_r',
                     annot=True,
                     fmt='.1f',
                     cbar_kws={'label': metric})
 
-        axes[idx].set_title(title)
-        axes[idx].set_xlabel('Probability (p)')
-        axes[idx].set_ylabel('Contact Time (ct)')
+        axes[idx].set_title(titles[metric])
+        axes[idx].set_xlabel('Probabilidad (p)')
+        axes[idx].set_ylabel('Tiempo de contacto (ct)')
 
-    # Remove extra subplot if any
+    # Eliminar subplot extra si existe
     if len(metrics) < len(axes):
         fig.delaxes(axes[-1])
 
     plt.tight_layout()
-
-    # Save plot
-    output_file = base_path / 'flow_metrics_heatmap.png'
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    plt.savefig('flow_metrics_heatmap.png', dpi=300, bbox_inches='tight')
     plt.close()
 
-    return metrics_df
+    # Guardar datos en CSV
+    df.to_csv('flow_metrics.csv', index=False)
+
+    return df
 
 if __name__ == "__main__":
     metrics_df = analyze_flow_metrics()
-    # Save metrics to CSV
-    metrics_df.to_csv('outputs/exits/flow_metrics_summary.csv', index=False)

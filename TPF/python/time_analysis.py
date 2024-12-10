@@ -15,12 +15,12 @@ def get_evacuation_time(dynamic_file):
         return max(times) if times else 0
 
 def analyze_p_values():
-    base_dir = Path('outputs/times_analysis')
+    base_dir = Path('outputs/probabilistic_analysis')
     p_times = {}
     output_dir = Path('outputs/times')
     output_dir.mkdir(exist_ok=True)
 
-    for p_dir in base_dir.glob('t_*'):
+    for p_dir in base_dir.glob('t_*_&_p_0.50'):
         try:
             p_value = float(p_dir.name.split('_')[1])
             times = []

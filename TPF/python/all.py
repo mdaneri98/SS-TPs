@@ -14,7 +14,7 @@ class SimulationAnalyzer:
         """Inicializa los parámetros basados en static.txt"""
         self.room_width = 30
         self.room_height = 30
-        self.door_width = 1.5
+        self.door_width = 1.0
 
     def read_static_file(self, sim_path):
         """Lee el archivo static.txt con los parámetros de la simulación"""
@@ -508,7 +508,7 @@ def main():
     analyzer = SimulationAnalyzer()
 
     # Definir rangos de parámetros
-    t_values = list(range(5, 251, 5))  # [20, 30, ..., 100]
+    t_values = list(range(5, 61, 1))  # [20, 30, ..., 100]
     p_values = list(np.arange(0, 1.1, 0.1))  # [0.0, 0.1, ..., 1.0]
 
     # Crear directorio para los plots si no existe

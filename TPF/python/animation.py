@@ -170,8 +170,9 @@ def animate_particles(data, output_dir, save_frames=True):
             ax.add_artist(door_line)
             artists.append(door_line)
 
-        # Draw particles with their assigned door colors
+        # Draw particles with colors based on their current door_number
         for particle in frame_data["particles"]:
+            # Get color based on the current frame's door_number
             particle_color = data.get_door_color(particle['doorNumber'])
             circle = plt.Circle((particle['x'], particle['y']),
                                 particle['radius'],
@@ -188,11 +189,20 @@ def animate_particles(data, output_dir, save_frames=True):
                                color='black')
             artists.append(quiver)
 
-        # Add unique door colors to legend
-        handles = [plt.Line2D([0], [0], color=color, linewidth=5)
-                   for color in data.door_color_map.values()]
-        labels = [f'Door {door_id}' for door_id in data.door_color_map.keys()]
-        ax.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.15, 1))
+        # Create legend with all doors that have appeared up to this frame
+        current_door_numbers = set(p['doorNumber'] for p in frame_data["particles"])
+        handles = []
+        labels = []
+
+        # Include all doors that are currently visible
+        for door_id in sorted(current_door_numbers):
+            if door_id >= 0:  # Only include valid door numbers
+                color = data.get_door_color(door_id)
+                handles.append(plt.Line2D([0], [0], color=color, linewidth=5))
+                labels.append(f'Door {door_id}')
+
+        if handles:  # Only add legend if there are items to show
+            ax.legend(handles, labels, loc='upper right', bbox_to_anchor=(1.15, 1))
 
         ax.text(0.02, 0.98,
                 f'Particles: {len(frame_data["particles"])}',
@@ -230,8 +240,8 @@ def main():
         args.save_frames = respuesta.startswith('s')
 
     base_paths = [
-        Path('outputs/heuristic_analysis'),
-        Path('outputs/velocity_analysis'),
+        #Path('outputs/heuristic_analysis'),
+        #Path('outputs/velocity_analysis'),
         Path('outputs/probabilistic_analysis')
     ]
 
@@ -242,7 +252,7 @@ def main():
 
         logging.info(f"Procesando directorio base: {base_dir}")
 
-        pattern = 'ap_*_bp_*' if 'heuristic_analysis' in str(base_dir) else 'v_*' if 'velocity_analysis' in str(base_dir) else 'p_*'
+        pattern = 't_*_p_*'
 
         for analysis_dir in base_dir.glob(pattern):
             if not analysis_dir.is_dir():
@@ -250,7 +260,7 @@ def main():
 
             logging.info(f"Procesando directorio: {analysis_dir}")
 
-            for sim_dir in analysis_dir.glob('sim_*'):
+            for sim_dir in analysis_dir.glob('sim_000'):
                 if not sim_dir.is_dir():
                     continue
 

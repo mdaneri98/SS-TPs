@@ -116,6 +116,6 @@ def calculate_door_flow(ct_value, p_value, dt):
 
 if __name__ == "__main__":
     dt = 1
-    ct_value = 280
+    ct_value = 100
     p_value = 0.5
     calculate_door_flow(ct_value, p_value, dt)
