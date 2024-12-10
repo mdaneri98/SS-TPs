@@ -136,7 +136,7 @@ class UniformityAnalyzer:
         """Genera gráficos para todas las combinaciones analizadas"""
         os.makedirs(output_dir, exist_ok=True)
 
-        # Plot por cada ct con diferentes p
+        # Gráficos originales por cada ct con diferentes p
         for ct in results.keys():
             plt.figure(figsize=(12, 8))
             colors = plt.cm.viridis(np.linspace(0, 1, len(results[ct])))
@@ -151,12 +151,12 @@ class UniformityAnalyzer:
             plt.ylabel('Coeficiente de Uniformidad')
             plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
             plt.grid(True, linestyle='--', alpha=0.7)
-            plt.ylim(0, 1)  # El coeficiente está en [0,1]
+            plt.ylim(0, 1)
             plt.tight_layout()
             plt.savefig(f"{output_dir}/uniformity_ct{ct}.png", bbox_inches='tight', dpi=300)
             plt.close()
 
-        # Plot por cada p con diferentes ct
+        # Gráficos originales por cada p con diferentes ct
         p_results = self._reorganize_results_by_p(results)
         for p in p_results.keys():
             plt.figure(figsize=(12, 8))
@@ -172,10 +172,52 @@ class UniformityAnalyzer:
             plt.ylabel('Coeficiente de Uniformidad')
             plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
             plt.grid(True, linestyle='--', alpha=0.7)
-            plt.ylim(0, 1)  # El coeficiente está en [0,1]
+            plt.ylim(0, 1)
             plt.tight_layout()
             plt.savefig(f"{output_dir}/uniformity_p{p:.2f}.png", bbox_inches='tight', dpi=300)
             plt.close()
+
+        # Nuevo gráfico: Promedio de uniformidad vs ct para cada p
+        plt.figure(figsize=(12, 8))
+        ct_values = sorted(results.keys())
+        p_values = sorted(list(results[ct_values[0]].keys()))
+
+        for p in p_values:
+            avg_uniformities = []
+            for ct in ct_values:
+                if p in results[ct]:
+                    avg_uniformity = np.mean(results[ct][p]['uniformity'])
+                    avg_uniformities.append(avg_uniformity)
+            plt.plot(ct_values, avg_uniformities, 'o-', label=f'p = {p:.2f}')
+
+        plt.title('Promedio del Coeficiente de Uniformidad vs ct')
+        plt.xlabel('ct')
+        plt.ylabel('Promedio del Coeficiente de Uniformidad')
+        plt.legend()
+        plt.grid(True)
+        plt.ylim(0, 1)
+        plt.savefig(f"{output_dir}/avg_uniformity_vs_ct.png", bbox_inches='tight', dpi=300)
+        plt.close()
+
+        # Nuevo gráfico: Promedio de uniformidad vs p para cada ct
+        plt.figure(figsize=(12, 8))
+        for ct in ct_values:
+            avg_uniformities = []
+            p_values_sorted = sorted(results[ct].keys())
+            for p in p_values_sorted:
+                if p in results[ct]:
+                    avg_uniformity = np.mean(results[ct][p]['uniformity'])
+                    avg_uniformities.append(avg_uniformity)
+            plt.plot(p_values_sorted, avg_uniformities, 'o-', label=f'ct = {ct}')
+
+        plt.title('Promedio del Coeficiente de Uniformidad vs p')
+        plt.xlabel('p')
+        plt.ylabel('Promedio del Coeficiente de Uniformidad')
+        plt.legend()
+        plt.grid(True)
+        plt.ylim(0, 1)
+        plt.savefig(f"{output_dir}/avg_uniformity_vs_p.png", bbox_inches='tight', dpi=300)
+        plt.close()
 
     def _reorganize_results_by_p(self, results):
         """Reorganiza los resultados por valor de p para facilitar el plotting"""
@@ -200,8 +242,9 @@ def main():
     analyzer = UniformityAnalyzer()
 
     # Definir parámetros a analizar
-    ct_values = [5, 10, 15, 20, 25, 30, 35, 40]  # Valores de tiempo de redecisión
-    p_values = [0.0, 0.2, 0.5, 0.7, 1.0]  # Valores de probabilidad
+    ct_values = list(range(5, 61))  # De 5 a 60 con paso de 1
+    p_values = [round(p/10, 1) for p in range(0, 11)]  # De 0.0 a 1.0 con paso de 0.1
+
 
     # Analizar todas las combinaciones
     print("Iniciando análisis de uniformidad...")
