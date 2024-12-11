@@ -65,8 +65,8 @@ class DensityAnalyzer:
         # Generar el gráfico
         plt.figure(figsize=(10, 6))
         plt.plot(t_values, densities, marker='o', color='red', linewidth=2)
-        plt.title(f'Densidad Media vs t (p = {p_value})')
-        plt.xlabel('t (Tiempo de Redecisión)')
+        #plt.title(f'Densidad Media vs t (p = {p_value})')
+        plt.xlabel('ct (Tiempo de Redecisión)')
         plt.ylabel('Densidad Media (partículas/m²)')
         plt.grid(True, linestyle='--', alpha=0.7)
 

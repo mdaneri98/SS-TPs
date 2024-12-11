@@ -123,7 +123,7 @@ class FlowRateAnalyzer:
                          label=f'ct = {ct}',
                          color=color)
 
-            plt.title(f'Caudal vs Tiempo (p = {p:.2f})')
+            #plt.title(f'Caudal vs Tiempo (p = {p:.2f})')
             plt.xlabel('Tiempo (s)')
             plt.ylabel('Caudal (partículas/s)')
             plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')

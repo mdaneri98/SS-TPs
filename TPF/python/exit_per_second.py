@@ -155,11 +155,11 @@ def calculate_door_flow(ct_value, p_value, dt):
 
     plt.xlabel('Time (s)')
     plt.ylabel('Flow Rate (particles/s)')
-    plt.title(f'Door Flow Rates\n(ct = {ct_value}, p = {p_value:.2f}, dt = {dt})')
+    #plt.title(f'Door Flow Rates\n(ct = {ct_value}, p = {p_value:.2f}, dt = {dt})')
     plt.legend()
     plt.grid(True)
 
-    output_file = output_path / 'door_flow_rates.png'
+    output_file = output_path / f'door_flow_rates_t_{ct_value}_&_p_{p_value:.2f}.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     plt.close()
 
