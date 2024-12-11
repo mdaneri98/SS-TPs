@@ -98,8 +98,8 @@ class FlowRateAnalyzer:
             plt.plot(data['times'], data['flow_rates'],
                      label=f't = {t}',
                      color=color)
-            plt.axhline(y=data['mean_flow_rate'], color=color, linestyle='--', alpha=0.7,
-                        label=f'Mean (t = {t}): {data["mean_flow_rate"]:.2f}')
+            #plt.axhline(y=data['mean_flow_rate'], color=color, linestyle='--', alpha=0.7,
+             #           label=f'Mean (t = {t}): {data["mean_flow_rate"]:.2f}')
 
         plt.title(f'Caudal vs Tiempo (p = {p_value})')
         plt.xlabel('Tiempo (s)')
@@ -115,8 +115,8 @@ def main():
     analyzer = FlowRateAnalyzer()
 
     # Valor fijo de p y valores seleccionados de t
-    p_value = 0.90
-    selected_t_values = [30, 60, 90, 120]  # Valores específicos de t para analizar
+    p_value = 0.50
+    selected_t_values = [15, 25, 35, 45]  # Valores específicos de t para analizar
 
     # Analizar caudal para p fijo
     print(f"Iniciando análisis para p = {p_value}...")
