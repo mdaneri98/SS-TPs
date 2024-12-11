@@ -162,7 +162,7 @@ def main():
 
     # Definir parámetros a analizar
     t_values = [5, 15, 25, 35, 45, 55]  # Valores de tiempo de redecisión
-    p_values = [0.1, 0.3, 0.5, 0.7, 0.9]  # Valores de probabilidad
+    p_values = [0.0, 0.3, 0.5, 0.7, 1.00]  # Valores de probabilidad
 
     # Analizar densidades
     print("Analizando densidades...")
