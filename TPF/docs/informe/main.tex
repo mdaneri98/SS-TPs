@@ -142,15 +142,6 @@ r_{\text{min}} & \text{si hay colisión} \\\\
 \end{cases}
 \end{equation}
 
-Los parámetros del modelo son:
-\begin{align}
-r_{\text{min}} &= 0.15\text{ m} \\
-r_{\text{max}} &= 0.35\text{ m} \\
-v_{\text{max}} &= 1.0\text{ m/s} \\
-\beta &= 0.9 \\
-\tau &= 0.5\text{ s}
-\end{align}
-
 \subsection{Heurística de Navegación}
 La elección de la puerta de salida para cada partícula se basa en la siguiente ecuación:
 
@@ -331,21 +322,21 @@ U(t) = 1 - \frac{\sigma(t)}{\mu(t)}
 A continuación se muestran frames de aniamciones características del sistema, en donde se varía el parámetro de ponderación $p$.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{img/frames/t_20_&_p_0.00.jpg}
+\includegraphics[width=0.6\textwidth]{img/frames/t_20_&_p_0.00.jpg}
 \caption{Estado inicial para $p=0.00$}
 \label{fig:evac_time_ct}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{img/frames/t_20_&_p_0.50.jpg}
+\includegraphics[width=0.6\textwidth]{img/frames/t_20_&_p_0.50.jpg}
 \caption{Estado inicial para $p=0.50$}
 \label{fig:evac_time_ct}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{img/frames/t_20_&_p_1.00.jpg}
+\includegraphics[width=0.6\textwidth]{img/frames/t_20_&_p_1.00.jpg}
 \caption{Estado inicial para $p=1.00$}
 \label{fig:evac_time_ct}
 \end{figure}
@@ -526,6 +517,30 @@ Se analizaron tres escenarios diferentes variando el parámetro $p$ de la heurí
     \label{fig:flow_p100}
 \end{figure}
 Podemos observar que a medida que aumenta el parámetro de ponderación $p$, haciendo que la distancia se vuelva más importante en la elección, el coeficiente de uniformidad decae. Esto se debe a que si la distancia es cada vez más relevante, los agentes se dirigirán a la puerta más cercana sin importar la densidad en la misma, haciendo que las puertas mas lejanas queden sin densidad, por lo que las puertas no se utilizan de manera pareja. Por el contrario, cuando la densidad se torna más relevante que la distancia, las partículas se distribuyen de manera más uniforme entre las puertas, ya que la densidad va cambiando y eso hace que ellas cambien la puerta elegida también. Es por eso que el coeficiente aumenta para estos casos.
+
+\subsection{Estados de las animaciones para distintos $ct$}
+
+A continuación se muestran frames de aniamciones características del sistema, en donde se varía el parámetro de ponderación $ct$, dejando fijo $p = 0.5$
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{img/frames/t_20_&_p_0.50_middle.jpg}
+\caption{Estado inicial para $ct=20$}
+\label{fig:evac_time_ct}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{img/frames/t_40_&_p_0.50_middle.jpg}
+\caption{Estado inicial para $ct=40$}
+\label{fig:evac_time_ct}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{img/frames/t_60_&_p_0.50_middle.jpg}
+\caption{Estado inicial para $p=60$}
+\label{fig:evac_time_ct}
+\end{figure}
 
 \subsection{Análisis del Tiempo de Evacuación en función del Tiempo de Re-decisión}
 \begin{figure}[H]
