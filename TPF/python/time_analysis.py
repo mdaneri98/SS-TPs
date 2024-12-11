@@ -48,12 +48,12 @@ def analyze_p_values():
     stds = [np.std(p_times[p]) for p in p_values]
 
     ax.errorbar(p_values, means, yerr=stds, fmt='o-', capsize=5)
-    ax.set_xlabel('ct value')
-    ax.set_ylabel('Evacuation Time (s)')
-    ax.set_title('Average Evacuation Time vs ct Value')
+    ax.set_xlabel('ct (s)')
+    ax.set_ylabel('Tiempo de evacuación (s)')
+    #ax.set_title('Average Evacuation Time vs ct Value')
     ax.grid(True)
 
-    plt.savefig(output_dir / 'evacuation_times.png')
+    plt.savefig(output_dir / f'evacuation_times_p_{p_value:.2f}.png')
 
     results_df = pd.DataFrame({
         'p_value': p_values,

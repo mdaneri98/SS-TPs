@@ -140,12 +140,12 @@ def calculate_circular_density(ct_value, p_value):
                      mean_densities[-1] + std_densities[-1],
                      alpha=0.2)
 
-    plt.title(f'Average Particle Density (k={k})\n(ct={ct_value}, p={p_value:.2f})')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Density (particles/unit area)')
+    #plt.title(f'Average Particle Density (k={k})\n(ct={ct_value}, p={p_value:.2f})')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Densidad (particulas/area)')
     plt.legend()
     plt.grid(True)
-    plt.savefig(output_path / 'circular_density.png', bbox_inches='tight', dpi=300)
+    plt.savefig(output_path / f'circular_density_t_{ct_value:.2f}_&_p_{p_value:2.f}.png', bbox_inches='tight', dpi=300)
     plt.close()
 
     # Save data to CSV
@@ -180,7 +180,7 @@ def analyze_circular_density_variation(ct_value, p_value):
                      mean_across_circles - std_across_circles,
                      mean_across_circles + std_across_circles,
                      alpha=0.2)
-    plt.title(f'Mean Density over Time (k=5)\n(ct={ct_value}, p={p_value:.2f})')
+    #plt.title(f'Mean Density over Time (k=5)\n(ct={ct_value}, p={p_value:.2f})')
     plt.xlabel('Time (s)')
     plt.ylabel('Average Density')
     plt.grid(True)

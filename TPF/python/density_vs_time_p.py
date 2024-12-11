@@ -146,7 +146,7 @@ class DensityAnalyzer:
             for p_value, data in filtered_results.items():
                 plt.plot(data['times'], data['total_density'], label=f'p = {p_value:.2f}')
 
-            plt.title(f'Densidad Total vs Tiempo (ct = {t_value})')
+         #   plt.title(f'Densidad Total vs Tiempo (ct = {t_value})')
             plt.xlabel('Tiempo (s)')
             plt.ylabel('Densidad Total (partículas/m²)')
             plt.legend(title="Valores de p")

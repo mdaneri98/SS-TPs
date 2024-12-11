@@ -147,8 +147,8 @@ class DensityAnalyzer:
         # Generar el gráfico
         plt.figure(figsize=(10, 6))
         plt.plot(p_values, densities, marker='o', color='blue', linewidth=2)
-        plt.title(f'Densidad Media vs p (t = {t_value})')
-        plt.xlabel('p (Probabilidad)')
+        #plt.title(f'Densidad Media vs p (t = {t_value})')
+        plt.xlabel('p')
         plt.ylabel('Densidad Media (partículas/m²)')
         plt.grid(True, linestyle='--', alpha=0.7)
 
@@ -161,8 +161,8 @@ def main():
     analyzer = DensityAnalyzer()
 
     # Definir parámetros a analizar
-    t_values = [45]  # Valores de tiempo de redecisión
-    p_values = [0.1, 0.4, 0.7, 1.00]  # Valores de probabilidad
+    t_values = [45, 50]  # Valores de tiempo de redecisión
+    p_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.00]  # Valores de probabilidad
 
     # Analizar densidades
     print("Analizando densidades...")

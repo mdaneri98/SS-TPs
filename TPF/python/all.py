@@ -372,7 +372,7 @@ class SimulationAnalyzer:
             plt.figure(figsize=(10, 6))
             for flow_data in results['flow_rates']:
                 plt.plot(flow_data['time_points'], flow_data['q_instantaneous'], alpha=0.3)
-            plt.title(f"Caudal instantáneo (t={results['t_value']}, p={results['p_value']})")
+            #plt.title(f"Caudal instantáneo (t={results['t_value']}, p={results['p_value']})")
             plt.xlabel("Tiempo (s)")
             plt.ylabel("Caudal (partículas/s)")
             plt.savefig(f"{output_dir}/flow_rates_t{results['t_value']}_p{results['p_value']}.png")
@@ -383,7 +383,7 @@ class SimulationAnalyzer:
             plt.figure(figsize=(10, 6))
             for density_data in results['densities']:
                 plt.plot(density_data['times'], density_data['densities'], alpha=0.3)
-            plt.title(f"Densidad media (t={results['t_value']}, p={results['p_value']})")
+            #plt.title(f"Densidad media (t={results['t_value']}, p={results['p_value']})")
             plt.xlabel("Tiempo (s)")
             plt.ylabel("Densidad (partículas)")
 
@@ -396,7 +396,7 @@ class SimulationAnalyzer:
             plt.figure(figsize=(10, 6))
             for unif_data in results['uniformity']:
                 plt.plot(unif_data['times'], unif_data['uniformity'], alpha=0.3)
-            plt.title(f"Coeficiente de uniformidad (t={results['t_value']}, p={results['p_value']})")
+            #plt.title(f"Coeficiente de uniformidad (t={results['t_value']}, p={results['p_value']})")
             plt.xlabel("Tiempo (s)")
             plt.ylabel("Uniformidad")
             plt.savefig(f"{output_dir}/uniformity_t{results['t_value']}_p{results['p_value']}.png")

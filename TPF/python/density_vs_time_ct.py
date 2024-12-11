@@ -138,7 +138,7 @@ class DensityAnalyzer:
         for t_value, data in results.items():
             plt.plot(data['times'], data['total_density'], label=f't = {t_value}')
 
-        plt.title(f'Densidad Total vs Tiempo (p = {p_value:.2f})')
+        #plt.title(f'Densidad Total vs Tiempo (p = {p_value:.2f})')
         plt.xlabel('Tiempo (s)')
         plt.ylabel('Densidad Total (partículas/m²)')
         plt.legend(title="Valores de t")
@@ -153,7 +153,7 @@ def main():
     analyzer = DensityAnalyzer()
 
     # Definir parámetros a analizar
-    t_values = [5, 10, 15, 20, 25, 30]  # Valores de tiempo de redecisión
+    t_values = [5, 10, 15, 20, 25, 30, 45]  # Valores de tiempo de redecisión
     p_value = 0.5  # Valor fijo de probabilidad
 
     # Analizar densidades

@@ -109,12 +109,12 @@ def calculate_door_specific_flow(ct_value, p_value, dt):
             flow_data[f'Door_{door_id}_Cumulative_Avg'] = avg_flow
             flow_data[f'Door_{door_id}_Cumulative_Std'] = std_flow
 
-        plt.xlabel('Time (s)')
-        plt.ylabel('Cumulative number of particles exited')
-        plt.title(f'Cumulative Door-Specific Exit Flow\n(ct={ct_value}, p={p_value:.2f}, dt={dt})')
+        plt.xlabel('Tiempo (s)')
+        plt.ylabel('Número de particulas fuera del recinto acumulado')
+        #plt.title(f'Cumulative Door-Specific Exit Flow\n(ct={ct_value}, p={p_value:.2f}, dt={dt})')
         plt.legend()
         plt.grid(True)
-        plt.savefig(output_path / 'cumulative_door_flows.png', dpi=300, bbox_inches='tight')
+        plt.savefig(output_path / f'cumulative_door_flows_t_{ct_value}_&_p_{p_value}.png', dpi=300, bbox_inches='tight')
         plt.close()
 
         flow_df = pd.DataFrame(flow_data)
@@ -162,6 +162,6 @@ def process_multiple_parameters(ct_values, p_values, dt):
 
 if __name__ == "__main__":
     dt = 1
-    ct_values = [5, 15, 25, 35, 45, 55]  # Lista de valores de ct para analizar
+    ct_values = [5, 15, 20, 25, 35, 45, 55]  # Lista de valores de ct para analizar
     p_values = [0.0, 0.5, 1.0]  # Lista de valores de p para analizar
     process_multiple_parameters(ct_values, p_values, dt)
