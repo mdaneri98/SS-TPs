@@ -592,7 +592,11 @@ Se puede observar que a medida que aumenta el tiempo de re-decisión ($ct$), los
 Se puede ver que a medida que aumentamos el tiempo de re-decisión, el coeficiente de uniformidad disminuye. Esto se debe a que al volver a evaluar la elección de la puerta cada un tiempo alto, los agentes no reaccionan tanto a los cambios en la densidad de las puertas, por ende se van agrupando y no se reorganizan rápidamente si las densidades en las demás puertas varían. Por el contrario, si el tiempo de re-decisión es mas pequeño, las partículas notan rápidamente los cambios en las densidades de las puertas y pueden cambiar su elección para salir de forma más ordenada y utilizar las puertas por igual.
 
 \section{Conclusiones}
-[Sección para completar con las conclusiones]
+
+Los resultados muestran que cuando el sistema prioriza la distancia (p → 1), se obtienen tiempos de evacuación más cortos, aproximadamente 80 segundos, pero a costa de una marcada congestión en las salidas más cercanas y una distribución desigual del flujo. En contraste, cuando el sistema prioriza la densidad (p → 0), los tiempos de evacuación se extienden hasta aproximadamente 250 segundos, pero se logra una distribución más equilibrada entre las salidas y una menor congestión en cada puerta individual.
+El tiempo de re-decisión también juega un papel crucial en la dinámica del sistema. Intervalos cortos de re-decisión promueven una mayor uniformidad en el uso de las salidas, pero pueden resultar en evacuaciones más lentas debido al constante cambio de objetivo por parte de los agentes. Por otro lado, tiempos más largos de re-decisión conducen a evacuaciones más rápidas pero con mayor concentración en ciertas salidas.
+Los resultados sugieren que un valor intermedio del parámetro de ponderación (p ≈ 0.5) ofrece el mejor compromiso entre tiempo total de evacuación, uniformidad en el uso de salidas y niveles de congestión manejables. Esta configuración permite que los agentes consideren tanto la proximidad de las salidas como la densidad de personas en cada una, resultando en un comportamiento más equilibrado.
+La elección óptima de los parámetros dependerá de los objetivos específicos: minimizar el tiempo total de evacuación, evitar congestiones, o lograr un balance entre ambos aspectos.
 
 \section{Referencias}
 [1] Baglietto, G., Parisi, D. R. (2011). Continuous-space automaton model for pedestrian dynamics. Physical Review E, 83(5), 056117.

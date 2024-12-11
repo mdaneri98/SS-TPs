@@ -337,6 +337,10 @@
 
 \section{Resultados}
 
+\begin{frame}
+    \frametitle{Animaciones variando $p$}
+\end{frame}
+
 \begin{frame}{Análisis del tiempo de evacuación en función de $p$, con $ct=45$}
     \begin{figure}
         \centering
@@ -456,6 +460,10 @@
     \end{figure}
 \end{frame}
 
+\begin{frame}
+    \frametitle{Animaciones variando $ct$}
+\end{frame}
+
 \begin{frame}{Análisis del Tiempo de Evacuación en función del Tiempo de Re-decisión}
     \begin{figure}[H]
         \centering
@@ -505,24 +513,26 @@
 
 \section{Conclusiones}
 
-\begin{frame}{Conclusiones}
+\begin{frame}
+    \frametitle{Conclusiones}
+    
     \begin{itemize}
-        \item La priorización de distancia ($p=1.00$):
+        \item Factor de ponderación (p):
         \begin{itemize}
-            \item Evacuaciones más rápidas
-            \item Mayor congestión en salidas cercanas
+            \item p → 1: evacuaciones más rápidas (~80s) pero mayor congestión
+            \item p → 0: mejor distribución pero evacuaciones más lentas (~250s)
         \end{itemize}
-        \item Balance distancia-densidad ($p=0.50$):
+        \item Tiempo de re-decisión (ct):
         \begin{itemize}
-            \item Distribución más uniforme del flujo
-            \item Tiempo de evacuación moderado
+            \item ct bajo: mejor uso de todas las salidas
+            \item ct alto: evacuaciones más rápidas pero mayor concentración
         \end{itemize}
-        \item Priorización de densidad ($p=0.00$):
+        \item Balance óptimo:
         \begin{itemize}
-            \item Evacuaciones más lentas
-            \item Menor congestión en salidas
+            \item p = 0.5 ofrece mejor compromiso entre tiempo y congestión
+            \item Equilibrio entre proximidad de salidas y densidad de personas
         \end{itemize}
-    \end{itemize}
+    \end{itemize}    
 \end{frame}
 
 \end{document}
