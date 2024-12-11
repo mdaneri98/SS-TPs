@@ -14,28 +14,25 @@ def get_evacuation_time(directory):
     if not os.path.exists(dynamic_file):
         return None
 
-    times = []
+    last_time_with_particles = None
     current_time = None
-    particles_present = False
 
     with open(dynamic_file, 'r') as f:
         for line in f:
             line = line.strip()
-            # Try to parse as float (time)
-            try:
-                current_time = float(line)
-                if particles_present:
-                    times.append(current_time)
-                particles_present = False
-            except ValueError:
-                # Line contains particle data
-                particles_present = True
+            if ',' not in line:  # Es una línea de tiempo
+                try:
+                    current_time = float(line)
+                except ValueError:
+                    continue
+            else:  # Es una línea de partícula
+                last_time_with_particles = current_time
 
-    return max(times) if times else None
+    return last_time_with_particles
 
 def create_evacuation_heatmap():
     """
-    Create a heatmap of evacuation times based on p and ct parameters
+    Create a heatmap of maximum evacuation times based on p and ct parameters
     """
     # Get the current working directory and construct the path
     current_dir = Path.cwd()
@@ -61,17 +58,20 @@ def create_evacuation_heatmap():
                 p = float(parts[1].split('_')[1])
 
                 # Process all simulations for this parameter combination
-                evac_times = []
+                max_evac_time = 0  # Initialize with 0
                 for sim_path in dir_path.glob('sim_*'):
                     if sim_path.is_dir():
                         evac_time = get_evacuation_time(sim_path)
                         if evac_time is not None:
-                            evac_times.append(evac_time)
+                            max_evac_time = max(max_evac_time, evac_time)
 
-                if evac_times:
-                    # Calculate average evacuation time for this parameter combination
-                    avg_time = np.mean(evac_times)
-                    data.append({'ct': ct, 'p': p, 'evacuation_time': avg_time})
+                if max_evac_time > 0:  # Solo agregar si encontramos datos válidos
+                    data.append({
+                        'ct': ct,
+                        'p': p,
+                        'evacuation_time': max_evac_time
+                    })
+
             except (IndexError, ValueError) as e:
                 print(f"Error processing directory {dir_name}: {e}")
 
@@ -95,16 +95,16 @@ def create_evacuation_heatmap():
                 cmap='YlOrRd',  # Higher values are red
                 annot=True,
                 fmt='.1f',
-                cbar_kws={'label': 'Evacuation Time (seconds)'},
-                xticklabels=True)  # Show x-axis labels
+                cbar_kws={'label': 'Maximum Evacuation Time (seconds)'},
+                xticklabels=True)
 
-    plt.title('Average Evacuation Time by Critical Time (ct) and Probability (p)')
+    plt.title('Maximum Evacuation Time by Critical Time (ct) and Probability (p)')
     plt.xlabel('Probability (p)')
     plt.ylabel('Critical Time (ct)')
 
     # Create output directories
     output_dir = current_dir / 'plots' / 'p_vs_ct'
-    output_dir.mkdir(parents=True, exist_ok=True)  # Crear toda la estructura de directorios
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save plot
     output_path = output_dir / 'evacuation_heatmap.png'

@@ -17,7 +17,7 @@ def get_evacuation_time(dynamic_file):
 def analyze_p_values():
     base_dir = Path('outputs/probabilistic_analysis')
     p_times = {}
-    output_dir = Path('outputs/times')
+    output_dir = Path('plots/times')
     output_dir.mkdir(exist_ok=True)
 
     for p_dir in base_dir.glob('t_*_&_p_0.50'):
