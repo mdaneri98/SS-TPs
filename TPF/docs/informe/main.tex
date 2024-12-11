@@ -393,7 +393,7 @@ Este análisis revela que mientras la priorización de la distancia ($p=1.00$) r
 
 Se analizó el flujo de partículas (caudal) para diferentes valores del parámetro $p$ manteniendo constante el tiempo de re-decisión ($ct=20s$). Los resultados muestran patrones característicos para cada configuración:
 
-\subsubsection{Caudal en función de $p$}
+\subsubsection{Caudal variando $p$}
 
 \begin{figure}[H]
     \centering
@@ -435,7 +435,7 @@ Cuando los agentes priorizan exclusivamente la densidad ($p = 0.00$), se observa
 
 Esta comparación revela que la priorización de la distancia ($p = 1.00$) resulta en una evacuación más rápida pero potencialmente congestionada, mientras que la priorización de la densidad ($p = 0.00$) produce una evacuación más lenta pero con menor congestión en las salidas. El caso intermedio ($p = 0.50$) representa un compromiso entre velocidad de evacuación y distribución del flujo.
 
-\subsubsection{Densidad en función de $p$}
+\subsubsection{Densidad variando $p$}
 
 \begin{figure}[H]
     \centering
@@ -593,9 +593,8 @@ Se puede ver que a medida que aumentamos el tiempo de re-decisión, el coeficien
 
 \section{Conclusiones}
 
-Los resultados muestran que cuando el sistema prioriza la distancia (p → 1), se obtienen tiempos de evacuación más cortos, aproximadamente 80 segundos, pero a costa de una marcada congestión en las salidas más cercanas y una distribución desigual del flujo. En contraste, cuando el sistema prioriza la densidad (p → 0), los tiempos de evacuación se extienden hasta aproximadamente 250 segundos, pero se logra una distribución más equilibrada entre las salidas y una menor congestión en cada puerta individual.
-El tiempo de re-decisión también juega un papel crucial en la dinámica del sistema. Intervalos cortos de re-decisión promueven una mayor uniformidad en el uso de las salidas, pero pueden resultar en evacuaciones más lentas debido al constante cambio de objetivo por parte de los agentes. Por otro lado, tiempos más largos de re-decisión conducen a evacuaciones más rápidas pero con mayor concentración en ciertas salidas.
-Los resultados sugieren que un valor intermedio del parámetro de ponderación (p ≈ 0.5) ofrece el mejor compromiso entre tiempo total de evacuación, uniformidad en el uso de salidas y niveles de congestión manejables. Esta configuración permite que los agentes consideren tanto la proximidad de las salidas como la densidad de personas en cada una, resultando en un comportamiento más equilibrado.
+Los resultados sugieren que un valor intermedio del parámetro de ponderación ($p \approx 0.5$) ofrece el mejor compromiso entre tiempo total de evacuación, uniformidad en el uso de salidas y niveles de congestión manejables. Esta configuración permite que los agentes consideren tanto la proximidad de las salidas como la densidad de personas en cada una, resultando en un comportamiento más equilibrado.
+
 La elección óptima de los parámetros dependerá de los objetivos específicos: minimizar el tiempo total de evacuación, evitar congestiones, o lograr un balance entre ambos aspectos.
 
 \section{Referencias}
