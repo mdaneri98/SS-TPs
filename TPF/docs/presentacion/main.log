@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.20)  11 DEC 2024 16:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.20)  11 DEC 2024 17:39
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex"
-(/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex
+**"/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex"
+(/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
 (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamer.cls
@@ -718,7 +718,7 @@ File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \tikz@expandcount=\count384
  (/usr/local/texlive/2024/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
-))) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerthemeMadrid.sty (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamercolorthemewhale.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamercolorthemeorchid.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerinnerthemerounded.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerouterthemeinfolines.sty)) (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.aux
+))) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerthemeMadrid.sty (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamercolorthemewhale.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamercolorthemeorchid.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerinnerthemerounded.sty) (/usr/local/texlive/2024/texmf-dist/tex/latex/beamer/beamerouterthemeinfolines.sty)) (./main.aux
 LaTeX Info: Redefining \. on input line 16.
 LaTeX Info: Redefining \% on input line 16.
 
@@ -813,7 +813,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package hyperref Info: Link coloring OFF on input line 65.
- (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.out) (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.out)
+ (./main.out) (./main.out)
 \@outlinefile=\write5
 \openout5 = `main.out'.
 
@@ -881,7 +881,7 @@ Dictionary: translator-theorem-dictionary, Language: English
 )
 LaTeX Info: Redefining \. on input line 65.
 LaTeX Info: Redefining \% on input line 65.
- (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.nav)
+ (./main.nav)
 <img/Logo.png, id=49, 1505.625pt x 499.8675pt>
 File: img/Logo.png Graphic file (type png)
 <use img/Logo.png>
@@ -889,7 +889,7 @@ Package pdftex.def Info: img/Logo.png  used on input line 74.
 (pdftex.def)             Requested size: 130.00452pt x 43.15556pt.
  [1
 
-{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map} </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/Logo.png>] (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.toc
+{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./img/Logo.png>] (./main.toc
 LaTeX Info: Redefining \. on input line 1.
 LaTeX Info: Redefining \% on input line 1.
 ) [2
@@ -916,7 +916,7 @@ Overfull \vbox (29.01257pt too high) detected at line 110
 
 [6
 
-{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/frames/t_40_&_p_0.50.jpg>]
+{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./img/frames/t_40_&_p_0.50.jpg>]
 LaTeX Font Info:    Trying to load font information for U+msa on input line 122.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -970,7 +970,7 @@ Overfull \vbox (10.05928pt too high) detected at line 222
 
 [13
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/UML.jpg>] [14
+ <./img/UML.jpg>] [14
 
 ]
 
@@ -1003,31 +1003,31 @@ LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <14.4> not available
 (Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 346.
  [23
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/evacuation_times_t_45.png>]
-<img/cumulative_door_flows_t_20_&_p_1.00.png, id=326, 733.0587pt x 408.0846pt>
+ <./img/evacuation_times_t_45.png>]
+<img/cumulative_door_flows_t_20_&_p_1.00.png, id=326, 733.5405pt x 379.4175pt>
 File: img/cumulative_door_flows_t_20_&_p_1.00.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_1.00.png>
 Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_1.00.png  used on input line 354.
-(pdftex.def)             Requested size: 260.00905pt x 144.74338pt.
+(pdftex.def)             Requested size: 260.00905pt x 134.48862pt.
  [24
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/cumulative_door_flows_t_20_&_p_1.00.png>]
-<img/cumulative_door_flows_t_20_&_p_0.50.png, id=338, 733.0587pt x 408.0846pt>
+ <./img/cumulative_door_flows_t_20_&_p_1.00.png>]
+<img/cumulative_door_flows_t_20_&_p_0.50.png, id=338, 733.5405pt x 379.4175pt>
 File: img/cumulative_door_flows_t_20_&_p_0.50.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_0.50.png>
 Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.50.png  used on input line 362.
-(pdftex.def)             Requested size: 260.00905pt x 144.74338pt.
+(pdftex.def)             Requested size: 260.00905pt x 134.48862pt.
  [25
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/cumulative_door_flows_t_20_&_p_0.50.png>]
-<img/cumulative_door_flows_t_20_&_p_0.00.png, id=349, 733.0587pt x 408.0846pt>
+ <./img/cumulative_door_flows_t_20_&_p_0.50.png>]
+<img/cumulative_door_flows_t_20_&_p_0.00.png, id=349, 733.5405pt x 383.031pt>
 File: img/cumulative_door_flows_t_20_&_p_0.00.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_0.00.png>
 Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.00.png  used on input line 370.
-(pdftex.def)             Requested size: 260.00905pt x 144.74338pt.
+(pdftex.def)             Requested size: 260.00905pt x 135.76947pt.
  [26
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/cumulative_door_flows_t_20_&_p_0.00.png>]
+ <./img/cumulative_door_flows_t_20_&_p_0.00.png>]
 <img/caudal_vs_time_t45.png, id=359, 860.9766pt x 569.7285pt>
 File: img/caudal_vs_time_t45.png Graphic file (type png)
 <use img/caudal_vs_time_t45.png>
@@ -1035,83 +1035,83 @@ Package pdftex.def Info: img/caudal_vs_time_t45.png  used on input line 378.
 (pdftex.def)             Requested size: 260.00905pt x 172.05pt.
  [27
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/caudal_vs_time_t45.png>]
-<img/door_flow_rates_t_20_&_p_1.00.png, id=369, 731.8542pt x 408.0846pt>
+ <./img/caudal_vs_time_t45.png>]
+<img/door_flow_rates_t_20_&_p_1.00.png, id=369, 731.8542pt x 382.0674pt>
 File: img/door_flow_rates_t_20_&_p_1.00.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_1.00.png>
 Package pdftex.def Info: img/door_flow_rates_t_20_&_p_1.00.png  used on input line 386.
-(pdftex.def)             Requested size: 260.00905pt x 144.98001pt.
+(pdftex.def)             Requested size: 260.00905pt x 135.7369pt.
  [28
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/door_flow_rates_t_20_&_p_1.00.png>]
-<img/door_flow_rates_t_20_&_p_0.50.png, id=379, 723.6636pt x 408.0846pt>
+ <./img/door_flow_rates_t_20_&_p_1.00.png>]
+<img/door_flow_rates_t_20_&_p_0.50.png, id=379, 723.6636pt x 379.4175pt>
 File: img/door_flow_rates_t_20_&_p_0.50.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_0.50.png>
 Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.50.png  used on input line 394.
-(pdftex.def)             Requested size: 260.00905pt x 146.6239pt.
+(pdftex.def)             Requested size: 260.00905pt x 136.32387pt.
  [29
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/door_flow_rates_t_20_&_p_0.50.png>]
-<img/door_flow_rates_t_20_&_p_0.00.png, id=389, 731.8542pt x 408.0846pt>
+ <./img/door_flow_rates_t_20_&_p_0.50.png>]
+<img/door_flow_rates_t_20_&_p_0.00.png, id=389, 731.8542pt x 379.4175pt>
 File: img/door_flow_rates_t_20_&_p_0.00.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_0.00.png>
 Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.00.png  used on input line 402.
-(pdftex.def)             Requested size: 260.00905pt x 144.98001pt.
+(pdftex.def)             Requested size: 260.00905pt x 134.79546pt.
  [30
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/door_flow_rates_t_20_&_p_0.00.png>]
-<img/density_vs_time_t45.png, id=399, 860.013pt x 425.1885pt>
+ <./img/door_flow_rates_t_20_&_p_0.00.png>]
+<img/density_vs_time_t45.png, id=399, 860.013pt x 426.1521pt>
 File: img/density_vs_time_t45.png Graphic file (type png)
 <use img/density_vs_time_t45.png>
 Package pdftex.def Info: img/density_vs_time_t45.png  used on input line 412.
-(pdftex.def)             Requested size: 260.00905pt x 128.54369pt.
+(pdftex.def)             Requested size: 260.00905pt x 128.83499pt.
  [31
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/density_vs_time_t45.png>]
-<img/average_density_t45.png, id=411, 715.473pt x 425.1885pt>
+ <./img/density_vs_time_t45.png>]
+<img/average_density_t45.png, id=411, 715.2321pt x 426.393pt>
 File: img/average_density_t45.png Graphic file (type png)
 <use img/average_density_t45.png>
 Package pdftex.def Info: img/average_density_t45.png  used on input line 420.
-(pdftex.def)             Requested size: 260.00905pt x 154.51453pt.
+(pdftex.def)             Requested size: 260.00905pt x 155.00429pt.
  [32
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/average_density_t45.png>]
-<img/circular_density_t_20_&_p_1.00.png, id=421, 714.0276pt x 519.3804pt>
+ <./img/average_density_t45.png>]
+<img/circular_density_t_20_&_p_1.00.png, id=421, 714.0276pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_1.00.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_1.00.png>
 Package pdftex.def Info: img/circular_density_t_20_&_p_1.00.png  used on input line 431.
-(pdftex.def)             Requested size: 260.00905pt x 189.13242pt.
+(pdftex.def)             Requested size: 260.00905pt x 178.6933pt.
 
-Overfull \vbox (14.6781pt too high) detected at line 431
+Overfull \vbox (4.23898pt too high) detected at line 431
  []
 
 [33
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/circular_density_t_20_&_p_1.00.png>]
-<img/circular_density_t_20_&_p_0.50.png, id=432, 722.4591pt x 519.3804pt>
+ <./img/circular_density_t_20_&_p_1.00.png>]
+<img/circular_density_t_20_&_p_0.50.png, id=432, 722.4591pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_0.50.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_0.50.png>
 Package pdftex.def Info: img/circular_density_t_20_&_p_0.50.png  used on input line 439.
-(pdftex.def)             Requested size: 260.00905pt x 186.92131pt.
+(pdftex.def)             Requested size: 260.00905pt x 176.60423pt.
 
-Overfull \vbox (30.467pt too high) detected at line 439
+Overfull \vbox (20.14992pt too high) detected at line 439
  []
 
 [34
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/circular_density_t_20_&_p_0.50.png>]
-<img/circular_density_t_20_&_p_0.00.png, id=443, 728.7225pt x 519.3804pt>
+ <./img/circular_density_t_20_&_p_0.50.png>]
+<img/circular_density_t_20_&_p_0.00.png, id=443, 728.7225pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_0.00.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_0.00.png>
 Package pdftex.def Info: img/circular_density_t_20_&_p_0.00.png  used on input line 447.
-(pdftex.def)             Requested size: 260.00905pt x 185.31252pt.
+(pdftex.def)             Requested size: 260.00905pt x 175.08423pt.
 
-Overfull \vbox (28.8582pt too high) detected at line 447
+Overfull \vbox (18.62991pt too high) detected at line 447
  []
 
 [35
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/circular_density_t_20_&_p_0.00.png>]
+ <./img/circular_density_t_20_&_p_0.00.png>]
 <img/uniformity_vs_p_t35.png, id=454, 715.473pt x 425.1885pt>
 File: img/uniformity_vs_p_t35.png Graphic file (type png)
 <use img/uniformity_vs_p_t35.png>
@@ -1124,7 +1124,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}
 l.457 \end{frame}
                   [36
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/uniformity_vs_p_t35.png>]
+ <./img/uniformity_vs_p_t35.png>]
 <img/evacuation_times_p_0.5.png, id=464, 722.7pt x 433.62pt>
 File: img/evacuation_times_p_0.5.png Graphic file (type png)
 <use img/evacuation_times_p_0.5.png>
@@ -1132,7 +1132,7 @@ Package pdftex.def Info: img/evacuation_times_p_0.5.png  used on input line 466.
 (pdftex.def)             Requested size: 260.00905pt x 156.00383pt.
  [37
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/evacuation_times_p_0.5.png>]
+ <./img/evacuation_times_p_0.5.png>]
 <img/flow_rates_p0.5.png, id=476, 861.6993pt x 569.7285pt>
 File: img/flow_rates_p0.5.png Graphic file (type png)
 <use img/flow_rates_p0.5.png>
@@ -1145,12 +1145,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}
 l.475 \end{frame}
                   [38
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/flow_rates_p0.5.png>]
-<img/density_vs_time_p0.50.png, id=486, 860.013pt x 425.1885pt>
+ <./img/flow_rates_p0.5.png>]
+<img/density_vs_time_p0.50.png, id=486, 860.013pt x 426.1521pt>
 File: img/density_vs_time_p0.50.png Graphic file (type png)
 <use img/density_vs_time_p0.50.png>
 Package pdftex.def Info: img/density_vs_time_p0.50.png  used on input line 484.
-(pdftex.def)             Requested size: 260.00905pt x 128.54369pt.
+(pdftex.def)             Requested size: 260.00905pt x 128.83499pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
@@ -1158,12 +1158,12 @@ pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}
 l.484 \end{frame}
                   [39
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/density_vs_time_p0.50.png>]
-<img/average_density_p0.50.png, id=497, 715.473pt x 425.1885pt>
+ <./img/density_vs_time_p0.50.png>]
+<img/average_density_p0.50.png, id=497, 715.2321pt x 426.1521pt>
 File: img/average_density_p0.50.png Graphic file (type png)
 <use img/average_density_p0.50.png>
 Package pdftex.def Info: img/average_density_p0.50.png  used on input line 493.
-(pdftex.def)             Requested size: 260.00905pt x 154.51453pt.
+(pdftex.def)             Requested size: 260.00905pt x 154.91672pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
@@ -1171,7 +1171,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}
 l.493 \end{frame}
                   [40
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/average_density_p0.50.png>]
+ <./img/average_density_p0.50.png>]
 <img/uniformity_vs_t_p0.5.png, id=507, 715.473pt x 425.1885pt>
 File: img/uniformity_vs_t_p0.5.png Graphic file (type png)
 <use img/uniformity_vs_t_p0.5.png>
@@ -1184,7 +1184,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}
 l.503 \end{frame}
                   [41
 
- </Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/img/uniformity_vs_t_p0.5.png>] [42
+ <./img/uniformity_vs_t_p0.5.png>] [42
 
 ] [43
 
@@ -1198,7 +1198,7 @@ l.503 \end{frame}
 \tf@snm=\write8
 \openout8 = `main.snm'.
 
- (/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.aux
+ (./main.aux
 LaTeX Info: Redefining \. on input line 16.
 LaTeX Info: Redefining \% on input line 16.
 )
@@ -1215,14 +1215,14 @@ Package rerunfilecheck Info: File `main.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  29373 strings out of 474116
- 589721 string characters out of 5743681
+ 588518 string characters out of 5743681
  1940187 words of memory out of 5000000
  51053 multiletter control sequences out of 15000+600000
  574931 words of font info for 100 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,16n,123p,468b,886s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,16n,123p,469b,886s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.pdf" (43 pages, 8303788 bytes).
+Output written on main.pdf (43 pages, 8274050 bytes).
 PDF statistics:
  636 PDF objects out of 1000 (max. 8388607)
  424 compressed objects within 5 object streams
