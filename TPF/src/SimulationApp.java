@@ -75,7 +75,7 @@ public class SimulationApp {
         }
 
         List<Integer> cts = new ArrayList<>();
-        for (int i = 5; i <= 60; i += 1)
+        for (int i = 5; i <= 60; i += 10)
             cts.add(i);
 
         double ap = 1.0;

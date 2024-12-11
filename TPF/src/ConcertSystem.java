@@ -50,7 +50,7 @@ public class ConcertSystem implements Iterator<State> {
 			if (!hasEscaped(newParticle)) {
 				newParticles.add(newParticle);
 			} else {
-				System.out.println("Particle " + newParticle.getId() + " has escaped");
+				//System.out.println("Particle " + newParticle.getId() + " has escaped");
 			}
 		}
 		state = new State(state.getTime() + dt, newParticles);

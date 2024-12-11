@@ -30,7 +30,7 @@ def read_dynamic_file(filename):
     return data
 
 # Leer los datos del archivo 'dynamic.txt'
-filename = 'outputs/probabilistic_analysis/t_10_&_p_0.10/sim_000/dynamic.txt'
+filename = 'outputs/probabilistic_analysis/t_45_&_p_0.70/sim_000/dynamic.txt'
 data = read_dynamic_file(filename)
 
 # Calcular el número de partículas N(t) y el caudal Q(t)

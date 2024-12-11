@@ -16,7 +16,7 @@ def calculate_door_specific_flow(ct_value, p_value, dt):
     all_times = []
 
     for sim_dir in input_path.glob('sim_*'):
-        print(f"Processing {sim_dir.name}")
+        #print(f"Processing {sim_dir.name}")
 
         try:
             doors = read_doors(sim_dir / 'doors.csv')
@@ -162,6 +162,6 @@ def process_multiple_parameters(ct_values, p_values, dt):
 
 if __name__ == "__main__":
     dt = 1
-    ct_values = [10, 20, 30, 40, 50, 60]  # Lista de valores de ct para analizar
+    ct_values = [5, 15, 25, 35, 45, 55]  # Lista de valores de ct para analizar
     p_values = [0.0, 0.5, 1.0]  # Lista de valores de p para analizar
     process_multiple_parameters(ct_values, p_values, dt)

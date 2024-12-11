@@ -103,7 +103,7 @@ class FlowRateAnalyzer:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.tight_layout()
-        plt.savefig(f"{output_dir}/flow_rates_t{t_value}.png", bbox_inches='tight', dpi=300)
+        plt.savefig(f"{output_dir}/caudal_vs_time_t{t_value}.png", bbox_inches='tight', dpi=300)
         plt.close()
 
 def main():
@@ -111,7 +111,7 @@ def main():
     analyzer = FlowRateAnalyzer()
 
     # Valor fijo de t y valores seleccionados de p
-    t_value = 60
+    t_value = 25
     selected_p_values = [0.0, 0.50, 0.70, 1.00]  # Valores específicos de p para analizar
 
     # Analizar caudal para t fijo

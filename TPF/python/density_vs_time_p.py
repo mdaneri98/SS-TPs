@@ -161,7 +161,7 @@ def main():
     analyzer = DensityAnalyzer()
 
     # Definir parámetros a analizar
-    t_values = [5, 10, 15, 20, 25, 30]  # Valores de tiempo de redecisión
+    t_values = [5, 15, 25, 35, 45, 55]  # Valores de tiempo de redecisión
     p_values = [0.1, 0.3, 0.5, 0.7, 0.9]  # Valores de probabilidad
 
     # Analizar densidades

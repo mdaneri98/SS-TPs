@@ -243,7 +243,7 @@ public class SimulationRunner {
                 // Nothing
             }
             for (State state : states) {
-                System.out.println("Time: " + state.getTime());
+                //System.out.println("Time: " + state.getTime());
                 writer.write(String.format(Locale.US, "%.6f\n", state.getTime()));
 
                 for (Particle blue : state.getParticles()) {
