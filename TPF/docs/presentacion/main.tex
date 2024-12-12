@@ -13,6 +13,7 @@
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+
 \usepackage{tikz}
 
 % Tema de la presentación
@@ -83,7 +84,6 @@
 \begin{frame}{Introducción}
     \begin{itemize}
         \item Objetivo: Estudiar la dinámica de evacuación
-        \item Uso del Contractile Particle Model (CPM)
         \item Análisis de diferentes estrategias de elección de salida
         \item Evaluación del impacto de los tiempos de re-decisión
     \end{itemize}
@@ -194,7 +194,7 @@
     Donde:
     \begin{itemize}
         \item $S(d)$ = score de la puerta $d$
-        \item $RD(d)$ = distancia relativa: $R_{Dist}(d) = 1 - \frac{Dist(d)}{\max(Dist)}$
+        \item $R_{Dist}(d)$ = distancia relativa: $R_{Dist}(d) = 1 - \frac{Dist(d)}{\max(Dist)}$
         \item $R_\rho(d)$ = densidad relativa: $R_\rho(d) = 1 - \frac{\rho(d)}{\max(\rho)}$
     \end{itemize}
 \end{frame}
@@ -285,11 +285,6 @@
 \begin{frame}{Observable: Tiempo de Evacuación}
     \begin{itemize}
         \item Medición del tiempo total hasta evacuación completa
-        \item Análisis de dependencia con parámetros:
-        \begin{itemize}
-            \item Variación con tiempo de re-decisión
-            \item Impacto del factor de ponderación $p$
-        \end{itemize}
     \end{itemize}
 \end{frame}
 
@@ -302,7 +297,6 @@
         \item Métricas analizadas:
         \begin{itemize}
             \item $Q_{global}$: agentes por puerta / tiempo total
-            \item Interpolación lineal de curvas $N(t)$
         \end{itemize}
     \end{itemize}
 \end{frame}
@@ -329,7 +323,7 @@
         \end{itemize}
         \item Coeficiente:
         \begin{equation}
-            U(t) = 1 - \frac{\sigma(t)}{\mu(t)}
+            U(t) = 1 - \frac{\sigma}{\mu}
         \end{equation}
     \end{itemize}
 \end{frame}
@@ -425,7 +419,7 @@
 
 %\subsection{Análisis de Densidades por Puerta}
 
-\begin{frame}{Análisis de Densidades por Puerta: $p = 1,0$ (Prioridad total a la Distancia)}
+\begin{frame}{Análisis de Densidades por Puerta: $p = 1,0$}
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.6\textwidth]{img/circular_density_t_20_&_p_1.00.png}
@@ -433,7 +427,7 @@
         \label{fig:densidad_p100}
     \end{figure}
 \end{frame}
-\begin{frame}{Análisis de Densidades por Puerta: $p = 0.50$ (Balance entre Distancia y Densidad)}
+\begin{frame}{Análisis de Densidades por Puerta: $p = 0.50$}
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.6\textwidth]{img/circular_density_t_20_&_p_0.50.png}
@@ -441,7 +435,7 @@
         \label{fig:densidad_p050}
     \end{figure}
 \end{frame}
-\begin{frame}{Análisis de Densidades por Puerta: $p = 0.00$ (Prioridad total a la Densidad)}
+\begin{frame}{Análisis de Densidades por Puerta: $p = 0.00$}
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.6\textwidth]{img/circular_density_t_20_&_p_0.00.png}

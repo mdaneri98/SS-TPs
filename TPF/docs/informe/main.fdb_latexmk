@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1733956704.28088 "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/informe/main.tex" "main.pdf" "main" 1733956710.69294 0
-  "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/informe/main.tex" 1733956702.38475 29843 c5eb041f4bcb37b11284a08c7e7ac3e4 ""
+["pdflatex"] 1733960155.66782 "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/informe/main.tex" "main.pdf" "main" 1733960161.40637 0
+  "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/informe/main.tex" 1733960149.40438 29804 af50d78a4742b10bd0baab4c6b0adcbf ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -213,10 +213,10 @@
   "img/frames/t_60_&_p_0.50_middle.jpg" 1733953186.09796 1217095 bdf9b46bca7df51df92c4d249e66e91b ""
   "img/uniformity_vs_p_t35.png" 1733940526.176 163071 d87ed54854f6ed3337e9dfd121f8a8a6 ""
   "img/uniformity_vs_t_p0.5.png" 1733941367.73824 178870 032379fe2627d06da3aa74d3aae9152f ""
-  "main.aux" 1733956710.57567 13612 a810510c71f9774c698747c54022df2a "pdflatex"
-  "main.out" 1733956710.58329 8704 2bbace7153d9fd5d164a6fdd9d76f6a7 "pdflatex"
-  "main.tex" 1733956702.38475 29843 c5eb041f4bcb37b11284a08c7e7ac3e4 ""
-  "main.toc" 1733956710.58426 4043 7b8bdfe0a51fe2ffc334aa96b47bcf06 "pdflatex"
+  "main.aux" 1733960161.3235 13573 6d70b5755733502c26785a61b4bf4e34 "pdflatex"
+  "main.out" 1733960161.32542 8474 0e9b512240a1edd77b692bc3aa2655f5 "pdflatex"
+  "main.tex" 1733960149.40438 29804 af50d78a4742b10bd0baab4c6b0adcbf ""
+  "main.toc" 1733960161.32598 4004 38aafc72edd193d7f62a0cef099853e3 "pdflatex"
   (generated)
   "main.aux"
   "main.log"

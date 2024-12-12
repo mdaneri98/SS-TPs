@@ -23,15 +23,15 @@
 \contentsline {subsubsection}{\numberline {6.3.2}Caso $p=0.50$: Balance entre Distancia y Densidad}{11}{subsubsection.6.3.2}%
 \contentsline {subsubsection}{\numberline {6.3.3}Caso $p=0.00$: Priorizando la Densidad}{12}{subsubsection.6.3.3}%
 \contentsline {subsection}{\numberline {6.4}Análisis del Caudal de Partículas}{12}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Caudal en función de $p$}{13}{subsubsection.6.4.1}%
+\contentsline {subsubsection}{\numberline {6.4.1}Caudal variando $p$}{13}{subsubsection.6.4.1}%
 \contentsline {subsubsection}{\numberline {6.4.2}Caudal para $p = 1.00$}{13}{subsubsection.6.4.2}%
 \contentsline {subsubsection}{\numberline {6.4.3}Caudal para $p = 0.50$}{14}{subsubsection.6.4.3}%
 \contentsline {subsubsection}{\numberline {6.4.4}Caudal para $p = 0.00$}{14}{subsubsection.6.4.4}%
-\contentsline {subsubsection}{\numberline {6.4.5}Densidad en función de $p$}{15}{subsubsection.6.4.5}%
+\contentsline {subsubsection}{\numberline {6.4.5}Densidad variando $p$}{15}{subsubsection.6.4.5}%
 \contentsline {subsection}{\numberline {6.5}Análisis de Densidades por Puerta}{16}{subsection.6.5}%
-\contentsline {subsubsection}{\numberline {6.5.1}Escenario 1: $p = 1.00$ (Prioridad Total a la Distancia)}{17}{subsubsection.6.5.1}%
-\contentsline {subsubsection}{\numberline {6.5.2}Escenario 2: $p = 0.50$ (Balance entre Distancia y Densidad)}{18}{subsubsection.6.5.2}%
-\contentsline {subsubsection}{\numberline {6.5.3}Escenario 3: $p = 0.00$ (Prioridad Total a la Densidad)}{19}{subsubsection.6.5.3}%
+\contentsline {subsubsection}{\numberline {6.5.1}Caso $p = 1.00$: Prioridad Total a la Distancia}{17}{subsubsection.6.5.1}%
+\contentsline {subsubsection}{\numberline {6.5.2}Caso $p = 0.50$: Balance entre Distancia y Densidad}{18}{subsubsection.6.5.2}%
+\contentsline {subsubsection}{\numberline {6.5.3}Caso $p = 0.00$: Prioridad Total a la Densidad}{19}{subsubsection.6.5.3}%
 \contentsline {subsubsection}{\numberline {6.5.4}Coeficiente de uniformidad en función de $p$}{20}{subsubsection.6.5.4}%
 \contentsline {subsection}{\numberline {6.6}Estados de las animaciones para distintos $ct$}{20}{subsection.6.6}%
 \contentsline {subsection}{\numberline {6.7}Análisis del Tiempo de Evacuación en función del Tiempo de Re-decisión}{22}{subsection.6.7}%

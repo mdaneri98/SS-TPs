@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.20)  11 DEC 2024 18:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.20)  11 DEC 2024 21:18
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -740,24 +740,24 @@ LaTeX Warning: Label `fig:flow_p100' multiply defined.
 )
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 65.
-LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -812,60 +812,60 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring OFF on input line 65.
+Package hyperref Info: Link coloring OFF on input line 66.
  (./main.out) (./main.out)
 \@outlinefile=\write5
 \openout5 = `main.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 65.
+(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 66.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 65.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 66.
 \symnumbers=\mathgroup7
 \sympureletters=\mathgroup8
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 65.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 65.
+(Font)                  OT1/cmss/m/n --> OT1/cmr/m/n on input line 66.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 65.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 65.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 65.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 66.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 65.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 65.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 65.
+(Font)                  OT1/cmss/bx/n --> OT1/cmss/m/n on input line 66.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 65.
+(Font)                  OT1/cmr/m/it --> OT1/cmss/m/it on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 65.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 65.
+(Font)                  OT1/cmr/bx/it --> OT1/cmss/m/it on input line 66.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 65.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 65.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/m/n on input line 66.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 65.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 66.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 65.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 65.
+(Font)                  OT1/cmss/b/n --> OT1/cmr/b/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 65.
+(Font)                  OT1/cmss/b/n --> OT1/cmss/b/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 65.
+(Font)                  OT1/cmss/m/n --> OT1/cmss/b/n on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 65.
+(Font)                  OT1/cmss/m/it --> OT1/cmss/b/it on input line 66.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 65.
-LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 65.
+(Font)                  OT1/cmtt/m/n --> OT1/cmtt/b/n on input line 66.
+LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 66.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `normal'
-(Font)                  OT1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 65.
+(Font)                  OT1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 66.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 65.
+(Font)                  OT1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 66.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on input line 65.
+(Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on input line 66.
  (/usr/local/texlive/2024/texmf-dist/tex/latex/translator/translator-basic-dictionary-English.dict
 Dictionary: translator-basic-dictionary, Language: English 
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/translator/translator-bibliography-dictionary-English.dict
@@ -879,13 +879,13 @@ Dictionary: translator-numbers-dictionary, Language: English
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/translator/translator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 )
-LaTeX Info: Redefining \. on input line 65.
-LaTeX Info: Redefining \% on input line 65.
+LaTeX Info: Redefining \. on input line 66.
+LaTeX Info: Redefining \% on input line 66.
  (./main.nav)
 <img/Logo.png, id=49, 1505.625pt x 499.8675pt>
 File: img/Logo.png Graphic file (type png)
 <use img/Logo.png>
-Package pdftex.def Info: img/Logo.png  used on input line 74.
+Package pdftex.def Info: img/Logo.png  used on input line 75.
 (pdftex.def)             Requested size: 130.00452pt x 43.15556pt.
  [1
 
@@ -995,14 +995,14 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/sc' in size <10.95> not available
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <14.4> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 342.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 336.
  [23
 
 ]
 <img/evacuation_times_t_45.png, id=324, 722.7pt x 433.62pt>
 File: img/evacuation_times_t_45.png Graphic file (type png)
 <use img/evacuation_times_t_45.png>
-Package pdftex.def Info: img/evacuation_times_t_45.png  used on input line 350.
+Package pdftex.def Info: img/evacuation_times_t_45.png  used on input line 344.
 (pdftex.def)             Requested size: 260.00905pt x 156.00383pt.
  [24
 
@@ -1010,7 +1010,7 @@ Package pdftex.def Info: img/evacuation_times_t_45.png  used on input line 350.
 <img/cumulative_door_flows_t_20_&_p_1.00.png, id=335, 733.5405pt x 379.4175pt>
 File: img/cumulative_door_flows_t_20_&_p_1.00.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_1.00.png>
-Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_1.00.png  used on input line 358.
+Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_1.00.png  used on input line 352.
 (pdftex.def)             Requested size: 260.00905pt x 134.48862pt.
  [25
 
@@ -1018,7 +1018,7 @@ Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_1.00.png  used on in
 <img/cumulative_door_flows_t_20_&_p_0.50.png, id=347, 733.5405pt x 379.4175pt>
 File: img/cumulative_door_flows_t_20_&_p_0.50.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_0.50.png>
-Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.50.png  used on input line 366.
+Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.50.png  used on input line 360.
 (pdftex.def)             Requested size: 260.00905pt x 134.48862pt.
  [26
 
@@ -1026,7 +1026,7 @@ Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.50.png  used on in
 <img/cumulative_door_flows_t_20_&_p_0.00.png, id=357, 733.5405pt x 383.031pt>
 File: img/cumulative_door_flows_t_20_&_p_0.00.png Graphic file (type png)
 <use img/cumulative_door_flows_t_20_&_p_0.00.png>
-Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.00.png  used on input line 374.
+Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.00.png  used on input line 368.
 (pdftex.def)             Requested size: 260.00905pt x 135.76947pt.
  [27
 
@@ -1034,7 +1034,7 @@ Package pdftex.def Info: img/cumulative_door_flows_t_20_&_p_0.00.png  used on in
 <img/caudal_vs_time_t45.png, id=367, 860.9766pt x 569.7285pt>
 File: img/caudal_vs_time_t45.png Graphic file (type png)
 <use img/caudal_vs_time_t45.png>
-Package pdftex.def Info: img/caudal_vs_time_t45.png  used on input line 382.
+Package pdftex.def Info: img/caudal_vs_time_t45.png  used on input line 376.
 (pdftex.def)             Requested size: 260.00905pt x 172.05pt.
  [28
 
@@ -1042,7 +1042,7 @@ Package pdftex.def Info: img/caudal_vs_time_t45.png  used on input line 382.
 <img/door_flow_rates_t_20_&_p_1.00.png, id=377, 731.8542pt x 382.0674pt>
 File: img/door_flow_rates_t_20_&_p_1.00.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_1.00.png>
-Package pdftex.def Info: img/door_flow_rates_t_20_&_p_1.00.png  used on input line 390.
+Package pdftex.def Info: img/door_flow_rates_t_20_&_p_1.00.png  used on input line 384.
 (pdftex.def)             Requested size: 260.00905pt x 135.7369pt.
  [29
 
@@ -1050,7 +1050,7 @@ Package pdftex.def Info: img/door_flow_rates_t_20_&_p_1.00.png  used on input li
 <img/door_flow_rates_t_20_&_p_0.50.png, id=387, 723.6636pt x 379.4175pt>
 File: img/door_flow_rates_t_20_&_p_0.50.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_0.50.png>
-Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.50.png  used on input line 398.
+Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.50.png  used on input line 392.
 (pdftex.def)             Requested size: 260.00905pt x 136.32387pt.
  [30
 
@@ -1058,7 +1058,7 @@ Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.50.png  used on input li
 <img/door_flow_rates_t_20_&_p_0.00.png, id=397, 731.8542pt x 379.4175pt>
 File: img/door_flow_rates_t_20_&_p_0.00.png Graphic file (type png)
 <use img/door_flow_rates_t_20_&_p_0.00.png>
-Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.00.png  used on input line 406.
+Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.00.png  used on input line 400.
 (pdftex.def)             Requested size: 260.00905pt x 134.79546pt.
  [31
 
@@ -1066,7 +1066,7 @@ Package pdftex.def Info: img/door_flow_rates_t_20_&_p_0.00.png  used on input li
 <img/density_vs_time_t45.png, id=408, 860.013pt x 426.1521pt>
 File: img/density_vs_time_t45.png Graphic file (type png)
 <use img/density_vs_time_t45.png>
-Package pdftex.def Info: img/density_vs_time_t45.png  used on input line 416.
+Package pdftex.def Info: img/density_vs_time_t45.png  used on input line 410.
 (pdftex.def)             Requested size: 260.00905pt x 128.83499pt.
  [32
 
@@ -1074,7 +1074,7 @@ Package pdftex.def Info: img/density_vs_time_t45.png  used on input line 416.
 <img/average_density_t45.png, id=419, 715.2321pt x 426.393pt>
 File: img/average_density_t45.png Graphic file (type png)
 <use img/average_density_t45.png>
-Package pdftex.def Info: img/average_density_t45.png  used on input line 424.
+Package pdftex.def Info: img/average_density_t45.png  used on input line 418.
 (pdftex.def)             Requested size: 260.00905pt x 155.00429pt.
  [33
 
@@ -1082,10 +1082,10 @@ Package pdftex.def Info: img/average_density_t45.png  used on input line 424.
 <img/circular_density_t_20_&_p_1.00.png, id=429, 714.0276pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_1.00.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_1.00.png>
-Package pdftex.def Info: img/circular_density_t_20_&_p_1.00.png  used on input line 435.
+Package pdftex.def Info: img/circular_density_t_20_&_p_1.00.png  used on input line 429.
 (pdftex.def)             Requested size: 260.00905pt x 178.6933pt.
 
-Overfull \vbox (4.23898pt too high) detected at line 435
+Overfull \vbox (4.23898pt too high) detected at line 429
  []
 
 [34
@@ -1094,10 +1094,10 @@ Overfull \vbox (4.23898pt too high) detected at line 435
 <img/circular_density_t_20_&_p_0.50.png, id=440, 722.4591pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_0.50.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_0.50.png>
-Package pdftex.def Info: img/circular_density_t_20_&_p_0.50.png  used on input line 443.
+Package pdftex.def Info: img/circular_density_t_20_&_p_0.50.png  used on input line 437.
 (pdftex.def)             Requested size: 260.00905pt x 176.60423pt.
 
-Overfull \vbox (20.14992pt too high) detected at line 443
+Overfull \vbox (2.14992pt too high) detected at line 437
  []
 
 [35
@@ -1106,10 +1106,10 @@ Overfull \vbox (20.14992pt too high) detected at line 443
 <img/circular_density_t_20_&_p_0.00.png, id=451, 728.7225pt x 490.7133pt>
 File: img/circular_density_t_20_&_p_0.00.png Graphic file (type png)
 <use img/circular_density_t_20_&_p_0.00.png>
-Package pdftex.def Info: img/circular_density_t_20_&_p_0.00.png  used on input line 451.
+Package pdftex.def Info: img/circular_density_t_20_&_p_0.00.png  used on input line 445.
 (pdftex.def)             Requested size: 260.00905pt x 175.08423pt.
 
-Overfull \vbox (18.62991pt too high) detected at line 451
+Overfull \vbox (0.62991pt too high) detected at line 445
  []
 
 [36
@@ -1118,13 +1118,13 @@ Overfull \vbox (18.62991pt too high) detected at line 451
 <img/uniformity_vs_p_t35.png, id=462, 715.473pt x 425.1885pt>
 File: img/uniformity_vs_p_t35.png Graphic file (type png)
 <use img/uniformity_vs_p_t35.png>
-Package pdftex.def Info: img/uniformity_vs_p_t35.png  used on input line 461.
+Package pdftex.def Info: img/uniformity_vs_p_t35.png  used on input line 455.
 (pdftex.def)             Requested size: 260.00905pt x 154.51453pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.461 \end{frame}
+l.455 \end{frame}
                   [37
 
  <./img/uniformity_vs_p_t35.png>] [38
@@ -1133,7 +1133,7 @@ l.461 \end{frame}
 <img/evacuation_times_p_0.5.png, id=481, 722.7pt x 433.62pt>
 File: img/evacuation_times_p_0.5.png Graphic file (type png)
 <use img/evacuation_times_p_0.5.png>
-Package pdftex.def Info: img/evacuation_times_p_0.5.png  used on input line 474.
+Package pdftex.def Info: img/evacuation_times_p_0.5.png  used on input line 468.
 (pdftex.def)             Requested size: 260.00905pt x 156.00383pt.
  [39
 
@@ -1141,52 +1141,52 @@ Package pdftex.def Info: img/evacuation_times_p_0.5.png  used on input line 474.
 <img/flow_rates_p0.5.png, id=493, 861.6993pt x 569.7285pt>
 File: img/flow_rates_p0.5.png Graphic file (type png)
 <use img/flow_rates_p0.5.png>
-Package pdftex.def Info: img/flow_rates_p0.5.png  used on input line 483.
+Package pdftex.def Info: img/flow_rates_p0.5.png  used on input line 477.
 (pdftex.def)             Requested size: 260.00905pt x 171.9109pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.483 \end{frame}
+l.477 \end{frame}
                   [40
 
  <./img/flow_rates_p0.5.png>]
 <img/density_vs_time_p0.50.png, id=503, 860.013pt x 426.1521pt>
 File: img/density_vs_time_p0.50.png Graphic file (type png)
 <use img/density_vs_time_p0.50.png>
-Package pdftex.def Info: img/density_vs_time_p0.50.png  used on input line 492.
+Package pdftex.def Info: img/density_vs_time_p0.50.png  used on input line 486.
 (pdftex.def)             Requested size: 260.00905pt x 128.83499pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.492 \end{frame}
+l.486 \end{frame}
                   [41
 
  <./img/density_vs_time_p0.50.png>]
 <img/average_density_p0.50.png, id=513, 715.2321pt x 426.1521pt>
 File: img/average_density_p0.50.png Graphic file (type png)
 <use img/average_density_p0.50.png>
-Package pdftex.def Info: img/average_density_p0.50.png  used on input line 501.
+Package pdftex.def Info: img/average_density_p0.50.png  used on input line 495.
 (pdftex.def)             Requested size: 260.00905pt x 154.91672pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.501 \end{frame}
+l.495 \end{frame}
                   [42
 
  <./img/average_density_p0.50.png>]
 <img/uniformity_vs_t_p0.5.png, id=523, 715.473pt x 425.1885pt>
 File: img/uniformity_vs_t_p0.5.png Graphic file (type png)
 <use img/uniformity_vs_t_p0.5.png>
-Package pdftex.def Info: img/uniformity_vs_t_p0.5.png  used on input line 511.
+Package pdftex.def Info: img/uniformity_vs_t_p0.5.png  used on input line 505.
 (pdftex.def)             Requested size: 260.00905pt x 154.51453pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{fig:flow_p100}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.511 \end{frame}
+l.505 \end{frame}
                   [43
 
  <./img/uniformity_vs_t_p0.5.png>] [44
@@ -1227,7 +1227,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  128i,16n,123p,469b,886s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on main.pdf (45 pages, 8274420 bytes).
+Output written on main.pdf (45 pages, 8273724 bytes).
 PDF statistics:
  657 PDF objects out of 1000 (max. 8388607)
  439 compressed objects within 5 object streams

@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1733954122.1449 "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex" "main.pdf" "main" 1733954128.81539 0
-  "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex" 1733954094.1508 17995 3310a2a269f0b4a373c9937eed06fd0a ""
+["pdflatex"] 1733962692.12087 "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex" "main.pdf" "main" 1733962698.84188 0
+  "/Users/mdaneri/Documents/ITBA/4to/Simulación de Sistemas/SS-TPs/TPF/docs/presentacion/main.tex" 1733962690.42821 17567 5ea37d83e883b06ffcd9c53744870bda ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcss1000.tfm" 1136768653 1536 293044035fd171bb1d18cf655049b101 ""
@@ -276,11 +276,11 @@
   "img/frames/t_40_&_p_0.50.jpg" 1733942432.01281 1915760 59eda5af322d7ebe9bb2063ebbf7cf84 ""
   "img/uniformity_vs_p_t35.png" 1733940526.176 163071 d87ed54854f6ed3337e9dfd121f8a8a6 ""
   "img/uniformity_vs_t_p0.5.png" 1733941367.73824 178870 032379fe2627d06da3aa74d3aae9152f ""
-  "main.aux" 1733954128.72284 9364 8ffd79937303984c3185f8692e35bf0f "pdflatex"
-  "main.nav" 1733954128.72508 5289 671a5fa02babdc9f7e9d3057c0bdc328 "pdflatex"
-  "main.out" 1733954128.72489 594 fc946c1e74d95a8e44dc2b017683f0ef "pdflatex"
-  "main.tex" 1733954094.1508 17995 3310a2a269f0b4a373c9937eed06fd0a ""
-  "main.toc" 1733954128.72523 318 b4b74484bf60fc2f66b99572a64d04f4 "pdflatex"
+  "main.aux" 1733962698.72687 9364 8ffd79937303984c3185f8692e35bf0f "pdflatex"
+  "main.nav" 1733962698.72911 5289 671a5fa02babdc9f7e9d3057c0bdc328 "pdflatex"
+  "main.out" 1733962698.72887 594 fc946c1e74d95a8e44dc2b017683f0ef "pdflatex"
+  "main.tex" 1733962690.42821 17567 5ea37d83e883b06ffcd9c53744870bda ""
+  "main.toc" 1733962698.72915 318 b4b74484bf60fc2f66b99572a64d04f4 "pdflatex"
   (generated)
   "main.aux"
   "main.log"
